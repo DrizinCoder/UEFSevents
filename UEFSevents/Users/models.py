@@ -1,4 +1,6 @@
 from django.contrib.auth.models import AbstractUser
+from Events.models import Space
+from Events.models import Event
 from django.db import models
 
 class CustomUser(AbstractUser):
@@ -20,16 +22,29 @@ class CustomUser(AbstractUser):
             f"Data de Nascimento: {self.birth_date}\n"
             f"Email: {self.email}\n"
             f"Password: {self.password}\n"
-            f"Staff: {self.is_staff}\n"
             f"Ativo: {self.is_active}\n"
             f"Criado em: {self.date_joined}\n"
             f"Último login: {self.last_login}\n"
         )
 
+class CustomUserCostumer(CustomUser):
+    
+    def __init__(self, *args, **kwargs):
+       kwargs.setdefault('verified_seal', False)
+    
+class CustomUserCostumer(CustomUser):
+    
+    def __init__(self, *args, **kwargs):
+       kwargs.setdefault('verified_seal', True)
+
+class ImageCustomUser(models.Model):
+    #profile_photo = models.ImageField(upload_to='images/')
+    fk_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+
 class Registrations(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     fk_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    fk_event = models.ForeignKey('Events.Event', on_delete=models.CASCADE)
+    fk_event = models.ForeignKey(Event, on_delete=models.CASCADE)
     
     def __str__(self):
         return (
@@ -59,7 +74,7 @@ class Documentation(models.Model):
     is_validated = models.BooleanField(default=False)
     submission_date = models.DateField(auto_now_add=True)
     fk_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    fk_space = models.ForeignKey('Space', on_delete=models.CASCADE)
+    fk_space = models.ForeignKey(Space, on_delete=models.CASCADE)
     
     def __str__(self):
         return (
