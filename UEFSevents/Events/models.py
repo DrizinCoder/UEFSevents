@@ -21,12 +21,6 @@ class Event(models.Model):
     type_event=models.CharField(max_length=100)
     age_range=models.IntegerField()
 
-
-
-
-
-
-
 class Adress(models.Model):
     adress_zip_code=models.IntegerField()
     adress_city=models.CharField(max_length=100)

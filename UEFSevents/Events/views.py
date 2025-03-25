@@ -18,18 +18,18 @@ def event_view(request):
 class EventForm(forms.ModelForm):
     class Meta:
         model=Event
-        fields=['title','description','start_dsate','end_date','start_time','endtime','status','category','space','type_event','age_range']
+        fields = '__all__'
 
 class SpaceForm(forms.ModelForm):
     class Meta:
         model=Space
-        fields=['max_capacity','name','acessibility','phone','mobile','type_adress']
+        fields = '__all__'
 
 
 class SpaceForm(forms.ModelForm):
     class Meta:
         model=Adress
-    fields=['adress_zip_code','adress_city','adress_state','adress_street','adress_neighborhood']
+        fields = '__all__'
 # contexto={:}
 # return render(request,'events_template',contexto)
    
