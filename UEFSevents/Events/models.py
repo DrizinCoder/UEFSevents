@@ -1,12 +1,21 @@
 from django.db import models
+#from Users.models import CustomUserFugleman
 
+
+class Adress(models.Model):
+    adress_zip_code=models.IntegerField()
+    adress_city=models.CharField(max_length=100)
+    adress_state=models.CharField(max_length=100)
+    adress_street=models.CharField(max_length=100)
+    adress_neighborhood=models.CharField(max_length=100)
 class Space(models.Model):
     max_capacity=models.IntegerField()
     name=models.CharField(max_length=100)
     acessibility=models.BooleanField()
     phone=models.CharField(max_length=12)
-    mobile=models.BooleanField()
+    mobile=models.CharField(max_length=12)
     type_adress=models.CharField(max_length=100)
+    #adress=models.ForeignKey(Adress, on_delete=models.CASCADE )
     
 class Event(models.Model):
     title=models.CharField(max_length=100)
@@ -20,13 +29,7 @@ class Event(models.Model):
     space=models.ForeignKey(Space, on_delete=models.CASCADE )
     type_event=models.CharField(max_length=100)
     age_range=models.IntegerField()
-
-class Adress(models.Model):
-    adress_zip_code=models.IntegerField()
-    adress_city=models.CharField(max_length=100)
-    adress_state=models.CharField(max_length=100)
-    adress_street=models.CharField(max_length=100)
-    adress_neighborhood=models.CharField(max_length=100)
+    #fk_user = models.ForeignKey(CustomUserFugleman, on_delete=models.CASCADE)
 
 class Image(models.Model):
     url=models.URLField()

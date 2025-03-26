@@ -1,0 +1,64 @@
+<!-- base.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Meu Site{% endblock %}</title>
+    <!-- CSS do Bootstrap (você pode ajustar a versão conforme necessário) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    {% block content %}{% endblock %}
+    
+    <!-- JS do Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+{% block title %}Lista de Eventos{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Eventos</h1>
+
+    {% if events %}
+        <div class="row">
+            {% for event in events %}
+            <div class="col-md-4">
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ event.title }}</h5>
+                        <p class="card-text">{{ event.description|truncatewords:20 }}</p>
+                        <ul class="list-unstyled">
+                            <li><strong>Data Início:</strong> {{ event.start_date|date:"d/m/Y" }}</li>
+                            <li><strong>Hora Início:</strong> {{ event.start_time|time:"H:i" }}</li>
+                            <li><strong>Data Fim:</strong> {{ event.end_date|date:"d/m/Y" }}</li>
+                            <li><strong>Hora Fim:</strong> {{ event.endtime|time:"H:i" }}</li>
+                            <li>
+                                <strong>Status:</strong>
+                                {% if event.status %}
+                                    Ativo
+                                {% else %}
+                                    Inativo
+                                {% endif %}
+                            </li>
+                            <li><strong>Categoria:</strong> {{ event.category }}</li>
+                            <li><strong>Espaço:</strong> {{ event.space }}</li>
+                            <li><strong>Tipo:</strong> {{ event.type_event }}</li>
+                            <li><strong>Faixa Etária:</strong> {{ event.age_range }} anos</li>
+                        </ul>
+                        <!-- Ajuste a URL abaixo conforme sua rota de detalhes -->
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            Nenhum evento encontrado.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

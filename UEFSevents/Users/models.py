@@ -32,7 +32,7 @@ class CustomUserCostumer(CustomUser):
     def __init__(self, *args, **kwargs):
        kwargs.setdefault('verified_seal', False)
     
-class CustomUserCostumer(CustomUser):
+class CustomUserFugleman(CustomUser):
     
     def __init__(self, *args, **kwargs):
        kwargs.setdefault('verified_seal', True)
