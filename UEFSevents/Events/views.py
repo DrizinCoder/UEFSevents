@@ -12,8 +12,11 @@ def event_view(request):
     #     if form.isvalid():
     #         form.save()    
     #         return redirect ('events_list')
+    return render(request,'events_template.html', {'events':events})  
 
-    return render(request,'events_template.html', {'events':events})                 
+def event_detail_view(request, id):
+    event = Event.objects.get(pk=id)  # Busca o evento pela primary key (ID)
+    return render(request, 'event_detail.html', {'event': event})  # Renderiza o template               
 
 class EventForm(forms.ModelForm):
     class Meta:
