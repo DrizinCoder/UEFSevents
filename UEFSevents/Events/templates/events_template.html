@@ -16,6 +16,34 @@
         <button type="submit" class="btn btn-primary">Buscar</button>
     </form>
     
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }} >
+        <button type="submit">Cadastrar Evento</button>
+    </form>
+
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }} >
+        <button type="submit">Cadastrar Espaço</button>
+    </form>
+
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }} >
+        <button type="submit">Cadastrar Endereço</button>
+    </form>
+
+
+    <!-- <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }} >
+        <button type="submit">Cadastrar Imagem?</button>
+    </form> -->
+
     <!-- Tabela de resultados -->
     {% if events %}
         <table class="table table-striped">

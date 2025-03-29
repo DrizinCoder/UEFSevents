@@ -1,7 +1,12 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django import forms
-from .models import Event,Space,Adress
+from .models import Event,Space,Adress,Image
+from django.views.generic.edit import CreateView
+from django.views.generic.edit import  DeleteView
+
+
+
 
 def event_view(request):
     # return HttpResponse("Events!")
@@ -16,7 +21,8 @@ def event_view(request):
 
 def event_detail_view(request, id):
     event = Event.objects.get(pk=id)  # Busca o evento pela primary key (ID)
-    return render(request, 'event_detail.html', {'event': event})  # Renderiza o template               
+    return render(request, 'event_detail.html', {'event': event})  # Renderiza o template     
+          
 
 class EventForm(forms.ModelForm):
     class Meta:
@@ -29,10 +35,43 @@ class SpaceForm(forms.ModelForm):
         fields = '__all__'
 
 
-class SpaceForm(forms.ModelForm):
+class AdressForm(forms.ModelForm):
     class Meta:
         model=Adress
         fields = '__all__'
+
+class ImageForm(forms.ModelForm):
+    class Meta:
+        model=Image
+        fields = '__all__'
+
 # contexto={:}
 # return render(request,'events_template',contexto)
+
+
+class EventCreateView(CreateView):
+    model = Event  
+    fields = '__all__' 
+    template_name = 'events/events_template.html'  
+    success_url = '/events/'  
+
+class SpaceCreateView(CreateView):
+    model = Space  
+    fields = '__all__' 
+    template_name = 'events/events_template.html'  
+    success_url = '/events/'
+
+class AdressCreateView(CreateView):
+    model = Adress 
+    fields = '__all__' 
+    template_name = 'events/events_template.html'  
+    success_url = '/events/'
+
+class ImageCreateView(CreateView):
+    model = Image
+    fields = '__all__' 
+    template_name = 'events/events_template.html'  
+    success_url = '/events/'
    
+# def iodaste_view():     
+# def delete_view():  

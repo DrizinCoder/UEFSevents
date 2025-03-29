@@ -17,10 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from Events import views
+from Events.views import EventCreateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('event/', views.event_view ),
     path('event/<int:id>', views.event_detail_view),
-
+    path('event/create/', EventCreateView.as_view(), name='event_create'),
 ]
