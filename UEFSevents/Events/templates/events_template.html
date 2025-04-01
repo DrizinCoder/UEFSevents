@@ -46,7 +46,7 @@
                     <td>{{ event.space }}</td>
                 </tr>
                 {% endfor %}
-                <a href="{% url 'event_create' %}" class="btn btn-primary">criar Evento</a> 
+                
             </tbody>
         </table>
     {% else %}
@@ -54,6 +54,7 @@
             Nenhum evento encontrado.
         </div>
     {% endif %}
+    <a href="{% url 'event_create' %}" class="btn btn-primary">criar Evento</a> 
 </div>
 
 <!-- Scripts do Bootstrap -->

@@ -20,6 +20,7 @@ class Space(models.Model):
     adress=models.ForeignKey(Adress, on_delete=models.CASCADE, null=True )
     created_at = models.DateTimeField(auto_now_add=True, null=True)  # Data e hora em que a tarefa foi criada
 
+    
 class Event(models.Model):
     title=models.CharField(max_length=100)
     description=models.TextField()
