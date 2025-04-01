@@ -38,6 +38,11 @@
 </head>
 <body>
     <div class="container">
+        <a href="{% url 'event_update' event.id %}" class="btn btn-primary">Editar evento</a>
+        <form method="POST" action="{% url 'event_delete' event.id %}">
+            {% csrf_token %}
+            <button type="submit">Deletar Evento</button>
+        </form>
         <h1>{{ event.title }}</h1>
         
         <div class="section">

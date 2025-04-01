@@ -4,6 +4,9 @@ from django import forms
 from .models import Event,Space,Adress,Image
 from django.views.generic.edit import CreateView
 from django.views.generic.edit import  DeleteView
+from django.views.generic.edit import UpdateView
+from django.shortcuts import get_object_or_404, redirect
+from django.views.decorators.http import require_POST
 
 
 
@@ -21,8 +24,31 @@ def event_view(request):
 
 def event_detail_view(request, id):
     event = Event.objects.get(pk=id)  # Busca o evento pela primary key (ID)
-    return render(request, 'event_detail.html', {'event': event})  # Renderiza o template     
-          
+    return render(request, 'event_detail.html', {'event': event})# Renderiza o template    
+
+class EventCreateView(CreateView):
+    model = Event  
+    fields = '__all__' 
+    template_name = 'create_event.html'  
+    success_url = '/event/'  
+    
+class EventUpdateView(UpdateView):
+    model = Event  
+    fields = '__all__' 
+    template_name = 'event_update.html'  
+    pk_url_kwarg = 'id'
+    success_url = '/event/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Passa todos os espaços para o template para preencher o select
+        context['spaces'] = Space.objects.all()
+        return context
+    
+def event_delete_view(request, id):
+    event = get_object_or_404(Event, pk=id)
+    event.delete()
+    return redirect('/event/')
 
 class EventForm(forms.ModelForm):
     class Meta:
@@ -49,22 +75,16 @@ class ImageForm(forms.ModelForm):
 # return render(request,'events_template',contexto)
 
 
-class EventCreateView(CreateView):
-    model = Event  
-    fields = '__all__' 
-    template_name = 'events/events_template.html'  
-    success_url = '/events/'  
-
 class SpaceCreateView(CreateView):
     model = Space  
     fields = '__all__' 
-    template_name = 'events/events_template.html'  
+    template_name = 'criar_espaco.html'  
     success_url = '/events/'
 
 class AdressCreateView(CreateView):
     model = Adress 
     fields = '__all__' 
-    template_name = 'events/events_template.html'  
+    template_name = 'criar_endereço.html'  
     success_url = '/events/'
 
 class ImageCreateView(CreateView):

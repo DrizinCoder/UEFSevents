@@ -16,39 +16,12 @@
         <button type="submit" class="btn btn-primary">Buscar</button>
     </form>
     
-
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }} >
-        <button type="submit">Cadastrar Evento</button>
-    </form>
-
-
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }} >
-        <button type="submit">Cadastrar Espaço</button>
-    </form>
-
-
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }} >
-        <button type="submit">Cadastrar Endereço</button>
-    </form>
-
-
-    <!-- <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }} >
-        <button type="submit">Cadastrar Imagem?</button>
-    </form> -->
-
     <!-- Tabela de resultados -->
     {% if events %}
         <table class="table table-striped">
             <thead>
                 <tr>
+                    <th>Detalhes</th>    
                     <th>Título</th>
                     <th>Descrição</th>
                     <th>Data Início</th>
@@ -61,6 +34,9 @@
             <tbody>
                 {% for event in events %}
                 <tr>
+                    <td>
+                        <a href="{% url 'eventos' event.id %}" class="btn btn-primary">Ver Evento</a>
+                    </td>                                                                    
                     <td>{{ event.title }}</td>
                     <td>{{ event.description|truncatewords:20 }}</td>
                     <td>{{ event.start_date|date:"d/m/Y" }}</td>
@@ -70,6 +46,7 @@
                     <td>{{ event.space }}</td>
                 </tr>
                 {% endfor %}
+                <a href="{% url 'event_create' %}" class="btn btn-primary">criar Evento</a> 
             </tbody>
         </table>
     {% else %}
