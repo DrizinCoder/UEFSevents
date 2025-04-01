@@ -8,6 +8,7 @@ class Adress(models.Model):
     adress_state=models.CharField(max_length=100)
     adress_street=models.CharField(max_length=100)
     adress_neighborhood=models.CharField(max_length=100)
+
 class Space(models.Model):
     max_capacity=models.IntegerField()
     name=models.CharField(max_length=100)
@@ -15,7 +16,7 @@ class Space(models.Model):
     phone=models.CharField(max_length=12)
     mobile=models.CharField(max_length=12)
     type_adress=models.CharField(max_length=100)
-    adress=models.ForeignKey(Adress, on_delete=models.CASCADE )
+    adress=models.ForeignKey(Adress, on_delete=models.CASCADE, null=True)
     
 class Event(models.Model):
     title=models.CharField(max_length=100)
