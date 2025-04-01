@@ -16,12 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from Events import views
-from Events.views import EventCreateView
+from Events.views import EventCreateView, event_detail_view, event_view
+from FAQ.views import ViewRead, QuestionCreateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('event/', views.event_view ),
-    path('event/<int:id>', views.event_detail_view),
+    path('event/', event_view, name='events-list'),
+    path('event/<int:id>', event_detail_view, name='event-detail'),
     path('event/create/', EventCreateView.as_view(), name='event_create'),
+    path('faq/', ViewRead.as_view(), name='faq-list'),
+    path('nova/', QuestionCreateView.as_view(), name='faq-create')
 ]
