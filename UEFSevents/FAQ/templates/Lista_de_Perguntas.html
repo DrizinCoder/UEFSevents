@@ -17,11 +17,11 @@
         </style>
     </head>
     <body>
-        <div class="'container">
+        <div class="container">
             <h1>Perguntas Frequentes</h1>
 
             {% for pergunta in Perguntas %}
-                <div class="pergun ta">
+                <div class="pergunta">
                     <h3>{{  pergunta.question_description }}</h3>
                     <p>Likes: {{ pergunta.question_likes }} | Dislikes: {{ pergunta.question_dislikes }}</p>
 
@@ -36,6 +36,6 @@
                 </div>
             {% endfor %}
         </div>
-        <a href="{% url 'faq-create' %}" class="btn btn-success mt-3">➕ Nova Pergunta</a>
+        <a href="{% url 'faq-create' %}" class="btn btn-success">➕ Nova Pergunta</a>
     </body>
 </html>

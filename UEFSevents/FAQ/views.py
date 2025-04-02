@@ -16,11 +16,11 @@ class ViewRead(ListView):
 class QuestionCreateView(LoginRequiredMixin, CreateView):
     model = Questions
     form_class = QuestionForm
-    template = 'Pergunta_Form.html'
-    sucess_url = reverse_lazy('faq-list')
+    template_name = 'Pergunta_Form.html'
+    success_url = reverse_lazy('faq-list')
 
     #Define automaticamente o autor da questão/resposta
     def form_valid(self, form):
         if self.request.user.is_authenticated:
-            form.instance.author = self.resquest.user
+            form.instance.author = self.request.user
         return super().form_valid(form)

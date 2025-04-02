@@ -6,8 +6,8 @@ from Events.models import Event
 #Class que armazena as perguntas
 class Questions(models.Model):
     question_description = models.CharField(max_length = 1000)
-    question_likes = models.IntegerField()
-    question_dislike = models.IntegerField()
+    question_likes = models.IntegerField(default=0)
+    question_dislike = models.IntegerField(default=0)
     question_fk_user = models.ForeignKey(CustomUser, on_delete = models.CASCADE, null=True)
     question_fk_events = models.ForeignKey(Event, on_delete = models.CASCADE, null=True)
     question_created_at = models.DateTimeField(auto_now_add=True)

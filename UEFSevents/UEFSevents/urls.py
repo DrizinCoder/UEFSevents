@@ -20,7 +20,7 @@ from Events.views import EventCreateView, event_detail_view, event_view, EventUp
 from FAQ.views import ViewRead, QuestionCreateView
 
 urlpatterns = [
-path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls),
     path('event/', event_view ),
     path('event/<int:id>', event_detail_view, name='eventos'),
     path('event/create/', EventCreateView.as_view(), name='event_create'),

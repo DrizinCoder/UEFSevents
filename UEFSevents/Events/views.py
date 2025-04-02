@@ -1,11 +1,8 @@
-from django.shortcuts import render
 from django.http import HttpResponse
 from django import forms
 from .models import Event,Space,Adress,Image
-from django.views.generic.edit import CreateView
-from django.views.generic.edit import  DeleteView
-from django.views.generic.edit import UpdateView
-from django.shortcuts import get_object_or_404, redirect
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 
