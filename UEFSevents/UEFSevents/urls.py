@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from Events.views import EventCreateView, event_detail_view, event_view, EventUpdateView, SpaceCreateView, AdressCreateView, event_delete_view,event_view, event_detail_view
 from FAQ.views import ViewRead, QuestionCreateView
+from Users import views as user_views
 
 urlpatterns = [
 path('admin/', admin.site.urls),
@@ -29,5 +30,8 @@ path('admin/', admin.site.urls),
     path('event/update/<int:id>', EventUpdateView.as_view(), name='event_update'),
     path('event/delete/<int:id>/', event_delete_view, name='event_delete'),
     path('faq/', ViewRead.as_view(), name='faq-list'),
-    path('nova/', QuestionCreateView.as_view(), name='faq-create')
+    path('nova/', QuestionCreateView.as_view(), name='faq-create'),
+    path('user/create/', user_views.create_user, name='user_create'),
+    path('user/', user_views.user_list, name='user_list'),
+    path('user/<int:user_id>/', user_views.user_detail, name='user_detail'),
 ]
