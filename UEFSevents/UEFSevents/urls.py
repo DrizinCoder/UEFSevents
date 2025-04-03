@@ -18,12 +18,13 @@ from django.contrib import admin
 from django.urls import path,include
 from Events.views import EventCreateView, event_detail_view, event_view, EventUpdateView, SpaceCreateView, AdressCreateView, event_delete_view,event_view, event_detail_view
 from FAQ.views import ViewRead, QuestionCreateView
-from Users import views as user_views
-from rest_framework import DefaultRouter
+from rest_framework.routers import DefaultRouter
 from Events.views import EventViewSet
+from Users.views import CustomUserViewSet
 
 router=DefaultRouter()
 router.register('eventsapi',EventViewSet)
+router.register('users', CustomUserViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -36,8 +37,5 @@ urlpatterns = [
     path('event/delete/<int:id>/', event_delete_view, name='event_delete'),
     path('faq/', ViewRead.as_view(), name='faq-list'),
     path('nova/', QuestionCreateView.as_view(), name='faq-create'),
-    path('user/create/', user_views.create_user, name='user_create'),
-    path('user/', user_views.user_list, name='user_list'),
-    path('user/<int:user_id>/', user_views.user_detail, name='user_detail'),
     path('api/',include(router.urls)),
 ]

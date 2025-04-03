@@ -1,23 +1,23 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from rest_framework import viewsets, status
+from rest_framework.response import Response
 from .models import CustomUser
-from .forms import CustomUserForm
+from .serializers import CustomUserSerializer
+from .models import CustomUser
+
+class CustomUserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
 
 
-def create_user(request):
-    if request.method == 'POST':
-        form = CustomUserForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('user_list')
-    else:
-        form = CustomUserForm()
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    return render(request, 'create_user.html', {'form': form})
-
-def user_list(request):
-    users = CustomUser.objects.all()
-    return render(request, 'user_list.html', {'users': users})
-
-def user_detail(request, user_id):
-    user = get_object_or_404(CustomUser.objects, pk=user_id)
-    return render(request, 'user_detail.html', {'user': user})
+    def get(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
