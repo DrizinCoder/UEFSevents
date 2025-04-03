@@ -15,10 +15,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,include
 from Events.views import EventCreateView, event_detail_view, event_view, EventUpdateView, SpaceCreateView, AdressCreateView, event_delete_view,event_view, event_detail_view
 from FAQ.views import ViewRead, QuestionCreateView
 from Users import views as user_views
+from rest_framework import DefaultRouter
+from Events.views import EventViewSet
+
+router=DefaultRouter()
+router.register('eventsapi',EventViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -34,4 +39,5 @@ urlpatterns = [
     path('user/create/', user_views.create_user, name='user_create'),
     path('user/', user_views.user_list, name='user_list'),
     path('user/<int:user_id>/', user_views.user_detail, name='user_detail'),
+    path('api/',include(router.urls)),
 ]

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'FAQ',
     'Events',
     'Users',
+    'rest_framework',
 ]
 
 AUTH_USER_MODEL = "Users.CustomUser"
