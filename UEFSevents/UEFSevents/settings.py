@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'Events',
     'Users',
     'rest_framework',
+    'django_filters',
 ]
 
 AUTH_USER_MODEL = "Users.CustomUser"
