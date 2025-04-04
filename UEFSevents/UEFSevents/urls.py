@@ -16,25 +16,33 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from Events.views import EventCreateView, event_detail_view, event_view, EventUpdateView, SpaceCreateView, AdressCreateView, event_delete_view
-from FAQ.views import QuestionViewSet
 from rest_framework.routers import DefaultRouter
-from Events.views import EventViewSet
+
+from Events.views import (
+    EventCreateView, event_detail_view, event_view, 
+    EventUpdateView, SpaceCreateView, AdressCreateView, 
+    event_delete_view, EventViewSet)
+
+from FAQ.views import (
+    QuestionViewSet, AnswerViewSet, ComplaintsViewSet)
+
 from Users.views import CustomUserViewSet
 
 router=DefaultRouter()
 router.register('eventsapi',EventViewSet)
 router.register('users', CustomUserViewSet)
-router.register('minha-api-faq', QuestionViewSet)
+router.register('perguntas-frequentes', QuestionViewSet)
+router.register('respostas', AnswerViewSet)
+router.register('reclame-aqui', ComplaintsViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('event/', event_view ),
-    path('event/<int:id>', event_detail_view, name='eventos'),
+    path('event/<int:id>/', event_detail_view, name='eventos'),
     path('event/create/', EventCreateView.as_view(), name='event_create'),
     path('space/create/', SpaceCreateView.as_view(), name='space_create'),
     path('adress/create/', AdressCreateView.as_view(), name='adress_create'),
-    path('event/update/<int:id>', EventUpdateView.as_view(), name='event_update'),
+    path('event/update/<int:id>/', EventUpdateView.as_view(), name='event_update'),
     path('event/delete/<int:id>/', event_delete_view, name='event_delete'),
-    path('api/',include(router.urls)),
+    path('api/', include(router.urls)),
 ]
