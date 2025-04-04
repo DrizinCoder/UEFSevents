@@ -95,8 +95,8 @@ class ImageCreateView(CreateView):
 
 
 from rest_framework import viewsets
-from .models import Event,Adress,Space,Image
-from .serializers import EventSerializer,AdressSerializer,ImageSerializer,SpaceSerializer
+from .models import Event, Adress, Space, Image
+from .serializers import EventSerializer, AdressSerializer, ImageSerializer, SpaceSerializer
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset=Event.objects.all()

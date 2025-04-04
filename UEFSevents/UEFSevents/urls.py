@@ -15,9 +15,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path,include
-from Events.views import EventCreateView, event_detail_view, event_view, EventUpdateView, SpaceCreateView, AdressCreateView, event_delete_view,event_view, event_detail_view
-from FAQ.views import ViewRead, QuestionCreateView
+from django.urls import path, include
+from Events.views import EventCreateView, event_detail_view, event_view, EventUpdateView, SpaceCreateView, AdressCreateView, event_delete_view
+from FAQ.views import QuestionViewSet
 from rest_framework.routers import DefaultRouter
 from Events.views import EventViewSet
 from Users.views import CustomUserViewSet
@@ -25,6 +25,7 @@ from Users.views import CustomUserViewSet
 router=DefaultRouter()
 router.register('eventsapi',EventViewSet)
 router.register('users', CustomUserViewSet)
+router.register('minha-api-faq', QuestionViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -35,7 +36,5 @@ urlpatterns = [
     path('adress/create/', AdressCreateView.as_view(), name='adress_create'),
     path('event/update/<int:id>', EventUpdateView.as_view(), name='event_update'),
     path('event/delete/<int:id>/', event_delete_view, name='event_delete'),
-    path('faq/', ViewRead.as_view(), name='faq-list'),
-    path('nova/', QuestionCreateView.as_view(), name='faq-create'),
     path('api/',include(router.urls)),
 ]

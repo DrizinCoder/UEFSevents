@@ -18,6 +18,7 @@ class Answers(models.Model):
     answer_fk_question = models.ForeignKey(Questions, on_delete = models.CASCADE, null=True)
     answers_fk_users = models.ForeignKey(CustomUser, on_delete = models.CASCADE, null=True)
 
+#Class reclamações
 class Complaints(models.Model):
     complaint_status = models.CharField(max_length = 100)
     complaint_reason = models.CharField(max_length = 500)
