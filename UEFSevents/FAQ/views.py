@@ -15,6 +15,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
     #Apenas usuários altenticados podem reclamar, o resto vai jogar no tigrinho
     permission_classes = [IsAuthenticated]
     serializer_class = AnswerSerializer
+    queryset = Answers.objects.all()  # ✅ isso resolve!
 
     #Filtra  as respostas de cada pergunta
     def get_queryset(self):

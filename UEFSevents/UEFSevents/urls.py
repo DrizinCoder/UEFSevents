@@ -19,9 +19,8 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from Events.views import (
-    EventCreateView, event_detail_view, event_view, 
-    EventUpdateView, SpaceCreateView, AdressCreateView, 
-    event_delete_view, EventViewSet)
+    EventViewSet
+    )
 
 from FAQ.views import (
     QuestionViewSet, AnswerViewSet, ComplaintsViewSet)
@@ -29,20 +28,13 @@ from FAQ.views import (
 from Users.views import CustomUserViewSet
 
 router=DefaultRouter()
-router.register('eventsapi',EventViewSet)
-router.register('users', CustomUserViewSet)
-router.register('perguntas-frequentes', QuestionViewSet)
-router.register('respostas', AnswerViewSet)
-router.register('reclame-aqui', ComplaintsViewSet)
+router.register('eventsapi',EventViewSet, basename='eventsapi')
+router.register('users', CustomUserViewSet, basename='users')
+router.register('perguntas-frequentes', QuestionViewSet, basename='perguntas-frequentes')
+router.register('respostas', AnswerViewSet, basename='respostas')
+router.register('reclame-aqui', ComplaintsViewSet, basename='reclame-aqui')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('event/', event_view ),
-    path('event/<int:id>/', event_detail_view, name='eventos'),
-    path('event/create/', EventCreateView.as_view(), name='event_create'),
-    path('space/create/', SpaceCreateView.as_view(), name='space_create'),
-    path('adress/create/', AdressCreateView.as_view(), name='adress_create'),
-    path('event/update/<int:id>/', EventUpdateView.as_view(), name='event_update'),
-    path('event/delete/<int:id>/', event_delete_view, name='event_delete'),
     path('api/', include(router.urls)),
 ]
