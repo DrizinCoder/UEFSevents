@@ -1,7 +1,5 @@
 from django.contrib import admin
-from .models import Event
-from .models import Space
-from .models import Adress
+from .models import Event, Space, Adress
 
 # Register your models here.
 admin.site.register(Event)
