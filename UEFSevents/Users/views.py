@@ -18,7 +18,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     ordering_fields = ['date_joined', 'last_login']
     ordering = ['-date_joined']
 
-    # POST)
+    # POST
     def create(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
