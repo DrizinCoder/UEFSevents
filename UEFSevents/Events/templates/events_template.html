@@ -15,6 +15,22 @@
         <input type="text" name="q" value="{{ query }}" placeholder="Buscar por título..." class="form-control mr-2">
         <button type="submit" class="btn btn-primary">Buscar</button>
     </form>
+
+
+
+    <!-- CARD COM FILTROS -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Filtrar Eventos</h5>
+        </div>
+        <div class="card-body">
+            <form method="get">
+                {{ filter.form.as_p }}
+                <button type="submit" class="btn btn-secondary">Aplicar Filtros</button>
+            </form>
+        </div>
+    </div>
+
     
     <!-- Tabela de resultados -->
     {% if events %}
@@ -29,6 +45,8 @@
                     <th>Status</th>
                     <th>Categoria</th>
                     <th>Espaço</th>
+                    
+                    
                 </tr>
             </thead>
             <tbody>
