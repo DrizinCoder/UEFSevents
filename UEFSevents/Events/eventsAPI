@@ -1,5 +1,5 @@
 from  rest_framework import status,APIView,response
-from UEFSevents.UEFSevents import Events
+from UEFSevents import Events
 from .models import Event,Adress,Space,Image
 from .serializers import EventSerializer,AdressSerializer,ImageSerializer,SpaceSerializer
 
