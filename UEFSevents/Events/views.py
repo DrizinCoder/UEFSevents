@@ -4,6 +4,7 @@ from .serializers import EventSerializer, AdressSerializer, ImageSerializer, Spa
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from .filters import EventFilter, AdressFilter, SpaceFilter, ImageFilter
+from rest_framework import viewsets, permissions
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
@@ -11,8 +12,11 @@ class EventViewSet(viewsets.ModelViewSet):
     #filterset_fields = ['categoria', 'tipo', 'data', 'limite_de_idade', 'adress'] 
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = EventFilter    
-    # ordering = ['']
-    # ordering_fields = ['']
+    
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated()]
+        return []
 
 class AdressViewSet(viewsets.ModelViewSet):
     queryset=Adress.objects.all()
