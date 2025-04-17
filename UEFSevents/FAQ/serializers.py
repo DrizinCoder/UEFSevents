@@ -8,13 +8,6 @@ class QuestionsSerializer(serializers.ModelSerializer):
         fields = '__all__'
         #Evita que o campo de data de criação seja alterado
         read_only_fields = ['question_created_at']
-    
-    #Filtra perguntas por evento
-    def get_queryset(self):
-        event_id = self.request.query_params.get('event_id')
-        if event_id:
-            return Questions.objects.filter(question_fk_events_id=event_id)
-        return super().get_queryset
 
 
 class AnswerSerializer(serializers.ModelSerializer):
@@ -23,6 +16,7 @@ class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answers
         fields = '__all__'
+        read_only_fields = ['answer_created_at']
 
     #Valida se a pergunta existe antes de mostrar as respostas
     def validate(self, data):

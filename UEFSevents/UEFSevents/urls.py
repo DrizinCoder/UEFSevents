@@ -23,7 +23,8 @@ from Events.views import (
     )
 
 from FAQ.views import (
-    QuestionViewSet, AnswerViewSet, ComplaintsViewSet)
+    QuestionViewSet, AnswerViewSet, ComplaintsViewSet
+    )
 
 from Users.views import CustomUserViewSet
 
