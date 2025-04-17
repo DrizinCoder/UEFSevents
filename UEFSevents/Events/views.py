@@ -22,16 +22,27 @@ class AdressViewSet(viewsets.ModelViewSet):
     queryset=Adress.objects.all()
     serializer_class=AdressSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_class = AdressFilter    
+    filterset_class = AdressFilter
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated()]
+        return []    
 
 class SpaceViewSet(viewsets.ModelViewSet):
     queryset=Space.objects.all()
     serializer_class=SpaceSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = SpaceFilter
-
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated()]
+        return []
 class ImageViewSet(viewsets.ModelViewSet):
     queryset=Image.objects.all()
     serializer_class=ImageSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = ImageFilter    
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated()]
+        return []

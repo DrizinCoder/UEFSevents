@@ -5,29 +5,33 @@ from django.db.models import Q
 
 class EventFilter(django_filters.FilterSet):
     search = django_filters.CharFilter(method='filter_search', label="Busca")
-
-    def filter_search(self, queryset, name, value):
-        return queryset.filter(
-            Q(title__icontains=value) | 
-            Q(description__icontains=value)
-        )
-
     class Meta:
         model = Event
-        fields = []
+        fields = [
+            'title',
+            'start_date',
+            'end_date',
+            'start_time',
+            'endtime',
+            'status',
+            'category',
+            'space',
+            'type_event',
+            'age_range'
+        ]
 
 
 class SpaceFilter(django_filters.FilterSet):
-    search = django_filters.CharFilter(method='filter_search', label="Busca")
-
-    def filter_search(self, queryset, name, value):
-        return queryset.filter(
-            Q(name__icontains=value)
-        )
+    search = django_filters.CharFilter(method='filter_search', label="Busca eventos")
 
     class Meta:
         model = Space
-        fields = []
+        fields = ["max_capacity",
+                    "name",
+                    "acessibility",
+                    "adress",
+                    "created_at"
+                    ]
 
 
 class AdressFilter(django_filters.FilterSet):
