@@ -15,7 +15,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_class = QuestionsFilter #Filtra cada pergunta por eventos
-    search_fields = ['question_desciption', 'question_fk_events__title']
+    search_fields = ['question_description', 'question_fk_events__title']
 
 
 class AnswerViewSet(viewsets.ModelViewSet):
