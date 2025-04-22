@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar {{ object.title }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        .form-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .form-section label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: border-color 0.3s ease;
+        }
+        input:focus, textarea:focus, select:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+        .grid-2-col {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .button-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-cancel:hover {
+            background-color: #5a6268;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+        }
+        .checkbox-container input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #007bff;
+        }
+        .space-details {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        .info-text {
+            color: #6c757d;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form method="POST" action="{% url 'event_update' object.id %}">
+            {% csrf_token %}
+            <h1>Editar Evento</h1>
+
+            <!-- Título -->
+            <div class="form-section">
+                <div class="input-group">
+                    <label>Título do Evento</label>
+                    <input type="text" name="title" value="{{ object.title }}" required>
+                </div>
+                <div class="input-group">
+                    <label>Descrição</label>
+                    <textarea name="description" rows="4">{{ object.description }}</textarea>
+                </div>
+            </div>
+
+            <!-- Datas e Horários -->
+            <div class="form-section">
+                <label>Período do Evento</label>
+                <div class="grid-2-col">
+                    <div class="input-group">
+                        <label>Data Início</label>
+                        <input type="date" name="start_date" value="{{ object.start_date|date:'Y-m-d' }}" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Hora Início</label>
+                        <input type="time" name="start_time" value="{{ object.start_time|time:'H:i' }}" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Data Término</label>
+                        <input type="date" name="end_date" value="{{ object.end_date|date:'Y-m-d' }}" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Hora Término</label>
+                        <input type="time" name="endtime" value="{{ object.endtime|time:'H:i' }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configurações -->
+            <div class="form-section">
+                <div class="grid-2-col">
+                    <div class="input-group">
+                        <label>Status do Evento</label>
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="status" name="status" {% if object.status %}checked{% endif %}>
+                            <label for="status">Evento Ativo</label>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Faixa Etária</label>
+                        <input type="number" name="age_range" value="{{ object.age_range }}" min="0" required>
+                        <div class="info-text">Idade mínima requerida</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categorização -->
+            <div class="form-section">
+                <div class="grid-2-col">
+                    <div class="input-group">
+                        <label>Categoria</label>
+                        <input type="text" name="category" value="{{ object.category }}" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Tipo de Evento</label>
+                        <input type="text" name="type_event" value="{{ object.type_event }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Localização -->
+            <div class="form-section">
+                <div class="input-group">
+                    <label>Local do Evento</label>
+                    <select name="space" required>
+                        {% for s in spaces %}
+                            <option value="{{ s.id }}" {% if s.id == object.space.id %}selected{% endif %}>{{ s.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                {% if object.space %}
+                <div class="space-details">
+                    <div class="input-group">
+                        <label>Capacidade Máxima</label>
+                        <input type="text" value="{{ object.space.max_capacity }}" readonly>
+                    </div>
+                    <div class="input-group">
+                        <label>Acessibilidade</label>
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="acessibility" name="acessibility" {% if object.space.acessibility %}checked{% endif %}>
+                            <label for="acessibility">Local Acessível</label>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Contato</label>
+                        <input type="text" value="{{ object.space.phone }} / {{ object.space.mobile }}" readonly>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Botões de Ação -->
+            <div class="button-group">
+                <a href="{% url 'eventos' object.id %}" class="btn btn-cancel">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
