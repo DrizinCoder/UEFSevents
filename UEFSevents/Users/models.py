@@ -2,8 +2,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission, UserManager
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import BaseUserManager
-from Events.models import Event, Space
-import re
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, vat, password=None, **extra_fields):
@@ -112,22 +110,9 @@ class CustomUser(AbstractUser):
 
 
 class ImageCustomUser(models.Model):
-    #profile_photo = models.ImageField(upload_to='images/')
+    # profile_photo = models.URLField()
     fk_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
 
-class Registrations(models.Model):
-    date = models.DateTimeField(auto_now_add=True)
-    fk_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    fk_event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    
-    def __str__(self):
-        return (
-            f"ID: {self.id}\n"
-            f"Data: {self.date}\n"
-            f"Usuário: {self.fk_user}\n"
-            f"Evento: {self.fk_event}\n"
-        )
-    
 class Documentation(models.Model):
     class DocumentationType(models.TextChoices):
         PASSPORT = "passport", "Passport"
@@ -148,7 +133,6 @@ class Documentation(models.Model):
     is_validated = models.BooleanField(default=False)
     submission_date = models.DateField(auto_now_add=True)
     fk_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    fk_space = models.ForeignKey(Space, on_delete=models.CASCADE)
     
     def __str__(self):
         return (

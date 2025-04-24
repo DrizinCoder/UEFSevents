@@ -1,5 +1,5 @@
 from django.db import models
-# from Users.models import CustomUserFugleman
+from Users.models import CustomUser
 
 
 class Adress(models.Model):
@@ -19,7 +19,31 @@ class Space(models.Model):
     type_adress=models.CharField(max_length=100)
     adress=models.ForeignKey(Adress, on_delete=models.CASCADE, null=True )
     created_at = models.DateTimeField(auto_now_add=True, null=True)  # Data e hora em que a tarefa foi criada
+    documentations = models.ManyToManyField(
+        'self',
+        through='SpaceDocumentation',
+        symmetrical=False,  # Relação não recíproca
+        blank=True
+    )
+    
+class SpaceDocumentation(models.Model):
+    from_space = models.ForeignKey(
+        'Space', 
+        on_delete=models.CASCADE,
+        related_name='documentations_created'
+    )
+    to_space = models.ForeignKey( 
+        'Space', 
+        on_delete=models.CASCADE,
+        related_name='documentations_received'
+    )
+    document = models.FileField(upload_to='space_docs/')
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ('from_space', 'to_space')
+    def __str__(self):
+        return f"Documento de {self.from_space} para {self.to_space}"
     
 class Event(models.Model):
     title=models.CharField(max_length=100)
@@ -34,7 +58,23 @@ class Event(models.Model):
     type_event=models.CharField(max_length=100)
     age_range=models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True, null=True)  # Data e hora em que a tarefa foi criada
-    # fk_user = models.ForeignKey(CustomUserFugleman, on_delete=models.CASCADE)
+    participants = models.ManyToManyField(
+        'Users.CustomUser', 
+        through='EventRegistration',
+        related_name='events_participated',
+        blank=True
+    )
+
+class EventRegistration(models.Model):
+    user = models.ForeignKey('Users.CustomUser', on_delete=models.CASCADE)
+    event = models.ForeignKey('Event', on_delete=models.CASCADE)
+    registration_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'event')  # Evita registros duplicados
+
+    def __str__(self):
+        return f"{self.user.username} - {self.event.title}"
 
 class Image(models.Model):
     url=models.URLField()
