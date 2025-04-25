@@ -41,7 +41,7 @@ class Event(models.Model):
         symmetrical=False,  # Relação não recíproca
         blank=True
     )
-    #participants = models.ManyToManyField('Users.CustomUser', through='EventRegistration',related_name='events_participated',blank=True)
+    participants = models.ManyToManyField('Users.CustomUser', through='EventRegistration',related_name='events_participated',blank=True)
 
 class EventDocumentation(models.Model):
     from_space = models.ForeignKey(

@@ -2,7 +2,7 @@ from django.test import TestCase
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
-from .models import Event, Adress, Space, Image, EventDocumentation
+from .models import Event, Adress, Space, Image, EventDocumentation, EventRegistration
 from Users.models import CustomUser
 from django.utils import timezone
 from datetime import datetime, date, time
@@ -64,6 +64,31 @@ class TestandoAPI(APITestCase):
             "created_at": timezone.now()
         }
         
+    def test_inscricao(self):
+        self.event_data = Event.objects.create(
+            title="Evento Teste",
+            description="Descrição qualquer",
+            start_date=timezone.now(),
+            end_date=timezone.now(),
+            start_time=timezone.now().time(),
+            endtime=timezone.now().time(),
+            status=True,
+            category="Show",
+            type_event="Aberto",
+            age_range=18,
+            space=self.space,
+            created_at=timezone.now()
+        )
+
+
+        doc = EventRegistration.objects.create(
+            user = self.user,
+            event = self.event_data,
+            registration_date = timezone.now()
+        )
+
+        self.assertEqual(EventRegistration.objects.count(), 1)
+        #self.assertEqual(doc.to_event.title, "Evento Teste")
 
 
     def test_criar_documentacao(self):
@@ -91,9 +116,6 @@ class TestandoAPI(APITestCase):
 
         self.assertEqual(EventDocumentation.objects.count(), 1)
         self.assertEqual(doc.to_event.title, "Evento Teste")
-
-
-
 
 
 
