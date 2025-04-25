@@ -19,31 +19,8 @@ class Space(models.Model):
     type_adress=models.CharField(max_length=100)
     adress=models.ForeignKey(Adress, on_delete=models.CASCADE, null=True )
     created_at = models.DateTimeField(auto_now_add=True, null=True)  # Data e hora em que a tarefa foi criada
-    documentations = models.ManyToManyField(
-        'self',
-        through='SpaceDocumentation',
-        symmetrical=False,  # Relação não recíproca
-        blank=True
-    )
     
-class SpaceDocumentation(models.Model):
-    from_space = models.ForeignKey(
-        'Space', 
-        on_delete=models.CASCADE,
-        related_name='documentations_created'
-    )
-    to_space = models.ForeignKey( 
-        'Space', 
-        on_delete=models.CASCADE,
-        related_name='documentations_received'
-    )
-    document = models.FileField(upload_to='space_docs/')
-    created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        unique_together = ('from_space', 'to_space')
-    def __str__(self):
-        return f"Documento de {self.from_space} para {self.to_space}"
     
 class Event(models.Model):
     title=models.CharField(max_length=100)
@@ -58,13 +35,33 @@ class Event(models.Model):
     type_event=models.CharField(max_length=100)
     age_range=models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True, null=True)  # Data e hora em que a tarefa foi criada
-    participants = models.ManyToManyField(
-        'Users.CustomUser', 
-        through='EventRegistration',
-        related_name='events_participated',
+    documentations = models.ManyToManyField(
+        'self',
+        through='EventDocumentation',
+        symmetrical=False,  # Relação não recíproca
         blank=True
     )
+    #participants = models.ManyToManyField('Users.CustomUser', through='EventRegistration',related_name='events_participated',blank=True)
 
+class EventDocumentation(models.Model):
+    from_space = models.ForeignKey(
+        Space, 
+        on_delete=models.CASCADE,
+        #related_name='documentations_created'
+    )
+    to_event = models.ForeignKey( 
+        Event, 
+        on_delete=models.CASCADE,
+        #related_name='documentations_received'
+    )
+    document = models.FileField(upload_to='event_docs/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('from_space', 'to_event')
+    def __str__(self):
+        return f"Documento de {self.from_space} para {self.to_event}"
+    
 class EventRegistration(models.Model):
     user = models.ForeignKey('Users.CustomUser', on_delete=models.CASCADE)
     event = models.ForeignKey('Event', on_delete=models.CASCADE)

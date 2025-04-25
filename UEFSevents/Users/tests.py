@@ -6,7 +6,6 @@ from django.contrib.auth import get_user_model
 from .models import CustomUser
 
 User = get_user_model()
-
 class CustomUserModelTests(APITestCase):
     def test_create_customer_with_valid_cpf(self):
         user = User.objects.create_user(
