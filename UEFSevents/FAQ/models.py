@@ -18,7 +18,7 @@ class Questions(models.Model):
 class Answers(models.Model):
     answer_description = models.CharField(max_length = 1000)
     answer_fk_question = models.ForeignKey(Questions, on_delete = models.CASCADE, null=True)
-    answer_fk_users = models.ForeignKey(CustomUser, on_delete = models.CASCADE, null=True)
+    answer_fk_user = models.ForeignKey(CustomUser, on_delete = models.CASCADE, null=True)
     answer_created_at = models.DateTimeField(auto_now_add=True)
 
 

@@ -10,6 +10,7 @@ class Adress(models.Model):
     adress_neighborhood=models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)  # Data e hora em que a tarefa foi criada
 
+
 class Space(models.Model):
     max_capacity=models.IntegerField()
     name=models.CharField(max_length=100)
@@ -19,9 +20,8 @@ class Space(models.Model):
     type_adress=models.CharField(max_length=100)
     adress=models.ForeignKey(Adress, on_delete=models.CASCADE, null=True )
     created_at = models.DateTimeField(auto_now_add=True, null=True)  # Data e hora em que a tarefa foi criada
-    
 
-    
+
 class Event(models.Model):
     title=models.CharField(max_length=100)
     description=models.TextField()
@@ -31,7 +31,7 @@ class Event(models.Model):
     endtime=models.TimeField()
     status= models.BooleanField()
     category=models.CharField(max_length=100)
-    space=models.ForeignKey(Space, on_delete=models.CASCADE )
+    space=models.ForeignKey(Space, on_delete=models.CASCADE)
     type_event=models.CharField(max_length=100)
     age_range=models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True, null=True)  # Data e hora em que a tarefa foi criada
@@ -41,7 +41,13 @@ class Event(models.Model):
         symmetrical=False,  # Relação não recíproca
         blank=True
     )
-    participants = models.ManyToManyField('Users.CustomUser', through='EventRegistration',related_name='events_participated',blank=True)
+    participants = models.ManyToManyField(
+        'Users.CustomUser', 
+        through='EventRegistration',
+        related_name='events_participated',
+        blank=True
+    )
+
 
 class EventDocumentation(models.Model):
     from_space = models.ForeignKey(
@@ -61,7 +67,8 @@ class EventDocumentation(models.Model):
         unique_together = ('from_space', 'to_event')
     def __str__(self):
         return f"Documento de {self.from_space} para {self.to_event}"
-    
+
+
 class EventRegistration(models.Model):
     user = models.ForeignKey('Users.CustomUser', on_delete=models.CASCADE)
     event = models.ForeignKey('Event', on_delete=models.CASCADE)
@@ -72,6 +79,7 @@ class EventRegistration(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.event.title}"
+
 
 class Image(models.Model):
     url=models.URLField()
