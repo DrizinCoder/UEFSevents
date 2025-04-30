@@ -30,7 +30,20 @@ class Event(models.Model):
     start_time=models.TimeField()
     endtime=models.TimeField()
     status= models.BooleanField()
-    category=models.CharField(max_length=100)
+    class Category(models.TextChoices):
+        Festival = 'FST', 'Festival'
+        Party = 'PRT', 'Party'
+        Celebration= 'CLB', 'Celebration'
+        Lecture = 'LCT', 'Lecture'
+        Conference = 'CFE' , 'Conference'
+        Fair = 'FAR', 'Fair'
+        ART_EXHIBITION = 'ART', 'Art Exhibition'
+        CONCERT = 'CRT', 'Concert'
+        THEATER = 'TTR', 'Theater'
+        SPORTS = 'SPT', 'Sports'
+        COMPETITION = 'COP', 'Competition'
+        Others = 'OTH', 'Others'
+    category=models.CharField(max_length=3, choices=Category.choices,default=Category.Others)
     space=models.ForeignKey(Space, on_delete=models.CASCADE)
     type_event=models.CharField(max_length=100)
     age_range=models.IntegerField()

@@ -3,6 +3,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
 from .models import Event, Adress, Space, Image, EventDocumentation, EventRegistration
+from Events.models import Category
 from Users.models import CustomUser
 from django.utils import timezone
 from datetime import datetime, date, time
@@ -81,7 +82,7 @@ class TestandoAPI(APITestCase):
         )
 
 
-        doc = EventRegistration.objects.create(
+        EventRegistration.objects.create(
             user = self.user,
             event = self.event_data,
             registration_date = timezone.now()
@@ -97,10 +98,10 @@ class TestandoAPI(APITestCase):
             description="Descrição qualquer",
             start_date=timezone.now(),
             end_date=timezone.now(),
-            start_time=timezone.now().time(),
+            start_time=timezone.now().time(), 
             endtime=timezone.now().time(),
             status=True,
-            category="Show",
+            category=Category.Others,
             type_event="Aberto",
             age_range=18,
             space=self.space,
