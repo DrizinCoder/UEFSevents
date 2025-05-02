@@ -110,39 +110,6 @@ class CustomUser(AbstractUser):
 
 
 class ImageCustomUser(models.Model):
-    # profile_photo = models.URLField()
+    profile_photo = models.URLField(default='https://cdn-icons-png.flaticon.com/512/3106/3106921.png')
     fk_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
 
-class Documentation(models.Model):
-    class DocumentationType(models.TextChoices):
-        PASSPORT = "passport", "Passport"
-        ID_CARD = "id_card", "ID Card"
-        DRIVER_LICENSE = "driver_license", "Driver License"
-        CONTRACT = "contract", "Contract"
-        OTHER = "other", "Other"
-
-    type = models.CharField(
-        max_length=50,
-        choices=DocumentationType.choices,
-        default=DocumentationType.OTHER
-    )
-
-    issue_date = models.DateField()
-    expiration_date = models.DateField(null=True, blank=True)
-    file = models.FileField(upload_to='documents/')
-    is_validated = models.BooleanField(default=False)
-    submission_date = models.DateField(auto_now_add=True)
-    fk_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    
-    def __str__(self):
-        return (
-            f"ID: {self.id}\n"
-            f"Tipo: {self.type}\n"
-            f"Data de Expiração: {self.expiration_date}\n"
-            f"Arquivo: {self.file}\n"
-            f"Válido: {self.is_validated}\n"
-            f"Data de Envio: {self.submission_date}\n"
-            f"Usuário: {self.fk_user}\n"
-            f"Espaço: {self.fk_space}\n"
-
-        )
