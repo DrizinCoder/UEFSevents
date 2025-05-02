@@ -1,330 +1,180 @@
-from django.test import TestCase
-
-# Create your tests here.
-from django.test import TestCase
-from rest_framework_simplejwt.tokens import AccessToken
-from rest_framework.test import APITestCase
-from django.core.exceptions import ValidationError
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.contrib.auth import get_user_model
-from .models import CustomUser, ImageCustomUser, Registrations, Documentation
-from Events.models import Adress, Space, Event
-from django.utils import timezone
+# tests.py
 from django.urls import reverse
-from django.test import Client
+from rest_framework.test import APITestCase, APIClient
+from rest_framework import status
+from django.contrib.auth import get_user_model
+from .models import CustomUser
 
-class AuthenticationTests(APITestCase):  # Classe SEPARADA para autenticação
+User = get_user_model()
+class CustomUserModelTests(APITestCase):
+    def test_create_customer_with_valid_cpf(self):
+        user = User.objects.create_user(
+            username='cliente1',
+            password='senha123',
+            vat='12345678909',
+            phone='1122334455',
+            mobile='11987654321',
+            user_type='customer'
+        )
+        self.assertEqual(user.user_type, 'customer')
+        self.assertFalse(user.verified_seal)
+
+    def test_create_fugleman_with_valid_cnpj(self):
+        user = User.objects.create_user(
+            username='empresa1',
+            password='senha123',
+            vat='11222333000144',
+            phone='1122334455',
+            mobile='11987654321',
+            user_type='fugleman'
+        )
+        self.assertEqual(user.user_type, 'fugleman')
+        self.assertTrue(user.verified_seal)
+
+    def test_vat_validation(self):
+        with self.assertRaises(Exception):
+            User.objects.create_user(
+                username='invalido',
+                password='senha123',
+                vat='123',
+                phone='1122334455',
+                mobile='11987654321'
+            )
+
+class CustomUserSerializerTests(APITestCase):
+    def test_serializer_vat_validation(self):
+        data = {
+            'username': 'testuser',
+            'password': 'testpass123',
+            'vat': '123.456.789-09',
+            'phone': '1234567890',
+            'mobile': '0987654321',
+            'birth_date': '2000-01-01'
+        }
+        
+        response = self.client.post(reverse('customuser-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['user_type'], 'customer')
+
+class CustomUserViewSetTests(APITestCase):
     def setUp(self):
-        self.customer = CustomUser.objects.create_user(
-            username='customer',
-            password='testpass123',
-            vat='12345678901',
-            phone='1234567890',
-            mobile='0987654321',
+        self.client = APIClient()
+        self.user_data = {
+            'username': 'testuser',
+            'password': 'testpass123',
+            'vat': '12345678909',
+            'phone': '1234567890',
+            'mobile': '0987654321',
+            'birth_date': '2000-01-01'
+        }
+        self.user = User.objects.create_user(**self.user_data)
+        self.fugleman = User.objects.create_user(
+            username='fugleman1',
+            password='fuglemanpass',
+            vat='11222333000144',
+            phone='1122334455',
+            mobile='11987654321',
+            user_type='fugleman'
         )
-        
-        self.fugleman = CustomUser.objects.create_user(
-            username='fugleman',
-            password='testpass123',
-            vat='12345678901234', 
-            phone='1234567890',
-            mobile='0987654321',
-        )
-        
-        self.token_url = reverse('token_obtain_pair')
-        self.user_detail_url = reverse('users-me')
 
-    def test_successful_customer_login(self):
-        response = self.client.post(self.token_url, {
-            'username': 'customer',
+    def test_user_registration(self):
+        data = {
+            'username': 'newuser',
+            'password': 'newpass123',
+            'vat': '98765432100',
+            'phone': '1122334455',
+            'mobile': '11987654321',
+            'birth_date': '1990-01-01'
+        }
+        response = self.client.post(reverse('customuser-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn('tokens', response.data)
+
+    def test_user_login(self):
+        data = {
+            'username': 'testuser',
             'password': 'testpass123'
-        })
-        self.assertEqual(response.status_code, 200)
+        }
+        response = self.client.post(reverse('token_obtain_pair'), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('access', response.data)
-        
-        token = AccessToken(response.data['access'])
-        self.assertEqual(token['user_id'], self.customer.id)
 
-    def test_successful_fugleman_login(self):
-        response = self.client.post(self.token_url, {
-            'username': 'fugleman',
-            'password': 'testpass123'
-        })
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(self.fugleman.verified_seal)
+    def test_retrieve_current_user(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(reverse('customuser-me'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['username'], self.user.username)
+
+    def test_user_update(self):
+        self.client.force_authenticate(user=self.user) 
+        data = {'vat': '12345678901'}
+        response = self.client.patch(
+            reverse('customuser-detail', args=[self.user.id]),
+            data
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_user_deactivation(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(
+            reverse('customuser-detail', args=[self.user.id])
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.user.refresh_from_db()
+        self.assertFalse(self.user.is_active)
+
+    def test_fuglemans_list(self):
+        self.client.force_authenticate(user=self.fugleman)
+        response = self.client.get(reverse('customuser-fuglemans'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['user_type'], 'fugleman')
+
+    def test_user_activation(self):
+        admin_user = User.objects.create_superuser(
+            username='admin',
+            vat='98765432109',
+            password='adminpass',
+            phone='123456789',  
+            mobile='987654321' 
+        )
+        self.client.force_authenticate(user=admin_user)
+        
+        response = self.client.post(
+            reverse('customuser-activate-user', args=[self.user.id])
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_permissions(self):
+        self.client.logout()
+        response = self.client.get(reverse('customuser-list'))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+class JWTAuthenticationTests(APITestCase):
+    def test_jwt_token_obtainment(self):
+        user = User.objects.create_user(
+            username='jwtuser',
+            password='jwtpass123',
+            vat='12345678909',
+            phone='1234567890',
+            mobile='0987654321'
+        )
+        data = {
+            'username': 'jwtuser',
+            'password': 'jwtpass123'
+        }
+        response = self.client.post(reverse('token_obtain_pair'), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('access', response.data)
 
     def test_protected_endpoint_access(self):
-        login_response = self.client.post(self.token_url, {
-            'username': 'customer',
-            'password': 'testpass123'
-        })
-        access_token = login_response.data['access']
-        
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
-        response = self.client.get(self.user_detail_url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data['username'], 'customer')
-
-# class CustomUserTests(TestCase):
-#     def setUp(self):
-#         self.user_data_customer = {
-#             'username': 'customer',
-#             'password': 'testpass123',
-#             'vat': '12345678901',
-#             'phone': '1234567890',
-#             'mobile': '0987654321',
-#         }
-        
-#         self.user_data_fugleman = {
-#             'username': 'fugleman',
-#             'password': 'testpass123',
-#             'vat': '12345678901234', 
-#             'phone': '1234567890',
-#             'mobile': '0987654321',
-#         }
-
-#         self.token_url = reverse('token_obtain_pair')
-#         self.user_detail_url = reverse('users-detail', kwargs={'pk': 'me'})
-
-#     def test_create_customer_user(self):
-#         user = CustomUser.objects.create_user(**self.user_data_customer)
-#         self.assertEqual(user.user_type, 'customer')
-#         self.assertFalse(user.verified_seal)
-
-#     def test_create_fugleman_user(self):
-#         user = CustomUser.objects.create_user(**self.user_data_fugleman)
-#         self.assertEqual(user.user_type, 'fugleman')
-#         self.assertTrue(user.verified_seal)  
-
-#     def test_vat_validation_cpf(self):
-#         user = CustomUser(**self.user_data_customer)
-#         user.clean_vat()  
-#         self.assertEqual(user.user_type, 'customer')
-
-#     def test_vat_validation_cnpj(self):
-#         user = CustomUser(**self.user_data_fugleman)
-#         user.clean_vat()
-#         self.assertEqual(user.user_type, 'fugleman')
-
-#     def test_invalid_vat_length(self):
-#         user = CustomUser(vat='12345', username='invalid', password='test')
-#         with self.assertRaises(ValidationError):
-#             user.clean_vat()
-
-#     def test_unique_vat_constraint(self):
-#         CustomUser.objects.create_user(**self.user_data_customer)
-#         with self.assertRaises(Exception):  
-#             CustomUser.objects.create_user(
-#                 username='customer2',
-#                 password='testpass123',
-#                 vat='12345678901', 
-#                 phone='0000',
-#                 mobile='0000',
-#             )
-
-#     def test_managers(self):
-#         CustomUser.objects.create_user(**self.user_data_customer)
-#         CustomUser.objects.create_user(**self.user_data_fugleman)
-        
-#         self.assertEqual(CustomUser.customers.count(), 1)
-#         self.assertEqual(CustomUser.fuglemans.count(), 1)
-
-#     def test_str_representation(self):
-#         user = CustomUser.objects.create_user(**self.user_data_customer)
-#         self.assertEqual(str(user), "customer (Customer)")
-
-
-#     def test_successful_customer_login(self):
-#         response = self.client.post(self.token_url, {
-#             'username': 'customer',
-#             'password': 'testpass123'
-#         })
-        
-#         self.assertEqual(response.status_code, 200)
-#         token = AccessToken(response.data['access'])
-#         self.assertEqual(token['user_id'], self.customer.id)
-
-#     def test_successful_fugleman_login(self):
-#         response = self.client.post(self.token_url, {
-#             'username': 'fugleman',
-#             'password': 'testpass123'
-#         })
-        
-#         self.assertEqual(response.status_code, 200)
-#         self.assertTrue(self.fugleman.verified_seal)
-
-#     def test_protected_endpoint_access(self):
-#         login_response = self.client.post(self.token_url, {
-#             'username': 'customer',
-#             'password': 'testpass123'
-#         })
-#         access_token = login_response.data['access']
-        
-#         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
-#         response = self.client.get(self.user_detail_url)
-        
-#         self.assertEqual(response.status_code, 200)
-#         self.assertEqual(response.data['username'], 'customer')
-
-class ImageCustomUserTests(TestCase):
-    def test_image_creation(self):
-        user = CustomUser.objects.create_user(
-            username='user1',
-            password='testpass123',
-            vat='12345678901',
+        user = User.objects.create_user(
+            username='protecteduser',
+            password='protected123',
+            vat='12345678909',
             phone='1234567890',
-            mobile='0987654321',
+            mobile='0987654321'
         )
-        image = ImageCustomUser.objects.create(
-            url='http://example.com/image.jpg',
-            fk_user=user,
-        )
-        self.assertEqual(image.fk_user.username, 'user1')
-
-
-
-class RegistrationsTests(TestCase):
-    def setUp(self):
-        self.address = Adress.objects.create(
-            adress_zip_code=12345678,
-            adress_city="Cidade Teste",
-            adress_state="Estado Teste",
-            adress_street="Rua Teste",
-            adress_neighborhood="Bairro Teste"
-        )
-
-        self.space = Space.objects.create(
-            max_capacity=100,
-            name="Espaço Teste",
-            acessibility=True,
-            phone="1234567890",
-            mobile="0987654321",
-            type_adress="Tipo Teste",
-            adress=self.address
-        )
-
-        start_date = timezone.make_aware(timezone.datetime(2024, 1, 1, 10, 0))
-        end_date = timezone.make_aware(timezone.datetime(2024, 1, 1, 18, 0))
-
-        self.event = Event.objects.create(
-            title="Evento Teste",
-            description="Descrição do evento",
-            start_date=start_date,  
-            end_date=end_date,      
-            start_time="10:00:00",
-            endtime="18:00:00",
-            status=True,
-            category="Categoria Teste",
-            space=self.space,
-            type_event="Tipo Teste",
-            age_range=18
-        )
-
-        self.user = CustomUser.objects.create_user(
-            username='user1',
-            password='testpass123',
-            vat='12345678901',
-            phone='1234567890',
-            mobile='0987654321',
-        )
-
-    def test_registration_creation(self):
-        registration = Registrations.objects.create(
-            fk_user=self.user,
-            fk_event=self.event,
-        )
-        self.assertIsNotNone(registration.date)
-
-class DocumentationTests(TestCase):
-    def setUp(self):
-        self.address = Adress.objects.create(
-            adress_zip_code=12345678,
-            adress_city="Cidade Teste",
-            adress_state="Estado Teste",
-            adress_street="Rua Teste",
-            adress_neighborhood="Bairro Teste"
-        )
-
-        self.space = Space.objects.create(
-            max_capacity=100,
-            name="Espaço Teste",
-            acessibility=True,
-            phone="1234567890",
-            mobile="0987654321",
-            type_adress="Tipo Teste",
-            adress=self.address
-        )
-
-        self.user = CustomUser.objects.create_user(
-            username='user1',
-            password='testpass123',
-            vat='12345678901',
-            phone='1234567890',
-            mobile='0987654321',
-        )
-
-    def test_documentation_creation(self):
-        doc = Documentation.objects.create(
-            type='passport',
-            issue_date='2023-01-01',
-            file=SimpleUploadedFile('doc.pdf', b'file_content'),
-            fk_user=self.user,
-            fk_space=self.space,
-        )
-        self.assertEqual(doc.type, 'passport')
-
-class IntegrationTests(TestCase):
-    def test_user_with_multiple_relations(self):
-        user = CustomUser.objects.create_user(
-            username='integration_user',
-            password='testpass123',
-            vat='12345678901234', 
-            phone='1234567890',
-            mobile='0987654321',
-        )
-
-        address = Adress.objects.create(
-            adress_zip_code=12345678,
-            adress_city="Cidade Integração",
-            adress_state="Estado Integração",
-            adress_street="Rua Integração",
-            adress_neighborhood="Bairro Integração"
-        )
-
-        space = Space.objects.create(
-            max_capacity=200,
-            name="Espaço Integração",
-            acessibility=True,
-            phone="1234567890",
-            mobile="0987654321",
-            type_adress="Tipo Integração",
-            adress=address
-        )
-
-        event = Event.objects.create(
-            title="Evento Integração",
-            description="Descrição do evento",
-            start_date=timezone.now(),
-            end_date=timezone.now() + timezone.timedelta(hours=3),
-            start_time="10:00:00",
-            endtime="13:00:00",
-            status=True,
-            category="Categoria Teste",
-            space=space,
-            type_event="Tipo Teste",
-            age_range=18
-        )
-
-        registration = Registrations.objects.create(fk_user=user, fk_event=event)
-
-        doc = Documentation.objects.create(
-            type='contract',
-            issue_date='2023-01-01',
-            file=SimpleUploadedFile('doc.pdf', b'content'),
-            fk_user=user,
-            fk_space=space,
-        )
-
-        self.assertEqual(user.registrations_set.count(), 1)
-        self.assertEqual(user.documentation_set.count(), 1)
-        self.assertTrue(user.verified_seal)
+        self.client.force_authenticate(user=user)
+        response = self.client.get(reverse('customuser-me'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
