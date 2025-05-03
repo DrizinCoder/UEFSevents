@@ -3,7 +3,6 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
 from .models import Event, Adress, Space, Image, EventDocumentation, EventRegistration
-from Events.models import Category
 from Users.models import CustomUser
 from django.utils import timezone
 from datetime import datetime, date, time
@@ -58,7 +57,7 @@ class TestandoAPI(APITestCase):
             "start_time": timezone.now().time(),
             "endtime": timezone.now().time(),
             "status": True,
-            "category": "Show",
+            "category": f"{Event.Category.Fair}",
             "type_event": "Aberto",
             "age_range": 18,
             "space": self.space.id,
@@ -74,7 +73,7 @@ class TestandoAPI(APITestCase):
             start_time=timezone.now().time(),
             endtime=timezone.now().time(),
             status=True,
-            category="Show",
+            category=Event.Category.Fair,
             type_event="Aberto",
             age_range=18,
             space=self.space,
@@ -101,7 +100,7 @@ class TestandoAPI(APITestCase):
             start_time=timezone.now().time(), 
             endtime=timezone.now().time(),
             status=True,
-            category=Category.Others,
+            category=Event.Category.Others,
             type_event="Aberto",
             age_range=18,
             space=self.space,
@@ -162,7 +161,7 @@ class TestandoAPI(APITestCase):
             "start_time": self.event_data["start_time"],
             "endtime": self.event_data["endtime"],
             "status": self.event_data["status"],
-            "category": self.event_data["category"],
+            "category": Event.Category.Others,
             "type_event": self.event_data["type_event"],
             "age_range": self.event_data["age_range"],
             "space": self.event_data["space"],
@@ -225,7 +224,7 @@ class EventModelTest(TestCase):
                 start_time = timezone.now().time(),
                 endtime = timezone.now().time(),
                 status = True,
-                category = "seila",
+                category=Event.Category.Fair,
                 space = space,
                 type_event= "tipo de evento sla que porar [e essa]",
                 age_range = 34,
@@ -240,7 +239,7 @@ class EventModelTest(TestCase):
             start_time=timezone.now().time(),
             endtime=timezone.now().time(),
             status=False,
-            category="Categoria B",
+            category=Event.Category.Fair,
             space = space,
             age_range=21,
             created_at=timezone.now()
@@ -257,7 +256,7 @@ class EventModelTest(TestCase):
         self.assertTrue(event.status, "O status do evento deveria ser True")
         
         # Verifica se a categoria do evento é a esperada.
-        self.assertEqual(event.category, "seila", "A categoria está incorreta")
+        self.assertEqual(event.category, "FAR", "A categoria está incorreta")
         
         #self.assertEqual(event.age_range, 19, "A faixa etária está incorreta")
         
@@ -300,7 +299,7 @@ class EventModelTest(TestCase):
                 start_time = timezone.now().time(),
                 endtime = timezone.now().time(),
                 status = True,
-                category = "seila",
+                category = Event.Category.Celebration,
                 space = space,
                 type_event= "tipo de evento sla que porar [e essa]",
                 age_range = 34,
@@ -315,7 +314,7 @@ class EventModelTest(TestCase):
             start_time=timezone.now().time(),
             endtime=timezone.now().time(),
             status=False,
-            category="Categoria B",
+                category = Event.Category.Celebration,
             space = space,
             age_range=21,
             created_at=timezone.now()
@@ -359,7 +358,7 @@ class EventModelTest(TestCase):
                 start_time = timezone.now().time(),
                 endtime = timezone.now().time(),
                 status = True,
-                category = "seila",
+                category = Event.Category.ART_EXHIBITION,
                 space = space,
                 type_event= "tipo de evento sla que porar [e essa]",
                 age_range = 34,
@@ -401,7 +400,7 @@ class EventModelTest(TestCase):
                 start_time = timezone.now().time(),
                 endtime = timezone.now().time(),
                 status = True,
-                category = "seila",
+                category = Event.Category.Others,
                 space = space,
                 type_event= "tipo de evento sla que porar [e essa]",
                 age_range = 34,
