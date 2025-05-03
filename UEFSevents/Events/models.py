@@ -30,19 +30,31 @@ class Event(models.Model):
     start_time=models.TimeField()
     endtime=models.TimeField()
     status= models.BooleanField()
+
     class Category(models.TextChoices):
         Festival = 'FST', 'Festival'
         Party = 'PRT', 'Party'
-        Celebration= 'CLB', 'Celebration'
+        Celebration = 'CLB', 'Celebration'
+        Concert = 'CRT', 'Concert'
+        Theater = 'TTR', 'Theater'
+        ArtExhibition = 'ART', 'Art Exhibition'
+        Sports = 'SPT', 'Sports'
+        Competition = 'COP', 'Competition'
         Lecture = 'LCT', 'Lecture'
-        Conference = 'CFE' , 'Conference'
+        Conference = 'CFE', 'Conference'
         Fair = 'FAR', 'Fair'
-        ART_EXHIBITION = 'ART', 'Art Exhibition'
-        CONCERT = 'CRT', 'Concert'
-        THEATER = 'TTR', 'Theater'
-        SPORTS = 'SPT', 'Sports'
-        COMPETITION = 'COP', 'Competition'
+        Gastronomy = 'GST', 'Gastronomy'                    
+        StandUp = 'SUP', 'Stand-up Comedy'                  
+        Tour = 'TRS', 'Tour / Sightseeing'                  
+        Workshop = 'WRK', 'Course / Workshop'               
+        Kids = 'KID', 'Kids / Family'                       
+        Pride = 'PRD', 'Pride / LGBTQIA+'                   
+        OnlineEvent = 'ONL', 'Online Event'                 
+        Spirituality = 'REL', 'Religion / Spirituality'     
+        Technology = 'TEC', 'Technology'                    
         Others = 'OTH', 'Others'
+        
+
     category=models.CharField(max_length=3, choices=Category.choices,default=Category.Others)
     space=models.ForeignKey(Space, on_delete=models.CASCADE)
     type_event=models.CharField(max_length=100)

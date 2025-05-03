@@ -358,7 +358,7 @@ class EventModelTest(TestCase):
                 start_time = timezone.now().time(),
                 endtime = timezone.now().time(),
                 status = True,
-                category = Event.Category.ART_EXHIBITION,
+                category = Event.Category.ArtExhibition,
                 space = space,
                 type_event= "tipo de evento sla que porar [e essa]",
                 age_range = 34,
