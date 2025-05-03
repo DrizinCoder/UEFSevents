@@ -5,6 +5,21 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from .filters import EventFilter, AdressFilter, SpaceFilter, ImageFilter
 from rest_framework import viewsets, permissions
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from django.db.models import Count
+
+
+@api_view(['GET'])
+def popular_events(request):
+    events = Event.objects.annotate(
+        num_registrations=Count('eventregistration')
+    ).order_by('-num_registrations')
+    
+    serializer = EventSerializer(events, many=True)
+    
+    return Response(serializer.data)
+
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
