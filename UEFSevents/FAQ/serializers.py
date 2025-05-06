@@ -11,17 +11,28 @@ class QuestionsSerializer(serializers.ModelSerializer):
 
 
 class AnswerSerializer(serializers.ModelSerializer):
-    question_data = QuestionsSerializer(source='answer_fk_question', read_only=True)
+    answer_fk_question = serializers.PrimaryKeyRelatedField(
+        queryset=Questions.objects.all()
+    )
 
     class Meta:
         model = Answers
-        fields = '__all__'
-        read_only_fields = ['answer_created_at']
+        fields = ['id', 'answer_description', 'answer_fk_question', 'answer_created_at']
+        read_only_fields = ['id', 'answer_created_at']
 
-    #Valida se a pergunta existe antes de mostrar as respostas
+    def get_question_info(self, obj):
+        """Método para retornar informações da pergunta relacionada"""
+        return {
+            'id': obj.answer_fk_question.id,
+            'description': obj.answer_fk_question.question_description
+        }
+
     def validate(self, data):
-        if not Questions.objects.filter(id-data.get(('answer_fk_question').id).exists()):
-            raise serializers.ValidationError("Pergunta vinculada não existe!")
+        question = data.get('answer_fk_question')
+        if not question:
+            raise serializers.ValidationError(
+                {"answer_fk_question": "Este campo é obrigatório."}
+            )
         return data
 
 

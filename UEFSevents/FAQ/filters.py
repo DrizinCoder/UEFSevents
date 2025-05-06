@@ -53,9 +53,9 @@ class AnswersFilter (django_filters.FilterSet):
             ('answer_created_at', 'data_cresc'),
             ("-answer_created_at", 'data_descr'),
         ),
-        fields_labels = {
-            'answer_created_at', 'Data (Mais Antigas)',
-            '-answer_created_at', 'Data (Mais Recentes)',
+        field_labels = {
+            'answer_created_at': 'Data (Mais Antigas)',
+            '-answer_created_at': 'Data (Mais Recentes)',
         }
     )
 
@@ -70,13 +70,18 @@ class AnswersFilter (django_filters.FilterSet):
 
 
 class ComplaintsFilter (django_filters.FilterSet):
+    user = django_filters.NumberFilter(field_name = 'complaint_fk_users__id')
 
+    user_name = django_filters.CharFilter(
+        field_name = 'complaint_fk_users__fk_user'
+        )
+    
     order_by = django_filters.OrderingFilter(
         fields = (
             ('complaint_created_at', 'data_crec'),
             ('-complaint_created_at', 'data_decr'),
         ),
-        fields_labels = {
+        field_labels = {
             'complaint_created_at': 'Data (Mais Antigas)',
             '-complaint_created_at': 'Data (Mais Recentes)',
         }

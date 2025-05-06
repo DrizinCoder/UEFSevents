@@ -18,7 +18,7 @@ class Space(models.Model):
     phone=models.CharField(max_length=12)
     mobile=models.CharField(max_length=12)
     type_adress=models.CharField(max_length=100)
-    adress=models.ForeignKey(Adress, on_delete=models.CASCADE, null=True )
+    adress=models.ForeignKey(Adress, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)  # Data e hora em que a tarefa foi criada
 
 

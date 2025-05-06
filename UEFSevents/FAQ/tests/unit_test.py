@@ -5,6 +5,7 @@ from Events.models import Event, Space
 from Users.models import CustomUser
 
 
+#Classe para usar de base ao criar um usuario e evento principais
 class FAQBaseEventTestCase(TestCase):
     def setUp(self):
         self.user = CustomUser.objects.create_user(

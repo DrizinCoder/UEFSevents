@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone
 from Users.models import CustomUser
 from Events.models import Event
 
@@ -17,7 +16,7 @@ class Questions(models.Model):
 #Class que armazena as respostas de cada pergunta
 class Answers(models.Model):
     answer_description = models.CharField(max_length = 1000)
-    answer_fk_question = models.ForeignKey(Questions, on_delete = models.CASCADE, null=True)
+    answer_fk_question = models.ForeignKey(Questions, on_delete = models.CASCADE, null=True, related_name='answers')
     answer_fk_user = models.ForeignKey(CustomUser, on_delete = models.CASCADE, null=True)
     answer_created_at = models.DateTimeField(auto_now_add=True)
 
