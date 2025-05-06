@@ -63,8 +63,6 @@
     -forms:
         ○ Events:
             Formulário html para imagens,eventos,endereços e espaços;
-        ○ FAQ:
-            Formulário html para pergunta
 
     -filters:
         ○ Events:
@@ -83,8 +81,6 @@
     -templates:
         ○ Events:
             Telas do CRUD
-        ○ FAQ:
-            Lista e forms de perguntas
     
     - UEFSevents:
         ○ urls- Contém links do site,paths;
