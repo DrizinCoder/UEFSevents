@@ -2,25 +2,17 @@ from django.test import TestCase
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
-from .models import Event, Adress, Space, Image, EventDocumentation, EventRegistration
-from Events.models import Category
+from .models import Event, Adress, Space, Image
 from Users.models import CustomUser
 from django.utils import timezone
 from datetime import datetime, date, time
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.core.files.uploadedfile import SimpleUploadedFile
+
 # Create your tests here.
 
 class TestandoAPI(APITestCase):
     def setUp(self):
-        self.user = CustomUser.objects.create_user(
-            username='cliente1',
-            password='senha123',
-            vat='12345678909',
-            phone='1122334455',
-            mobile='11987654321',
-            user_type='customer'
-        )
+        self.user = CustomUser.objects.create_user(username='teste', password='1234')
 
         # Gerando token JWT
         refresh = RefreshToken.for_user(self.user)
@@ -46,10 +38,8 @@ class TestandoAPI(APITestCase):
             adress=self.adress,
             created_at=timezone.now()
         )
-        self.testarqv = SimpleUploadedFile("documento.pdf",b"file_content",content_type="aplication/pdf")
+
         self.url = reverse('eventsapi-list') 
-
-
         self.event_data = {
             "title": "Evento Teste",
             "description": "Descrição qualquer",
@@ -64,69 +54,12 @@ class TestandoAPI(APITestCase):
             "space": self.space.id,
             "created_at": timezone.now()
         }
-        
-    def test_inscricao(self):
-        self.event_data = Event.objects.create(
-            title="Evento Teste",
-            description="Descrição qualquer",
-            start_date=timezone.now(),
-            end_date=timezone.now(),
-            start_time=timezone.now().time(),
-            endtime=timezone.now().time(),
-            status=True,
-            category="Show",
-            type_event="Aberto",
-            age_range=18,
-            space=self.space,
-            created_at=timezone.now()
-        )
-
-
-        EventRegistration.objects.create(
-            user = self.user,
-            event = self.event_data,
-            registration_date = timezone.now()
-        )
-
-        self.assertEqual(EventRegistration.objects.count(), 1)
-        #self.assertEqual(doc.to_event.title, "Evento Teste")
-
-
-    def test_criar_documentacao(self):
-        self.event_data = Event.objects.create(
-            title="Evento Teste",
-            description="Descrição qualquer",
-            start_date=timezone.now(),
-            end_date=timezone.now(),
-            start_time=timezone.now().time(), 
-            endtime=timezone.now().time(),
-            status=True,
-            category=Category.Others,
-            type_event="Aberto",
-            age_range=18,
-            space=self.space,
-            created_at=timezone.now()
-        )
-
-
-        doc = EventDocumentation.objects.create(
-            from_space=self.space,
-            to_event=self.event_data,
-            document=self.testarqv
-        )
-
-        self.assertEqual(EventDocumentation.objects.count(), 1)
-        self.assertEqual(doc.to_event.title, "Evento Teste")
-
-
 
     def test_criar_evento(self):
         response = self.client.post(self.url, self.event_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Event.objects.count(), 1)
         self.assertEqual(Event.objects.get().title, "Evento Teste")
-        
-
     def test_delete_event(self):
     # 1. Cria o evento via POST na URL de listagem
         response_create = self.client.post(self.url, self.event_data, format='json')
@@ -177,14 +110,6 @@ class TestandoAPI(APITestCase):
         updated_event = Event.objects.get(id=event_id)
         self.assertEqual(updated_event.title, "Evento Atualizado")
         self.assertEqual(updated_event.description, "Descrição atualizada")
-
-
-
-
-
-
-
-
 
 
 

@@ -1,5 +1,5 @@
 from django.db import models
-from Users.models import CustomUser
+# from Users.models import CustomUserFugleman
 
 
 class Adress(models.Model):
@@ -9,7 +9,6 @@ class Adress(models.Model):
     adress_street=models.CharField(max_length=100)
     adress_neighborhood=models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)  # Data e hora em que a tarefa foi criada
-
 
 class Space(models.Model):
     max_capacity=models.IntegerField()
@@ -21,7 +20,7 @@ class Space(models.Model):
     adress=models.ForeignKey(Adress, on_delete=models.CASCADE, null=True )
     created_at = models.DateTimeField(auto_now_add=True, null=True)  # Data e hora em que a tarefa foi criada
 
-
+    
 class Event(models.Model):
     title=models.CharField(max_length=100)
     description=models.TextField()
@@ -30,69 +29,12 @@ class Event(models.Model):
     start_time=models.TimeField()
     endtime=models.TimeField()
     status= models.BooleanField()
-    class Category(models.TextChoices):
-        Festival = 'FST', 'Festival'
-        Party = 'PRT', 'Party'
-        Celebration= 'CLB', 'Celebration'
-        Lecture = 'LCT', 'Lecture'
-        Conference = 'CFE' , 'Conference'
-        Fair = 'FAR', 'Fair'
-        ART_EXHIBITION = 'ART', 'Art Exhibition'
-        CONCERT = 'CRT', 'Concert'
-        THEATER = 'TTR', 'Theater'
-        SPORTS = 'SPT', 'Sports'
-        COMPETITION = 'COP', 'Competition'
-        Others = 'OTH', 'Others'
-    category=models.CharField(max_length=3, choices=Category.choices,default=Category.Others)
-    space=models.ForeignKey(Space, on_delete=models.CASCADE)
+    category=models.CharField(max_length=100)
+    space=models.ForeignKey(Space, on_delete=models.CASCADE )
     type_event=models.CharField(max_length=100)
     age_range=models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True, null=True)  # Data e hora em que a tarefa foi criada
-    documentations = models.ManyToManyField(
-        'self',
-        through='EventDocumentation',
-        symmetrical=False,  # Relação não recíproca
-        blank=True
-    )
-    participants = models.ManyToManyField(
-        'Users.CustomUser', 
-        through='EventRegistration',
-        related_name='events_participated',
-        blank=True
-    )
-
-
-class EventDocumentation(models.Model):
-    from_space = models.ForeignKey(
-        Space, 
-        on_delete=models.CASCADE,
-        #related_name='documentations_created'
-    )
-    to_event = models.ForeignKey( 
-        Event, 
-        on_delete=models.CASCADE,
-        #related_name='documentations_received'
-    )
-    document = models.FileField(upload_to='event_docs/')
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ('from_space', 'to_event')
-    def __str__(self):
-        return f"Documento de {self.from_space} para {self.to_event}"
-
-
-class EventRegistration(models.Model):
-    user = models.ForeignKey('Users.CustomUser', on_delete=models.CASCADE)
-    event = models.ForeignKey('Event', on_delete=models.CASCADE)
-    registration_date = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ('user', 'event')  # Evita registros duplicados
-
-    def __str__(self):
-        return f"{self.user.username} - {self.event.title}"
-
+    # fk_user = models.ForeignKey(CustomUserFugleman, on_delete=models.CASCADE)
 
 class Image(models.Model):
     url=models.URLField()

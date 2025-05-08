@@ -29,11 +29,14 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, attrs):
-        if 'vat' in attrs:
-            cleaned_vat = attrs['vat'].replace(".", "").replace("-", "").replace("/", "")
-            if not CustomUser.is_valid_cpf(cleaned_vat):
-                raise serializers.ValidationError({"vat": "Invalid CPF."})
-            attrs['vat'] = cleaned_vat
+        attrs = super().validate(attrs)
+        cleaned_vat = attrs['vat'].replace(".", "").replace("-", "").replace("/", "")
+        
+        if len(cleaned_vat) == 11:
+            attrs['user_type'] = 'customer'
+        else:
+            attrs['user_type'] = 'fugleman'
+            
         return attrs
 
     def create(self, validated_data):

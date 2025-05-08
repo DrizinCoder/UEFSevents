@@ -17,7 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 from Events.views import (
     EventViewSet
@@ -31,7 +35,7 @@ from Users.views import CustomUserViewSet
 
 router=DefaultRouter()
 router.register('eventsapi',EventViewSet, basename='eventsapi')
-router.register('users', CustomUserViewSet, basename='customuser')
+router.register('users', CustomUserViewSet, basename='users')
 router.register('perguntas-frequentes', QuestionViewSet, basename='perguntas-frequentes')
 router.register('respostas', AnswerViewSet, basename='respostas')
 router.register('reclame-aqui', ComplaintsViewSet, basename='reclame-aqui')
