@@ -3,7 +3,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from django.urls import reverse
 from django.utils import timezone
-from ..models import Questions, Answers, Complaints
+from ..models import Questions, Answers, Answer_To_Answer, Complaints
 from Events.models import Event, Space
 from Users.models import CustomUser
 import json
@@ -62,6 +62,11 @@ class FAQAPITestCase(TestCase):
             'answer_description': 'Basta se inscrever no site',
             'answer_fk_question': None
         }
+
+        self.ATA_data = {
+            'ans_to_ans_description': 'Obrigado',
+            'ans_to_ans_fk_answer': None
+        }
         
         self.complaint_data = {
             'complaint_status': 'open',
@@ -84,6 +89,16 @@ class FAQAPITestCase(TestCase):
         }
         url = reverse('respostas-list')
         response = self.client.post(url, answer_data, format='json')
+        return response
+    
+    def _create_answer_answer(self, answer_id):
+        self.client.force_authenticate(user=self.admin)
+        ATA_data = {
+            'ans_to_ans_description': self.ATA_data['ans_to_ans_description'],
+            'ans_to_ans_fk_answer': answer_id  # Garante que estamos passando apenas o ID
+        }
+        url = reverse('resposta_respostas-list')
+        response = self.client.post(url, ATA_data, format='json')
         return response
     
     def _create_complaint(self):
@@ -117,11 +132,33 @@ class FAQAPITestCase(TestCase):
         question = self._create_question()
         answer = self._create_answer(question.data['id'])
 
-        answer_id = answer.data['id']  # Agora deve existir
+        answer_id = answer.data['id']  
         answer_obj = Answers.objects.get(id=answer_id)
         self.assertEqual(answer_obj.answer_fk_question.id, question.data['id'])
         
         url = reverse('respostas-detail', kwargs={'pk': answer.data['id']})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_create_ATA(self):
+        question = self._create_question()
+        answer = self._create_answer(question.data['id'])
+        ATA = self._create_answer_answer(answer.data['id'])
+
+        self.assertEqual(answer.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Answer_To_Answer.objects.count(), 1)
+        self.assertEqual(ATA.data['ans_to_ans_description'], self.ATA_data['ans_to_ans_description'])
+
+    def test_answer_relation_with_answer(self):
+        question = self._create_question()
+        answer = self._create_answer(question.data['id'])
+        ATA = self._create_answer_answer(answer.data['id'])
+
+        ATA_id = ATA.data['id']  
+        ATA_obj = Answer_To_Answer.objects.get(id=ATA_id)
+        self.assertEqual(ATA_obj.ans_to_ans_fk_answer.id, answer.data['id'])
+        
+        url = reverse('resposta_respostas-detail', kwargs={'pk': ATA.data['id']})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

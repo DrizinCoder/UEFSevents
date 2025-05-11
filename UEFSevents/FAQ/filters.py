@@ -2,7 +2,7 @@
 import django_filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
-from .models import Questions, Answers, Complaints
+from .models import Questions, Answers, Answer_To_Answer, Complaints
 
 
 class QuestionsFilter (django_filters.FilterSet):
@@ -66,6 +66,37 @@ class AnswersFilter (django_filters.FilterSet):
 
     class Meta:
         model = Answers
+        fields = []
+
+
+class Ans_To_AnsFilter (django_filters.FilterSet):
+    #Filtra por ID da pergunta
+    answer = django_filters.NumberFilter(field_name = 'ans_to_ans_fk_answer__id')
+
+    user = django_filters.NumberFilter(field_name = 'ans_to_ans_fk_users__id')
+
+    user_name = django_filters.CharFilter(
+        field_name = 'ans_to_ans_fk_users__fk_user'
+        )
+
+    order_by = django_filters.OrderingFilter(
+        fields = (
+            ('ans_to_ans_created_at', 'data_cresc'),
+            ("-ans_to_ans_created_at", 'data_descr'),
+        ),
+        field_labels = {
+            'ans_to_ans_created_at': 'Data (Mais Antigas)',
+            '-ans_to_ans_created_at': 'Data (Mais Recentes)',
+        }
+    )
+
+    description = django_filters.CharFilter(
+        field_name = 'ans_to_ans_description',
+        lookup_expr = 'icontains'
+    )
+
+    class Meta:
+        model = Answer_To_Answer
         fields = []
 
 

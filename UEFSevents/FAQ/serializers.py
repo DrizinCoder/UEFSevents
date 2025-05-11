@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Questions, Answers, Complaints
+from .models import Questions, Answers, Answer_To_Answer, Complaints
 
 
 class QuestionsSerializer(serializers.ModelSerializer):
@@ -35,6 +35,32 @@ class AnswerSerializer(serializers.ModelSerializer):
             )
         return data
 
+
+class Ans_To_AnsSerializer(serializers.ModelSerializer):
+    ans_to_ans_fk_answer = serializers.PrimaryKeyRelatedField(
+        queryset=Answers.objects.all()
+    )
+
+    class Meta:
+        model = Answer_To_Answer
+        fields = ['id', 'ans_to_ans_description', 'ans_to_ans_fk_answer', 'ans_to_ans_created_at']
+        read_only_fields = ['id', 'ans_to_ans_created_at']
+
+    def get_question_info(self, obj):
+        """Método para retornar informações da pergunta relacionada"""
+        return {
+            'id': obj.ans_to_ans_fk_answer.id,
+            'description': obj.ans_to_ans_fk_answer.answer_description
+        }
+
+    def validate(self, data):
+        question = data.get('ans_to_ans_fk_answer')
+        if not question:
+            raise serializers.ValidationError(
+                {"ans_to_ans_fk_answer": "Este campo é obrigatório."}
+            )
+        return data
+    
 
 class ComplaintsSerializer(serializers.ModelSerializer):
     class Meta:

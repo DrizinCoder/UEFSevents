@@ -24,7 +24,7 @@ from Events.views import (
     )
 
 from FAQ.views import (
-    QuestionViewSet, AnswerViewSet, ComplaintsViewSet
+    QuestionViewSet, AnswerViewSet, Ans_To_AnsViewSet, ComplaintsViewSet
     )
 
 from Users.views import CustomUserViewSet
@@ -34,6 +34,7 @@ router.register('eventsapi',EventViewSet, basename='eventsapi')
 router.register('users', CustomUserViewSet, basename='customuser')
 router.register('perguntas-frequentes', QuestionViewSet, basename='perguntas-frequentes')
 router.register('respostas', AnswerViewSet, basename='respostas')
+router.register('resposta_respotas', Ans_To_AnsViewSet, basename='resposta_respostas')
 router.register('reclame-aqui', ComplaintsViewSet, basename='reclame-aqui')
 
 urlpatterns = [

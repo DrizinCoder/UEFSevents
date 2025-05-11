@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.utils import timezone
-from ..models import Questions, Answers, Complaints
+from ..models import Questions, Answers, Answer_To_Answer, Complaints
 from Events.models import Event, Space
 from Users.models import CustomUser
 
@@ -115,6 +115,42 @@ class AnswersTestCase(QuestionsTestCase, TestCase):
     
     def test_date_answer(self):
         self.assertEqual(self.answer.answer_created_at.date(), timezone.now().date())    
+
+class Ans_To_AnsTestCase(AnswersTestCase, TestCase):
+    def setUp(self):
+        AnswersTestCase.setUp(self)
+
+        self.user_ATA = CustomUser.objects.create(
+            username = 'Pincher',
+            vat = '12345678903',
+            phone = '75555555555',
+            mobile = '75444444444',
+            password = 'monique'
+        )
+
+        self.ATA = Answer_To_Answer.objects.create(
+            ans_to_ans_description = 'Rap foda!',
+            ans_to_ans_fk_answer = self.answer,
+            ans_to_ans_fk_user = self.user_ATA,
+            ans_to_ans_created_at = timezone.now()
+        )
+
+    def test_sucess_create_answer_to_answer(self):
+        self.assertEqual(self.ATA.ans_to_ans_description, 'Rap foda!')
+        self.assertNotEqual(self.ATA.ans_to_ans_description, '')
+    
+    def test_relation_answer_answer(self):
+        self.assertEqual(self.ATA.ans_to_ans_fk_answer.answer_description, 'Você ganha o que merece!')
+        self.assertEqual(self.ATA.ans_to_ans_fk_answer.id, self.answer.id)
+    
+    def test_relation_user_answer_to_answer(self):
+        self.assertEqual(self.ATA.ans_to_ans_fk_user.username, 'Pincher')
+        self.assertNotEqual(self.ATA.ans_to_ans_fk_user, self.answer.answer_fk_user)
+        self.assertNotEqual(self.user_ATA.id, self.user_answer.id)
+    
+    def test_date_answer(self):
+        self.assertEqual(self.answer.answer_created_at.date(), timezone.now().date()) 
+
 
 class ComplaintTestCase(FAQBaseEventTestCase, TestCase):
     def setUp(self):
