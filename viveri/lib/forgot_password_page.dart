@@ -30,7 +30,7 @@ class ForgotPasswordPage extends StatelessWidget {
               Spacer(),
 
               Image.asset(
-                '../assets/logo.png',
+                'assets/logo.png',
                 height: 100,
               ),
               SizedBox(height: 12),
