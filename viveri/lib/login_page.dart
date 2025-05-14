@@ -61,7 +61,7 @@ class LoginPage extends StatelessWidget {
           children: [
             Spacer(flex: 2),
             Image.asset(
-              '../assets/logo.png',
+              'assets/logo.png',
               height: 100,
             ),
             SizedBox(height: 12),
@@ -175,12 +175,12 @@ class LoginPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton(
-                  icon: Image.asset('../assets/gmail.png', height: 40),
+                  icon: Image.asset('assets/gmail.png', height: 40),
                   onPressed: () {},
                 ),
                 SizedBox(width: 24),
                 IconButton(
-                  icon: Image.asset('../assets/instagram.png', height: 40),
+                  icon: Image.asset('assets/instagram.png', height: 40),
                   onPressed: () {},
                 ),
               ],
