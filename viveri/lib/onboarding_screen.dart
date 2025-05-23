@@ -4,17 +4,27 @@ import 'welcome_screen.dart';
 
 // Widget da tela de onboarding
 class OnboardingScreen extends StatefulWidget {
+  final int initialPage;
+  
+  const OnboardingScreen({Key? key, this.initialPage = 0}) : super(key: key);
+
   @override
   _OnboardingScreenState createState() => _OnboardingScreenState();
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   // Controlador para gerenciar a navegação entre páginas
-  final PageController _controller = PageController();
+  late final PageController _controller;
   // Índice da página atual
   int _currentPage = 0;
-  // Variável para controlar o gesto de swipe
-  bool _isLastPage = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializa o controlador com a página inicial especificada
+    _controller = PageController(initialPage: widget.initialPage);
+    _currentPage = widget.initialPage;
+  }
 
   // Método que constrói as páginas do onboarding
   List<Widget> _buildPages() {
@@ -88,32 +98,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  // Método para navegar para a próxima página
-  void _nextPage() {
-    if (_currentPage < _buildPages().length - 1) {
-      _controller.nextPage(
-        duration: Duration(milliseconds: 300),
-        curve: Curves.ease,
-      );
-    } else {
-      // Navega para a tela de boas-vindas quando estiver na última página
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => WelcomeScreen()),
-      );
-    }
-  }
-
-  // Método para navegar para a página anterior
-  void _previousPage() {
-    if (_currentPage > 0) {
-      _controller.previousPage(
-        duration: Duration(milliseconds: 300),
-        curve: Curves.ease,
-      );
-    }
-  }
-
   @override
   void dispose() {
     // Limpa os recursos quando o widget for destruído
@@ -128,76 +112,58 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       // Define a cor de fundo como verde claro
       backgroundColor: Color(0xFFD3E0D1),
       body: SafeArea(
-        child: Stack(
+        child: Column(
           children: [
-            Column(
-              children: [
-                Expanded(
-                  // Implementa o PageView para navegação entre páginas
-                  child: GestureDetector(
+            Expanded(
+              // Implementa o PageView para navegação entre páginas
+              child: PageView.builder(
+                controller: _controller,
+                itemCount: pages.length,
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentPage = index;
+                  });
+                },
+                // Permite o gesto de deslizar para navegar entre páginas
+                physics: PageScrollPhysics(),
+                itemBuilder: (context, index) {
+                  return GestureDetector(
                     onHorizontalDragEnd: (details) {
-                      if (_currentPage == pages.length - 1 && details.primaryVelocity! > 0) {
+                      if (index == pages.length - 1 && details.primaryVelocity! < 0) {
+                        // Deslizar da direita para a esquerda na última página
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => WelcomeScreen()),
+                          PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) => WelcomeScreen(),
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                              var begin = Offset(1.0, 0.0);
+                              var end = Offset.zero;
+                              var curve = Curves.easeInOut;
+                              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                              return SlideTransition(
+                                position: animation.drive(tween),
+                                child: child,
+                              );
+                            },
+                            transitionDuration: Duration(milliseconds: 400),
+                          ),
                         );
                       }
                     },
-                    child: PageView.builder(
-                      controller: _controller,
-                      itemCount: pages.length,
-                      onPageChanged: (index) {
-                        setState(() {
-                          _currentPage = index;
-                        });
-                      },
-                      itemBuilder: (context, index) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                        child: pages[index],
-                      ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: pages[index],
                     ),
-                  ),
-                ),
-                // Indicadores de página
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(pages.length, _buildIndicator),
-                ),
-                SizedBox(height: 56),
-              ],
-            ),
-            // Área clicável da esquerda para navegação
-            Positioned(
-              left: 0,
-              top: 0,
-              bottom: 0,
-              width: MediaQuery.of(context).size.width * 0.2,
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: _previousPage,
-                  child: Container(
-                    color: Colors.transparent,
-                  ),
-                ),
+                  );
+                },
               ),
             ),
-            // Área clicável da direita para navegação
-            Positioned(
-              right: 0,
-              top: 0,
-              bottom: 0,
-              width: MediaQuery.of(context).size.width * 0.2,
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: _nextPage,
-                  child: Container(
-                    color: Colors.transparent,
-                  ),
-                ),
-              ),
+            // Indicadores de página
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(pages.length, _buildIndicator),
             ),
+            SizedBox(height: 56),
           ],
         ),
       ),
