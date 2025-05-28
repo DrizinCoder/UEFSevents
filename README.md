@@ -108,3 +108,53 @@ básicos;  /Explicando os módulos e as funções  FEITO
 ○ Descrição de instalação e uso do aplicativo;   FEITO +-
 ○ Descrição dos testes de funcionamento do sistema, bem como, análise 
 dos resultados alcançados./como rodar o servidor de teste  -○  FEITO +-
+
+# ⚙ Guia de Uso do Docker Compose (Windows e Linux)
+
+## ✅ 1. Comandos para buildar o projeto
+
+Esses comandos devem ser executados **uma única vez** ou sempre que fizerem alterações no `Dockerfile` ou nas dependências do projeto (`requirements.txt`).
+
+```bash
+# Acesse a pasta raiz do projeto
+cd caminho/para/seu/projeto
+
+# Verifique se o Docker está funcionando corretamente
+docker --version
+docker compose version
+# Builda as imagens dos containers
+docker compose build
+```
+
+## ✅ 2. Comandos para rodar os containers
+```bash
+# Subir os containers e deixar rodando no terminal
+docker compose up
+
+# Ou rodar em segundo plano (modo detached)
+docker compose up -d
+```
+
+## ✅ 3. Comandos pós-deploy (rodar dentro do container Django)
+
+```bash
+# Acessar o container do Django
+docker exec -it django-docker bash
+
+# Aplicar migrações do banco de dados
+python manage.py migrate
+
+# Criar um superusuário
+python manage.py createsuperuser
+```
+
+## ✅ 4. Comandos para parar e limpar os containers
+
+```bash 
+# Parar os containers (sem apagar os dados)
+docker compose down
+
+# Parar e remover os volumes (apaga os dados do banco)
+docker compose down -v
+```
+
