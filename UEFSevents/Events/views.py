@@ -79,13 +79,3 @@ class ImageViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['acessibility']
     search_fields = ['acessibility']
-
-class ImageViewSet(viewsets.ModelViewSet):
-    queryset=Image.objects.all()
-    serializer_class=ImageSerializer
-    filterset_fields = ['title']
-    search_fields = ['title']
-
-
-
-
