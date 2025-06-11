@@ -20,7 +20,9 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, vat, password=None, **extra_fields):
+    def create_superuser(self, username, password=None, vat=None, **extra_fields):
+        if not vat:
+            vat = input('VAT (CPF ou CNPJ): ')
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(username, vat, password, **extra_fields)
