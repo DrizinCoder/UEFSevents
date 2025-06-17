@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'forgot_password_page.dart';
+import 'sign_up_page.dart';
+import 'welcome_page.dart';
 
 void showInvalidDataDialog(BuildContext context) {
   showDialog(
@@ -12,14 +14,14 @@ void showInvalidDataDialog(BuildContext context) {
         'Dados invalidos',
         textAlign: TextAlign.center,
         style: TextStyle(
-          color: Colors.brown[900],
+          color: Colors.red[900],
           fontWeight: FontWeight.bold,
         ),
       ),
       content: Text(
         'Dados incorretos, favor\ntentar novamente',
         textAlign: TextAlign.center,
-        style: TextStyle(color: Colors.brown[900]),
+        style: TextStyle(color: Colors.red[900]),
       ),
       actionsAlignment: MainAxisAlignment.center,
       actions: [
@@ -46,11 +48,16 @@ void showInvalidDataDialog(BuildContext context) {
 }
 
 class LoginPage extends StatelessWidget {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  LoginPage({super.key}); // Chave adicionada para evitar warnings
+
   @override
   Widget build(BuildContext context) {
-    final bgColor = Color(0xDDE8F1E8);
-    final darkGreen = Color(0xFF2F4F2F);
-    final orange = Color(0xFFFF8C00);
+    final bgColor = const Color(0xDDE8F1E8);
+    final darkGreen = const Color(0xFF2F4F2F);
+    final orange = const Color(0xFFFF8C00);
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -59,12 +66,12 @@ class LoginPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Spacer(flex: 2),
+            const Spacer(flex: 2),
             Image.asset(
               'assets/logo.png',
               height: 100,
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
 
             // Email
             Align(
@@ -77,8 +84,9 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             TextField(
+              controller: emailController,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white60,
@@ -87,7 +95,7 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Senha
             Align(
@@ -100,8 +108,9 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             TextField(
+              controller: passwordController,
               obscureText: true,
               decoration: InputDecoration(
                 filled: true,
@@ -134,11 +143,21 @@ class LoginPage extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  showInvalidDataDialog(context);
+                  String email = emailController.text.trim();
+                  String senha = passwordController.text.trim();
+
+                  if (email.isEmpty || senha.isEmpty || !email.contains('@')) {
+                    showInvalidDataDialog(context);
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => WelcomeBackPage()),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: darkGreen,
-                  padding: EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6),
                   ),
@@ -154,21 +173,21 @@ class LoginPage extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Linha com "ou"
             Row(
               children: [
-                Expanded(child: Divider(thickness: 1)),
+                const Expanded(child: Divider(thickness: 1)),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Text("ou"),
                 ),
-                Expanded(child: Divider(thickness: 1)),
+                const Expanded(child: Divider(thickness: 1)),
               ],
             ),
 
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Botões sociais
             Row(
@@ -178,7 +197,7 @@ class LoginPage extends StatelessWidget {
                   icon: Image.asset('assets/gmail.png', height: 40),
                   onPressed: () {},
                 ),
-                SizedBox(width: 24),
+                const SizedBox(width: 24),
                 IconButton(
                   icon: Image.asset('assets/instagram.png', height: 40),
                   onPressed: () {},
@@ -186,13 +205,18 @@ class LoginPage extends StatelessWidget {
               ],
             ),
 
-            Spacer(),
+            const Spacer(),
 
             // Criar conta
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => SignupPage()),
+                );
+              },
               child: Text(
-                'create account',
+                'Criar conta',
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   color: darkGreen,
@@ -200,10 +224,11 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
           ],
         ),
       ),
     );
   }
 }
+

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:viveri/reset_password_page.dart';
 
 class VerifyCodePage extends StatefulWidget {
   @override
@@ -136,7 +137,10 @@ class _VerifyCodePageState extends State<VerifyCodePage> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // validar código aqui
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => ResetPasswordPage()),
+                      );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: darkGreen,
