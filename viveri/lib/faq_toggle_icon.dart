@@ -1,61 +1,46 @@
 import 'package:flutter/material.dart';
 
-class ToggleIcon extends StatefulWidget {
+class ToggleIcon extends StatelessWidget {
   final IconData outlinedIcon;
   final IconData filledIcon;
   final Color activeColor;
   final Color inactiveColor;
-  final int initialCount;
-  final void Function(bool)? onChanged;
-  final bool initialState;
+  final int count;
+  final bool isActive;
+  final VoidCallback onPressed;
 
   const ToggleIcon({
     super.key,
     required this.outlinedIcon,
     required this.filledIcon,
+    required this.count,
+    required this.isActive,
+    required this.onPressed,
     this.activeColor = Colors.green,
     this.inactiveColor = Colors.white,
-    this.initialCount = 0,
-    this.initialState = false,
-    this.onChanged,
   });
-
-  @override
-  State<ToggleIcon> createState() => _ToggleIconState();
-}
-
-class _ToggleIconState extends State<ToggleIcon> {
-  late bool isActive;
-  late int count;
-
-  @override
-  void initState() {
-    super.initState();
-    isActive = widget.initialState;
-    count = widget.initialCount;
-  }
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        IconButton(
-          icon: Icon(
-            isActive ? widget.filledIcon : widget.outlinedIcon,
-            color: isActive ? widget.activeColor : widget.inactiveColor,
+          IconButton(
+            icon: Icon(
+              isActive ? filledIcon : outlinedIcon,
+              color: isActive ? activeColor : inactiveColor,
+              shadows: [
+                Shadow(
+                  color: Colors.black,
+                  blurRadius: 2,
+                ),
+              ],
+            ),
+            onPressed: onPressed,
           ),
-          onPressed: () {
-            setState(() {
-              isActive = !isActive;
-              count += isActive ? 1 : -1;
-            });
-            widget.onChanged?.call(isActive);
-          },
-        ),
         Text(
           '$count',
           style: TextStyle(
-            color: isActive ? widget.activeColor : widget.inactiveColor,
+            color: isActive ? activeColor : Colors.black,
             fontSize: 16,
           ),
         ),
@@ -63,3 +48,4 @@ class _ToggleIconState extends State<ToggleIcon> {
     );
   }
 }
+

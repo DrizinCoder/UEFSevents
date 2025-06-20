@@ -1,25 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:viveri/faq_utils.dart';
 import 'package:viveri/faq_toggle_icon.dart';
-import 'package:viveri/faq_tela.dart';
+import 'faq_model.dart';
 
-class FaqQuestionTile extends StatelessWidget {
+class FaqQuestionTile extends StatefulWidget {
   final FaqQuestion question;
+  final String currentUser;
   final bool isDono;
-  final void Function(String autor) onResponder;
+  final void Function(int index) onResponder;
 
   const FaqQuestionTile({
     super.key,
     required this.question,
+    required this.currentUser,
     required this.isDono,
     required this.onResponder,
   });
 
   @override
+  State<FaqQuestionTile> createState() => _FaqQuestionTileState();
+}
+
+class _FaqQuestionTileState extends State<FaqQuestionTile> {
+  bool liked = false;
+  bool disliked = false;
+
+  @override
   Widget build(BuildContext context) {
+    final question = widget.question;
     final questionColor = question.isDono ? Colors.green[100] : Colors.white;
     final textStyle = TextStyle(fontSize: 14);
-
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -49,7 +59,7 @@ class FaqQuestionTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      question.autor,
+                      question.autorFormatado,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
@@ -59,7 +69,6 @@ class FaqQuestionTile extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(Icons.more_vert, size: 20),
             ],
           ),
 
@@ -76,15 +85,47 @@ class FaqQuestionTile extends StatelessWidget {
               ToggleIcon(
                 outlinedIcon: Icons.favorite_border,
                 filledIcon: Icons.favorite,
-                initialCount: question.likes,
+                isActive: liked,
+                count: question.likes,
                 activeColor: Colors.green,
+                onPressed: () {
+                  setState(() {
+                    if (!liked) {
+                      question.likes++;
+                      if (disliked) {
+                        disliked = false;
+                        question.dislikes--;
+                      }
+                      liked = true;
+                    } else {
+                      question.likes--;
+                      liked = false;
+                    }
+                  });
+                },
               ),
               const SizedBox(width: 12),
               ToggleIcon(
                 outlinedIcon: Icons.thumb_down_alt_outlined,
                 filledIcon: Icons.thumb_down_alt,
-                initialCount: question.dislikes,
+                isActive: disliked,
+                count: question.dislikes,
                 activeColor: Colors.red,
+                onPressed: () {
+                  setState(() {
+                    if (!disliked) {
+                      question.dislikes++;
+                      if (liked) {
+                        question.likes--;
+                        liked = false;
+                      }
+                      disliked = true;
+                    } else {
+                      question.dislikes--;
+                      disliked = false;
+                    }
+                  });
+                },
               ),
               const SizedBox(width: 12),
               Icon(
@@ -95,37 +136,36 @@ class FaqQuestionTile extends StatelessWidget {
               const SizedBox(width: 4),
               Text('${question.answers.length}', style: textStyle),
               const Spacer(),
-              if (isDono && !question.isDono)
-                TextButton(
-                  onPressed: () => onResponder(question.autor),
-                  child: const Text("Responder"),
-                ),
+              TextButton(
+                onPressed: () => widget.onResponder(question.index),
+                child: const Text("Responder"),
+              ),
             ],
           ),
 
           // Lista de respostas (se houver)
           if (question.answers.isNotEmpty) ...[
-            const SizedBox(height: 10),
+            // const SizedBox(height: 10),
             const Divider(),
             ...question.answers.map((answer) {
-              final isDonoAnswer = answer.isDono;
+              // final isDonoAnswer = answer.isDono;
               final corAnswer =
-                  isDonoAnswer ? Colors.green[50] : Colors.grey[100];
+                  answer.isDono ? Colors.green[50] : Colors.grey[200];
               final avatar =
-                  isDonoAnswer
+                  answer.isDono
                       ? 'assets/emojievento.png'
                       : 'assets/emojisorrindo.png';
 
               return Padding(
-                padding: const EdgeInsets.only(top: 10),
+                padding: const EdgeInsets.only(top: 8),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  // crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CircleAvatar(
                       radius: 16,
                       backgroundImage: AssetImage(avatar),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Container(
                         padding: const EdgeInsets.all(10),
@@ -137,7 +177,7 @@ class FaqQuestionTile extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              answer.autor,
+                              answer.autorFormatado,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -151,7 +191,7 @@ class FaqQuestionTile extends StatelessWidget {
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ],
         ],
       ),
