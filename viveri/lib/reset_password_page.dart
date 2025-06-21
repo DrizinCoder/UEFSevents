@@ -1,9 +1,14 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'password_changed_page.dart';
+import 'login_page.dart';
 
 class ResetPasswordPage extends StatefulWidget {
-  const ResetPasswordPage({super.key});
+  final int userId;
+
+  const ResetPasswordPage({super.key, required this.userId});
 
   @override
   State<ResetPasswordPage> createState() => _ResetPasswordPageState();
@@ -13,11 +18,18 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
   bool _showError = false;
+  bool _isLoading = false;
+  String? _apiError;
   List<String> _passwordErrors = [];
+
+  // Credenciais de administrador
+  final String _adminUsername = 'admin';
+  final String _adminPassword = 'suporte123';
 
   final Color bgColor = const Color(0xDDE8F1E8);
   final Color darkGreen = const Color(0xFF2F4F2F);
   final Color orange = const Color(0xFFFF8C00);
+  final Color lightGreen = const Color(0xFFC5D3C3);
 
   List<String> _validatePasswordRules(String password) {
     List<String> errors = [];
@@ -41,17 +53,94 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     return errors;
   }
 
-  void _validateAndSubmit() {
+  Future<void> _updatePassword() async {
     setState(() {
+      _isLoading = true;
+      _apiError = null;
       _passwordErrors = _validatePasswordRules(_newPasswordController.text);
       _showError = _newPasswordController.text != _confirmPasswordController.text;
     });
 
-    if (_passwordErrors.isEmpty && !_showError) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const PasswordChangedPage()),
+    // Validação local
+    if (_passwordErrors.isNotEmpty || _showError) {
+      setState(() => _isLoading = false);
+      return;
+    }
+
+    try {
+      // 1. Obter token de administrador
+      final tokenResponse = await http.post(
+        Uri.parse('http://localhost:8000/api/token/'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'username': _adminUsername,
+          'password': _adminPassword,
+        }),
       );
+
+      if (tokenResponse.statusCode != 200) {
+        setState(() {
+          _apiError = 'Erro de autenticação do sistema. Tente novamente.';
+        });
+        return;
+      }
+
+      final tokenData = json.decode(tokenResponse.body);
+      final accessToken = tokenData['access'];
+
+      // 2. Atualizar a senha do usuário - CORREÇÃO: Enviar apenas o campo 'password'
+      final response = await http.patch(
+        Uri.parse('http://localhost:8000/api/users/${widget.userId}/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: json.encode({
+          'password': _newPasswordController.text, // Apenas o campo necessário
+        }),
+      );
+
+      print('Senha: ${_newPasswordController.text}');
+      print('Resposta da API: ${response.body}');
+      print('Status Code: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const PasswordChangedPage()),
+        );
+      } else {
+        // Tenta extrair a mensagem de erro
+        String errorMsg = 'Erro ao atualizar senha';
+        try {
+          final errorData = json.decode(response.body);
+          print("Erro da API: $errorData");
+          
+          // Verifica diferentes formatos de erro
+          if (errorData.containsKey('detail')) {
+            errorMsg = errorData['detail'];
+          } else if (errorData.containsKey('password')) {
+            errorMsg = errorData['password'].join(', ');
+          } else if (errorData.containsKey('non_field_errors')) {
+            errorMsg = errorData['non_field_errors'].join(', ');
+          } else if (errorData is Map && errorData.isNotEmpty) {
+            // Pega o primeiro erro encontrado
+            errorMsg = errorData.values.first.join(', ');
+          }
+        } catch (e) {
+          print('Erro ao decodificar resposta: $e');
+        }
+        setState(() {
+          _apiError = errorMsg;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _apiError = 'Erro de conexão: ${e.toString()}';
+      });
+      print("Exceção completa: $e");
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -67,14 +156,33 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Botão de voltar
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ),
+                  
                   Image.asset(
                     'assets/logo.png',
-                    height: 160,
+                    height: 120,
                   ),
                   const SizedBox(height: 24),
+                  
+                  Text(
+                    'Redefinir Senha',
+                    style: GoogleFonts.poppins(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: darkGreen,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
 
                   // Campo Nova Senha
-                  _buildPasswordField("Informe a nova senha:", _newPasswordController, false),
+                  _buildPasswordField("Nova senha:", _newPasswordController, false),
 
                   // Erros de critérios de senha
                   if (_passwordErrors.isNotEmpty)
@@ -111,7 +219,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   const SizedBox(height: 16),
 
                   // Campo Confirmar Senha
-                  _buildPasswordField("Confirme a senha:", _confirmPasswordController, _showError),
+                  _buildPasswordField("Confirmar nova senha:", _confirmPasswordController, _showError),
 
                   // Erro de confirmação de senha
                   if (_showError)
@@ -125,6 +233,19 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                         ),
                       ),
                     ),
+                  
+                  // Erro da API
+                  if (_apiError != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        _apiError!,
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: Colors.red[900],
+                        ),
+                      ),
+                    ),
 
                   const SizedBox(height: 32),
 
@@ -132,7 +253,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _validateAndSubmit,
+                      onPressed: _isLoading ? null : _updatePassword,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: darkGreen,
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -140,14 +261,16 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           borderRadius: BorderRadius.circular(6),
                         ),
                       ),
-                      child: Text(
-                        'Redefinir',
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: orange,
-                        ),
-                      ),
+                      child: _isLoading
+                          ? CircularProgressIndicator(color: orange)
+                          : Text(
+                              'Redefinir',
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: orange,
+                              ),
+                            ),
                     ),
                   ),
                 ],
@@ -176,22 +299,22 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
           obscureText: true,
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.grey[300],
+            fillColor: lightGreen,
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(8),
               borderSide: showError
-                  ? BorderSide(color: Colors.red[900]!)
+                  ? const BorderSide(color: Colors.red)
                   : BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(8),
               borderSide: showError
-                  ? BorderSide(color: Colors.red[900]!)
+                  ? const BorderSide(color: Colors.red)
                   : BorderSide(color: darkGreen),
             ),
           ),
