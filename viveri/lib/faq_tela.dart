@@ -1,38 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:viveri/faq_question_tile.dart';
-
-class FaqQuestion {
-  final String autor;
-  final String text;
-  final bool isDono;
-  final DateTime date;
-  final int likes;
-  final int dislikes;
-  final List<FaqAnswer> answers;
-
-  FaqQuestion({
-    required this.autor,
-    required this.text,
-    this.isDono = false,
-    required this.date,
-    this.likes = 0,
-    this.dislikes = 0,
-    this.answers = const [],
-  });
-}
-
-class FaqAnswer {
-  final String autor;
-  final String text;
-  final bool isDono;
-
-  FaqAnswer({required this.autor, required this.text, this.isDono = false});
-}
+import 'faq_question_tile.dart';
+import 'faq_model.dart';
 
 class FaqTela extends StatefulWidget {
+  final String currentUser;
   final bool isDono;
+  final List<FaqQuestion> perguntas;
 
-  const FaqTela({super.key, required this.isDono});
+  const FaqTela({
+    super.key,
+    required this.currentUser,
+    required this.isDono,
+    required this.perguntas,
+  });
 
   @override
   State<FaqTela> createState() => _FaqTelaState();
@@ -40,49 +20,44 @@ class FaqTela extends StatefulWidget {
 
 class _FaqTelaState extends State<FaqTela> {
   final TextEditingController _controller = TextEditingController();
-  final List<FaqQuestion> _question = [
-    FaqQuestion(
-      autor: 'João',
-      text: 'Vai ter comida vegana?',
-      date: DateTime.now().subtract(Duration(hours: 2)),
-      likes: 3,
-      dislikes: 1,
-      answers: [
-        FaqAnswer(
-          autor: 'Organizador',
-          text: 'Sim! Teremos opções veganas.',
-          isDono: true,
-        ),
-      ],
-    ),
-    FaqQuestion(
-      autor: 'Maria', 
-      text: 'Pode levar animal?',
-      date: DateTime.now().subtract(Duration(hours: 1)),
-    ),
-  ];
+  int? _respondendoIndex;
+  late List<FaqQuestion> _question;
 
-  String? _respondendoA;
+  @override
+  void initState() {
+    super.initState();
+    _question = [...widget.perguntas];
+  }
 
   void _enviarMensagem() {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
 
     setState(() {
-      if (_respondendoA != null) {
-        final question = _question.firstWhere((p) => p.autor == _respondendoA);
-        question.answers.add(
-          FaqAnswer(
-            autor: widget.isDono ? 'Dono do evento' : 'Você',
-            text: text,
-            isDono: widget.isDono,
+      if (_respondendoIndex != null) {
+        final idx = _respondendoIndex!;
+        _question[idx] = FaqQuestion(
+          index: idx,
+          autor: _question[idx].autor,
+          text: _question[idx].text,
+          isDono: _question[idx].isDono,
+          date: _question[idx].date,
+          likes: _question[idx].likes,
+          dislikes: _question[idx].dislikes,
+          answers: List.from(_question[idx].answers)..add(
+            FaqAnswer(
+              autor: widget.currentUser,
+              text: text,
+              isDono: widget.isDono,
+            ),
           ),
         );
-        _respondendoA = null;
+        _respondendoIndex = null;
       } else {
         _question.add(
           FaqQuestion(
-            autor: widget.isDono ? 'Dono do evento' : 'Você',
+            index: _question.length,
+            autor: widget.currentUser,
             text: text,
             isDono: widget.isDono,
             date: DateTime.now(),
@@ -93,8 +68,10 @@ class _FaqTelaState extends State<FaqTela> {
     });
   }
 
-  void _responderPergunta(String autor) {
-    setState(() => _respondendoA = autor);
+  void _responderPergunta(int index) {
+    setState(() {
+      _respondendoIndex = index;
+    });
   }
 
   @override
@@ -113,7 +90,7 @@ class _FaqTelaState extends State<FaqTela> {
               children: [
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  padding: const EdgeInsets.all(20),
                   color: const Color(0xff546d64),
                   child: const Center(
                     child: Text(
@@ -123,6 +100,7 @@ class _FaqTelaState extends State<FaqTela> {
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),
@@ -133,10 +111,10 @@ class _FaqTelaState extends State<FaqTela> {
                       padding: const EdgeInsets.all(12),
                       itemCount: _question.length,
                       itemBuilder: (context, index) {
-                        final question = _question[index];
                         return FaqQuestionTile(
-                          question: question,
+                          question: _question[index],
                           isDono: widget.isDono,
+                          currentUser: widget.currentUser,
                           onResponder: _responderPergunta,
                         );
                       },
@@ -152,14 +130,16 @@ class _FaqTelaState extends State<FaqTela> {
             bottom: 0,
             child: Container(
               color: const Color(0xffeaf1e7),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (_respondendoA != null)
+                  if (_respondendoIndex != null)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: Text('Respondendo a $_respondendoA...'),
+                      child: Text(
+                        'Respondendo a ${_question[_respondendoIndex!].autor}...',
+                      ),
                     ),
                   Row(
                     children: [
