@@ -3,8 +3,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
-from .models import Questions, Answers, Answer_To_Answer, Complaints
-from .serializers import QuestionsSerializer, AnswerSerializer, Ans_To_AnsSerializer, ComplaintsSerializer
+from .models import Questions, Answers, Answer_To_Answer, Complaints, QuestionVote
+from .serializers import QuestionsSerializer, AnswerSerializer, Ans_To_AnsSerializer, ComplaintsSerializer, QuestionVoteSerializer
 from .filters import QuestionsFilter, AnswersFilter, Ans_To_AnsFilter, ComplaintsFilter
 
 
@@ -85,3 +85,26 @@ class ComplaintsViewSet(viewsets.ModelViewSet):
         if not self.request.user.is_staff:
             queryset = queryset.filter(complaint_fk_user=self.request.user)
         return queryset
+    
+
+class QuestionVoteViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = QuestionVoteSerializer
+    queryset = QuestionVote.objects.all()
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        question = serializer.validated_data.get('question')
+        vote_type = serializer.validated_data.get('vote_type')
+        existing_vote = QuestionVote.objects.filter(user=self.request.user, question=question).first()
+
+        if existing_vote:
+            if existing_vote.vote_type == vote_type:
+                existing_vote.delete()
+            else:
+                existing_vote.vote_type = vote_type
+                existing_vote.save()
+        else:
+            serializer.save(user=self.request.user)

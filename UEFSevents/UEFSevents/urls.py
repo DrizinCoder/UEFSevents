@@ -24,7 +24,8 @@ from Events.views import (
     )
 
 from FAQ.views import (
-    QuestionViewSet, AnswerViewSet, Ans_To_AnsViewSet, ComplaintsViewSet
+    QuestionViewSet, AnswerViewSet, Ans_To_AnsViewSet, ComplaintsViewSet,
+    QuestionVoteViewSet
     )
 
 from Users.views import CustomUserViewSet
@@ -39,6 +40,7 @@ router.register('perguntas-frequentes', QuestionViewSet, basename='perguntas-fre
 router.register('respostas', AnswerViewSet, basename='respostas')
 router.register('resposta_respotas', Ans_To_AnsViewSet, basename='resposta_respostas')
 router.register('reclame-aqui', ComplaintsViewSet, basename='reclame-aqui')
+router.register(r'question-votes', QuestionVoteViewSet, basename='question-votes')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

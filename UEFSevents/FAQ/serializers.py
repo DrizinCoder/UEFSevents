@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Questions, Answers, Answer_To_Answer, Complaints
+from .models import Questions, Answers, Answer_To_Answer, Complaints, QuestionVote
 
 
 class QuestionsSerializer(serializers.ModelSerializer):
@@ -66,3 +66,10 @@ class ComplaintsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Complaints
         fields = '__all__'
+
+
+class QuestionVoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuestionVote
+        fields = ['id', 'user', 'question', 'vote_type', 'voted_at']
+        read_only_fields = ['id', 'voted_at']
