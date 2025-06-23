@@ -245,6 +245,19 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       ),
                     ),
 
+                  // Erro da API
+                  if (_apiError != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        _apiError!,
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: Colors.red[900],
+                        ),
+                      ),
+                    ),
+
                   const SizedBox(height: 32),
                   SizedBox(
                     width: double.infinity,
