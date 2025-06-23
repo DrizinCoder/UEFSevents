@@ -256,16 +256,7 @@ class _VerifyCodePageState extends State<VerifyCodePage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-<<<<<<< Updated upstream
                   onPressed: _isLoading ? null : _validateCode,
-=======
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => ResetPasswordPage()),
-                      );
-                  },
->>>>>>> Stashed changes
                   style: ElevatedButton.styleFrom(
                     backgroundColor: darkGreen,
                     padding: EdgeInsets.symmetric(vertical: 16),

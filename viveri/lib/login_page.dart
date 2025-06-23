@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'welcome_page.dart';
 import 'forgot_password_page.dart';
 import 'sign_up_page.dart';
-<<<<<<< Updated upstream
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -65,58 +64,6 @@ class _LoginPageState extends State<LoginPage> {
       setState(() => _isLoading = false);
     }
   }
-=======
-import 'welcome_page.dart';
-
-void showInvalidDataDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (_) => AlertDialog(
-      backgroundColor: Color(0xDDE8F1E8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      title: Text(
-        'Dados invalidos',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: Colors.red[900],
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      content: Text(
-        'Dados incorretos, favor\ntentar novamente',
-        textAlign: TextAlign.center,
-        style: TextStyle(color: Colors.red[900]),
-      ),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        ElevatedButton(
-          onPressed: () => Navigator.pop(context),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFF2F4F2F),
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6),
-            ),
-          ),
-          child: Text(
-            'Tentar novamente',
-            style: TextStyle(
-              color: Color(0xFFFFD700), // amarelo ouro
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-class LoginPage extends StatelessWidget {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-
-  LoginPage({super.key}); // Chave adicionada para evitar warnings
->>>>>>> Stashed changes
 
   @override
   Widget build(BuildContext context) {
@@ -151,11 +98,7 @@ class LoginPage extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             TextField(
-<<<<<<< Updated upstream
               controller: usernameController,
-=======
-              controller: emailController,
->>>>>>> Stashed changes
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white60,
@@ -248,97 +191,6 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
             ),
-<<<<<<< Updated upstream
-=======
-
-            // Botão de Login
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  String email = emailController.text.trim();
-                  String senha = passwordController.text.trim();
-
-                  if (email.isEmpty || senha.isEmpty || !email.contains('@')) {
-                    showInvalidDataDialog(context);
-                  } else {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => WelcomeBackPage()),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: darkGreen,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                ),
-                child: Text(
-                  'Login',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    color: orange,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Linha com "ou"
-            Row(
-              children: [
-                const Expanded(child: Divider(thickness: 1)),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Text("ou"),
-                ),
-                const Expanded(child: Divider(thickness: 1)),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            // Botões sociais
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: Image.asset('assets/gmail.png', height: 40),
-                  onPressed: () {},
-                ),
-                const SizedBox(width: 24),
-                IconButton(
-                  icon: Image.asset('assets/instagram.png', height: 40),
-                  onPressed: () {},
-                ),
-              ],
-            ),
-
-            const Spacer(),
-
-            // Criar conta
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => SignupPage()),
-                );
-              },
-              child: Text(
-                'Criar conta',
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  color: darkGreen,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
->>>>>>> Stashed changes
           ],
         ),
       ),
@@ -346,7 +198,6 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-<<<<<<< Updated upstream
 void showInvalidDataDialog(BuildContext context, String message) {
   showDialog(
     context: context,
@@ -389,5 +240,3 @@ void showInvalidDataDialog(BuildContext context, String message) {
     ),
   );
 }
-=======
->>>>>>> Stashed changes

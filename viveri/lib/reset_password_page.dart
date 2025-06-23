@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,14 +9,6 @@ class ResetPasswordPage extends StatefulWidget {
   final int userId;
 
   const ResetPasswordPage({super.key, required this.userId});
-=======
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'password_changed_page.dart';
-
-class ResetPasswordPage extends StatefulWidget {
-  const ResetPasswordPage({super.key});
->>>>>>> Stashed changes
 
   @override
   State<ResetPasswordPage> createState() => _ResetPasswordPageState();
@@ -27,7 +18,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
   bool _showError = false;
-<<<<<<< Updated upstream
   bool _isLoading = false;
   String? _apiError;
   List<String> _passwordErrors = [];
@@ -40,13 +30,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   final Color darkGreen = const Color(0xFF2F4F2F);
   final Color orange = const Color(0xFFFF8C00);
   final Color lightGreen = const Color(0xFFC5D3C3);
-=======
-  List<String> _passwordErrors = [];
-
-  final Color bgColor = const Color(0xDDE8F1E8);
-  final Color darkGreen = const Color(0xFF2F4F2F);
-  final Color orange = const Color(0xFFFF8C00);
->>>>>>> Stashed changes
 
   List<String> _validatePasswordRules(String password) {
     List<String> errors = [];
@@ -70,20 +53,14 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     return errors;
   }
 
-<<<<<<< Updated upstream
   Future<void> _updatePassword() async {
     setState(() {
       _isLoading = true;
       _apiError = null;
-=======
-  void _validateAndSubmit() {
-    setState(() {
->>>>>>> Stashed changes
       _passwordErrors = _validatePasswordRules(_newPasswordController.text);
       _showError = _newPasswordController.text != _confirmPasswordController.text;
     });
 
-<<<<<<< Updated upstream
     // Validação local
     if (_passwordErrors.isNotEmpty || _showError) {
       setState(() => _isLoading = false);
@@ -164,13 +141,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       print("Exceção completa: $e");
     } finally {
       setState(() => _isLoading = false);
-=======
-    if (_passwordErrors.isEmpty && !_showError) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const PasswordChangedPage()),
-      );
->>>>>>> Stashed changes
     }
   }
 
@@ -186,7 +156,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-<<<<<<< Updated upstream
+
                   // Botão de voltar
                   Align(
                     alignment: Alignment.centerLeft,
@@ -194,7 +164,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       icon: const Icon(Icons.arrow_back_ios_new),
                       onPressed: () => Navigator.pop(context),
                     ),
-                  ),
                   
                   Image.asset(
                     'assets/logo.png',
@@ -214,7 +183,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
                   // Campo Nova Senha
                   _buildPasswordField("Nova senha:", _newPasswordController, false),
-=======
                   Image.asset(
                     'assets/logo.png',
                     height: 160,
@@ -222,16 +190,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   const SizedBox(height: 24),
 
                   // Campo Nova Senha
-                  _buildPasswordField("Informe a nova senha:", _newPasswordController, false),
->>>>>>> Stashed changes
-
-                  // Erros de critérios de senha
-                  if (_passwordErrors.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
                           Text(
                             "A senha deve conter:",
                             style: GoogleFonts.poppins(
@@ -260,11 +218,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   const SizedBox(height: 16),
 
                   // Campo Confirmar Senha
-<<<<<<< Updated upstream
                   _buildPasswordField("Confirmar nova senha:", _confirmPasswordController, _showError),
-=======
-                  _buildPasswordField("Confirme a senha:", _confirmPasswordController, _showError),
->>>>>>> Stashed changes
 
                   // Erro de confirmação de senha
                   if (_showError)
@@ -278,11 +232,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                         ),
                       ),
                     ),
-<<<<<<< Updated upstream
                   
                   // Erro da API
                   if (_apiError != null)
-                    Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: Text(
                         _apiError!,
@@ -292,20 +244,12 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                         ),
                       ),
                     ),
-=======
->>>>>>> Stashed changes
 
                   const SizedBox(height: 32),
-
-                  // Botão Redefinir
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-<<<<<<< Updated upstream
                       onPressed: _isLoading ? null : _updatePassword,
-=======
-                      onPressed: _validateAndSubmit,
->>>>>>> Stashed changes
                       style: ElevatedButton.styleFrom(
                         backgroundColor: darkGreen,
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -313,7 +257,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           borderRadius: BorderRadius.circular(6),
                         ),
                       ),
-<<<<<<< Updated upstream
                       child: _isLoading
                           ? CircularProgressIndicator(color: orange)
                           : Text(
@@ -324,16 +267,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                                 color: orange,
                               ),
                             ),
-=======
-                      child: Text(
-                        'Redefinir',
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: orange,
-                        ),
-                      ),
->>>>>>> Stashed changes
                     ),
                   ),
                 ],
@@ -362,7 +295,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
           obscureText: true,
           decoration: InputDecoration(
             filled: true,
-<<<<<<< Updated upstream
             fillColor: lightGreen,
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             border: OutlineInputBorder(
@@ -379,24 +311,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
               borderRadius: BorderRadius.circular(8),
               borderSide: showError
                   ? const BorderSide(color: Colors.red)
-=======
-            fillColor: Colors.grey[300],
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: showError
-                  ? BorderSide(color: Colors.red[900]!)
-                  : BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: showError
-                  ? BorderSide(color: Colors.red[900]!)
->>>>>>> Stashed changes
                   : BorderSide(color: darkGreen),
             ),
           ),
@@ -404,8 +318,4 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       ],
     );
   }
-<<<<<<< Updated upstream
 }
-=======
-}
->>>>>>> Stashed changes

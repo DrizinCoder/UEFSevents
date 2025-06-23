@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-<<<<<<< Updated upstream
 import 'login_page.dart';
-=======
->>>>>>> Stashed changes
 
 class PasswordChangedPage extends StatelessWidget {
   const PasswordChangedPage({super.key});
@@ -42,14 +39,10 @@ class PasswordChangedPage extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-<<<<<<< Updated upstream
                        Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (_) => LoginPage()),
                       );
-=======
-                      // Navegar para a próxima página após alteração de senha
->>>>>>> Stashed changes
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: darkGreen,
@@ -66,13 +59,9 @@ class PasswordChangedPage extends StatelessWidget {
                         color: orange,
                       ),
                     ),
-<<<<<<< Updated upstream
                     
                   ),
                   
-=======
-                  ),
->>>>>>> Stashed changes
                 ),
               ],
             ),

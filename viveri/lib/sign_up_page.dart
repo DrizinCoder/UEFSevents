@@ -2,20 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'account_created_page.dart';
 import 'login_page.dart';
-<<<<<<< Updated upstream
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
-=======
->>>>>>> Stashed changes
 
 class SignupPage extends StatefulWidget {
   @override
   _SignupPageState createState() => _SignupPageState();
 }
 
-<<<<<<< Updated upstream
 Future<Map<String, dynamic>> signupUser({
   required String vat,
   required String email,
@@ -94,13 +90,10 @@ Future<void> storeTokens(String accessToken, String refreshToken) async {
   print('[TOKEN] Tokens armazenados com sucesso!');
 }
 
-=======
->>>>>>> Stashed changes
 class _SignupPageState extends State<SignupPage> {
   bool isCPF = true;
   bool isChecked = false;
 
-<<<<<<< Updated upstream
   // Controladores
   final cpfCnpjController = TextEditingController();
   final firstNameController = TextEditingController();
@@ -182,8 +175,6 @@ class _SignupPageState extends State<SignupPage> {
       );
     }
   }
-=======
->>>>>>> Stashed changes
 
   @override
   Widget build(BuildContext context) {
@@ -191,11 +182,6 @@ class _SignupPageState extends State<SignupPage> {
     final darkGreen = const Color(0xFF2F4F2F);
     final yellow = const Color(0xFFFFD700);
 
-<<<<<<< Updated upstream
-=======
-    
-
->>>>>>> Stashed changes
     return Scaffold(
       backgroundColor: bgColor,
       body: SingleChildScrollView(
@@ -205,48 +191,21 @@ class _SignupPageState extends State<SignupPage> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-<<<<<<< Updated upstream
                 Expanded(
                   child: Column(
-=======
-
-                Padding(
-                  padding: const EdgeInsets.only(right: 16),
-                  child: Image.asset('assets/perfil.png', height: 100),
-                ),
-
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
->>>>>>> Stashed changes
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-<<<<<<< Updated upstream
                           toggleButton('CPF', isCPF, () => setState(() => isCPF = true)),
                           const SizedBox(width: 8),
                           toggleButton('CNPJ', !isCPF, () => setState(() => isCPF = false)),
                         ],
                       ),
-=======
-                          toggleButton('CPF', isCPF, () {
-                            setState(() => isCPF = true);
-                          }),
-                          const SizedBox(width: 8),
-                          toggleButton('CNPJ', !isCPF, () {
-                            setState(() => isCPF = false);
-                          }),
-                        ],
-                      ),
-
->>>>>>> Stashed changes
                     ],
                   ),
                 ),
               ],
-<<<<<<< Updated upstream
             ),
 
             const SizedBox(height: 12),
@@ -303,33 +262,6 @@ class _SignupPageState extends State<SignupPage> {
               obscure: true, 
               controller: passwordController
             ),
-=======
-),
-
-
-
-          const SizedBox(height: 12),
-
-          TextField(
-            decoration: inputStyle("Digite seu ${isCPF ? 'CPF' : 'CNPJ'}"),
-          ),
-
-          const SizedBox(height: 12),
-
-          if (isCPF) ...[
-            rowTwoFields("Nome:", "Sobrenome:"),
-          ] else ...[
-            textFieldWithLabel("Nome Fantasia:"),
-          ],
-
-            const SizedBox(height: 12),
-
-            textFieldWithLabel("Email:"),
-
-            const SizedBox(height: 12),
-
-            textFieldWithLabel("Senha:", obscure: true),
->>>>>>> Stashed changes
 
             if (!isCPF) ...[
               const SizedBox(height: 12),
@@ -344,7 +276,6 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ),
               ),
-<<<<<<< Updated upstream
               Row(
                 children: [
                   Expanded(
@@ -362,14 +293,10 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ],
               ),
-=======
-              rowTwoFields("Nome:", "Sobrenome:"),
->>>>>>> Stashed changes
             ],
 
             if (isCPF) ...[
               const SizedBox(height: 12),
-<<<<<<< Updated upstream
               textFieldWithLabel(
                 "Data de Nascimento:", 
                 controller: birthDateController,
@@ -388,54 +315,23 @@ class _SignupPageState extends State<SignupPage> {
             ],
 
             const SizedBox(height: 12),
-=======
-              textFieldWithLabel("Gênero:"),
-            ],
-
-            const SizedBox(height: 12),
-
->>>>>>> Stashed changes
             Row(
               children: [
                 Checkbox(
                   value: isChecked,
-<<<<<<< Updated upstream
                   onChanged: (value) => setState(() => isChecked = value!),
                   activeColor: darkGreen,
-=======
-                  onChanged: (value) {
-                    setState(() {
-                      isChecked = value!;
-                    });
-                  },
-                  activeColor: const Color(0xFF2F4F2F), // verde escuro
->>>>>>> Stashed changes
                   checkColor: Colors.white,
                 ),
                 const Text("Concordo com os termos e condições"),
               ],
             ),
 
-<<<<<<< Updated upstream
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _handleSignup,
-=======
-
-            const SizedBox(height: 12),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => AccountCreatedPage()),
-                  );
-                },
->>>>>>> Stashed changes
                 style: ElevatedButton.styleFrom(
                   backgroundColor: darkGreen,
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -455,7 +351,6 @@ class _SignupPageState extends State<SignupPage> {
             ),
 
             const SizedBox(height: 16),
-<<<<<<< Updated upstream
             GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -463,16 +358,6 @@ class _SignupPageState extends State<SignupPage> {
                   MaterialPageRoute(builder: (_) => LoginPage()),
                 );
               },
-=======
-
-            GestureDetector(
-              onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => LoginPage()),
-                  );
-                },
->>>>>>> Stashed changes
               child: Text(
                 'Já tem uma conta? Faça login',
                 style: TextStyle(
@@ -508,51 +393,29 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-<<<<<<< Updated upstream
   Widget textFieldWithLabel(String label, {
     bool obscure = false, 
     required TextEditingController controller,
     VoidCallback? onTap,
     TextInputType? keyboardType,
   }) {
-=======
-  Widget textFieldWithLabel(String label, {bool obscure = false}) {
->>>>>>> Stashed changes
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: GoogleFonts.poppins(fontSize: 16)),
         const SizedBox(height: 4),
         TextField(
-<<<<<<< Updated upstream
           controller: controller,
           obscureText: obscure,
           decoration: inputStyle(""),
           onTap: onTap,
           readOnly: onTap != null,
           keyboardType: keyboardType,
-=======
-          obscureText: obscure,
-          decoration: inputStyle(""),
->>>>>>> Stashed changes
         ),
       ],
     );
   }
 
-<<<<<<< Updated upstream
-=======
-  Widget rowTwoFields(String label1, String label2) {
-    return Row(
-      children: [
-        Expanded(child: textFieldWithLabel(label1)),
-        const SizedBox(width: 12),
-        Expanded(child: textFieldWithLabel(label2)),
-      ],
-    );
-  }
-
->>>>>>> Stashed changes
   InputDecoration inputStyle(String hint) {
     return InputDecoration(
       hintText: hint,
@@ -563,7 +426,6 @@ class _SignupPageState extends State<SignupPage> {
       ),
     );
   }
-<<<<<<< Updated upstream
 
   @override
   void dispose() {
@@ -579,6 +441,3 @@ class _SignupPageState extends State<SignupPage> {
     super.dispose();
   }
 }
-=======
-}
->>>>>>> Stashed changes
