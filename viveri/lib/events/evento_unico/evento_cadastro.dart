@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:viveri/events/data/repositories/event_repositories.dart';
+import 'package:viveri/events/pages/home/stores/event_store.dart';
+import 'package:viveri/events/data/http/http_client.dart';
 
 
 class EventoUnicoCadastro extends StatefulWidget {
@@ -13,6 +15,14 @@ class EventoUnicoCadastro extends StatefulWidget {
 
 
 class _EventoUnicoCadastro extends State<EventoUnicoCadastro> {
+
+  final EventStore store = EventStore(
+    repository: EventRepository(
+      client: HttpClient(), // certifique-se que esse client exista
+    ),
+  );
+
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;

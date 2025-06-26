@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:viveri/events/pages/home/stores/event_store.dart';
+import 'package:viveri/events/data/http/http_client.dart';
+import 'package:viveri/events/data/repositories/event_repositories.dart';
 
 class EventoCriado extends StatefulWidget {
   const EventoCriado({super.key});
@@ -11,6 +14,13 @@ class EventoCriado extends StatefulWidget {
 
 
 class _EventoCriado extends State<EventoCriado> {
+
+  final EventStore store = EventStore(
+    repository: EventRepository(
+      client: HttpClient(), // certifique-se que esse client exista
+    ),
+  );
+
   @override
 
   Widget build(BuildContext context) {
