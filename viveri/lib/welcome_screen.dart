@@ -65,12 +65,12 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 24),
-                  // Seção de login para usuários existentes
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text('Já tem conta? '),
-                      // Botão de login com efeito de cursor ao passar o mouse
+
                       GestureDetector(
                         onTap: () {
                           Navigator.pushReplacement(
