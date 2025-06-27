@@ -30,10 +30,18 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if 'vat' in attrs:
-            cleaned_vat = attrs['vat'].replace(".", "").replace("-", "").replace("/", "")
-            if not CustomUser.is_valid_cpf(cleaned_vat):
-                raise serializers.ValidationError({"vat": "Invalid CPF."})
+            cleaned_vat = ''.join(filter(str.isdigit, attrs['vat']))
+            if len(cleaned_vat) == 11:
+                if not CustomUser.is_valid_cpf(cleaned_vat):
+                    raise serializers.ValidationError({"vat": "CPF inválido."})       
+            elif len(cleaned_vat) == 14:
+                if not CustomUser.is_valid_cnpj(cleaned_vat):
+                    raise serializers.ValidationError({"vat": "CNPJ inválido."})
+                    
+            else:
+                raise serializers.ValidationError({"vat": "VAT deve ter 11 ou 14 dígitos."})
             attrs['vat'] = cleaned_vat
+            
         return attrs
 
     def create(self, validated_data):

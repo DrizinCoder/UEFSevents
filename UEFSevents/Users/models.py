@@ -39,7 +39,7 @@ class CustomUser(AbstractUser):
         blank=True
     )
     
-    vat = models.CharField(max_length=14, unique=True)
+    vat = models.CharField(max_length=20, unique=True)
     verified_seal = models.BooleanField(default=False)
     phone = models.CharField(max_length=20)
     mobile = models.CharField(max_length=20)

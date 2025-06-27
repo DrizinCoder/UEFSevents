@@ -22,7 +22,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     ordering = ['-date_joined']
 
     def get_permissions(self):
-        if self.action in ['create']:
+        if self.action in ['create','list']:
             return [AllowAny()]
         return [IsAuthenticated()]
 
