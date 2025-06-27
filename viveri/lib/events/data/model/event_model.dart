@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 class EventModel {
+  final int id;
   final String title;
   final String description;
   final String start_date;
@@ -15,6 +18,7 @@ class EventModel {
   final List<dynamic> participants;
 
   EventModel({
+    required this.id,
     required this.title,
     required this.description,
     required this.start_date,
@@ -32,6 +36,7 @@ class EventModel {
   });
   factory EventModel.fromMap(Map<String, dynamic> map) {
     return EventModel(
+      id: map['id']??0,
       title: map['title']??'',
       description: map['description']??'',
       start_date: map['start_date']??'',
@@ -49,3 +54,4 @@ class EventModel {
     );
   }
 }
+//mapa = JsonEncoder(eventModel.toMap()).convert(eventModel);)
