@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
-import 'faq_question_tile.dart';
-import 'faq_model.dart';
+import 'question_model/faq_question_tile.dart';
+import 'question_model/faq_utils.dart';
+import 'question_model/faq_model.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class FaqTela extends StatefulWidget {
   final String currentUser;
   final bool isDono;
-  final List<FaqQuestion> perguntas;
 
-  const FaqTela({
-    super.key,
-    required this.currentUser,
-    required this.isDono,
-    required this.perguntas,
-  });
+  const FaqTela({super.key, required this.currentUser, required this.isDono});
 
   @override
   State<FaqTela> createState() => _FaqTelaState();
@@ -21,12 +18,33 @@ class FaqTela extends StatefulWidget {
 class _FaqTelaState extends State<FaqTela> {
   final TextEditingController _controller = TextEditingController();
   int? _respondendoIndex;
-  late List<FaqQuestion> _question;
+  List<FaqQuestion> _questions = [];
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    _question = [...widget.perguntas];
+    configurarTimeago();
+    _fetchQuestions();
+  }
+
+  Future<void> _fetchQuestions() async {
+    const url = 'http://localhost:8000/api/perguntas-frequentes';
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {'Authorization': 'Bearer Seu_Token_JWT_AQUI'},
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data =
+          json.decode(response.body)['results'] ?? json.decode(response.body);
+      setState(() {
+        _questions = data.map((e) => FaqQuestion.fromJson(e)).toList();
+        _loading = false;
+      });
+    } else {
+      print('Erro ao carregar perguntas: ${response.statusCode}');
+    }
   }
 
   void _enviarMensagem() {
@@ -36,15 +54,15 @@ class _FaqTelaState extends State<FaqTela> {
     setState(() {
       if (_respondendoIndex != null) {
         final idx = _respondendoIndex!;
-        _question[idx] = FaqQuestion(
-          index: idx,
-          autor: _question[idx].autor,
-          text: _question[idx].text,
-          isDono: _question[idx].isDono,
-          date: _question[idx].date,
-          likes: _question[idx].likes,
-          dislikes: _question[idx].dislikes,
-          answers: List.from(_question[idx].answers)..add(
+        _questions[idx] = FaqQuestion(
+          id: idx,
+          autor: _questions[idx].autor,
+          text: _questions[idx].text,
+          isDono: _questions[idx].isDono,
+          date: _questions[idx].date,
+          likes: _questions[idx].likes,
+          dislikes: _questions[idx].dislikes,
+          answers: List.from(_questions[idx].answers)..add(
             FaqAnswer(
               autor: widget.currentUser,
               text: text,
@@ -56,7 +74,7 @@ class _FaqTelaState extends State<FaqTela> {
       } else {
         _question.add(
           FaqQuestion(
-            index: _question.length,
+            id: _question.length,
             autor: widget.currentUser,
             text: text,
             isDono: widget.isDono,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:viveri/faq_utils.dart';
-import 'package:viveri/faq_toggle_icon.dart';
+import 'package:viveri/faq/question_model/faq_utils.dart';
+import 'package:viveri/faq/question_model/faq_toggle_icon.dart';
 import 'faq_model.dart';
 
 class FaqQuestionTile extends StatefulWidget {
@@ -137,7 +137,7 @@ class _FaqQuestionTileState extends State<FaqQuestionTile> {
               Text('${question.answers.length}', style: textStyle),
               const Spacer(),
               TextButton(
-                onPressed: () => widget.onResponder(question.index),
+                onPressed: () => widget.onResponder(question.id),
                 child: const Text("Responder"),
               ),
             ],

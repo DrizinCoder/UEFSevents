@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'faq_tela.dart'; // onde está sua classe FaqTela
-import 'faq_utils.dart'; // onde está tempoRelativo() e configurarTimeago()
-import 'faq_model.dart'; // modelo das classes FaqQuestion e FaqAnswer
+import 'question_model/faq_utils.dart'; // onde está tempoRelativo() e configurarTimeago()
+import 'question_model/faq_model.dart'; // modelo das classes FaqQuestion e FaqAnswer
 
 void main() {
   configurarTimeago(); // define o locale pt_br para o timeago
@@ -14,8 +14,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Exemplo: o usuário atual é o dono
-    const bool isDono = false;
-    const String currentUser = "Henrick";
+    const bool isDono = true;
+    const String currentUser = "Carlos";
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
         currentUser: currentUser,
         perguntas: [
           FaqQuestion(
-            index: 0,
+            id: 0,
             autor: "Maria",
             text: "Vai ter bebida?",
             date: DateTime.now().subtract(const Duration(minutes: 30)),
@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
             ],
           ),
           FaqQuestion(
-            index: 1,
+            id: 1,
             autor: "João",
             text: "Pode levar animal?",
             date: DateTime.now().subtract(const Duration(hours: 1)),
