@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'question_model/faq_question_tile.dart';
-import 'question_model/faq_utils.dart';
-import 'question_model/faq_model.dart';
-import 'package:http/http.dart' as http;
+import 'package:viveri/events/data/http/http_client.dart';
+import 'package:viveri/faq/services/faq_service.dart';
+import 'package:viveri/faq/question_model/faq_question_tile.dart';
+import 'package:viveri/faq/question_model/faq_utils.dart';
+import 'package:viveri/faq/question_model/faq_model.dart';
+import 'package:viveri/events/data/model/event_model.dart';
+import 'package:viveri/events/data/repositories/event_repositories.dart';
+import 'package:http/http.dart';
 import 'dart:convert';
 
 class FaqTela extends StatefulWidget {
@@ -20,70 +24,67 @@ class _FaqTelaState extends State<FaqTela> {
   int? _respondendoIndex;
   List<FaqQuestion> _questions = [];
   bool _loading = true;
+  final FaqService _faqService = FaqService();
+
+  final EventRepository _eventRepo = EventRepository(client: HttpClient());
+  List<EventModel> _eventos = [];
+  EventModel? _eventoSelecionado;
 
   @override
   void initState() {
     super.initState();
     configurarTimeago();
-    _fetchQuestions();
+    _loadingEvent();
   }
 
-  Future<void> _fetchQuestions() async {
-    const url = 'http://localhost:8000/api/perguntas-frequentes';
-    final response = await http.get(
-      Uri.parse(url),
-      headers: {'Authorization': 'Bearer Seu_Token_JWT_AQUI'},
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data =
-          json.decode(response.body)['results'] ?? json.decode(response.body);
+  Future<void> _loadingEvent() async {
+    try {
+      final eventos = await _eventRepo.getEvent(1);
       setState(() {
-        _questions = data.map((e) => FaqQuestion.fromJson(e)).toList();
-        _loading = false;
+        _eventos = eventos;
+        _eventoSelecionado = eventos.isNotEmpty ? eventos.first : null;
       });
-    } else {
-      print('Erro ao carregar perguntas: ${response.statusCode}');
+      _fetchQuestions();
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao carregar eventos: $e')));
     }
   }
 
-  void _enviarMensagem() {
-    final text = _controller.text.trim();
-    if (text.isEmpty) return;
+  Future<void> _fetchQuestions() async {
+    try {
+      final questions = await _faqService.fetchQuestion();
+      setState(() {
+        _questions = questions;
+        _loading = false;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao carregar perguntas: ${e.toString()}')),
+      );
+      setState(() => _loading = false);
+    }
+  }
 
-    setState(() {
-      if (_respondendoIndex != null) {
-        final idx = _respondendoIndex!;
-        _questions[idx] = FaqQuestion(
-          id: idx,
-          autor: _questions[idx].autor,
-          text: _questions[idx].text,
-          isDono: _questions[idx].isDono,
-          date: _questions[idx].date,
-          likes: _questions[idx].likes,
-          dislikes: _questions[idx].dislikes,
-          answers: List.from(_questions[idx].answers)..add(
-            FaqAnswer(
-              autor: widget.currentUser,
-              text: text,
-              isDono: widget.isDono,
-            ),
-          ),
-        );
-        _respondendoIndex = null;
-      } else {
-        _question.add(
-          FaqQuestion(
-            id: _question.length,
-            autor: widget.currentUser,
-            text: text,
-            isDono: widget.isDono,
-            date: DateTime.now(),
-          ),
-        );
-      }
+  void _enviarMensagem() async {
+    final text = _controller.text.trim();
+    if (text.isEmpty || _eventoSelecionado == null) return;
+
+    try {
+      await _faqService.sendQuestion(
+        text,
+        int.parse(widget.currentUser),
+        _eventoSelecionado!.id,
+      );
       _controller.clear();
-    });
+      _respondendoIndex = null;
+      await _fetchQuestions(); // Recarrega as perguntas e respostas
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro: ${e.toString()}')));
+    }
   }
 
   void _responderPergunta(int index) {
@@ -118,27 +119,31 @@ class _FaqTelaState extends State<FaqTela> {
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 90),
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(12),
-                      itemCount: _question.length,
-                      itemBuilder: (context, index) {
-                        return FaqQuestionTile(
-                          question: _question[index],
-                          isDono: widget.isDono,
-                          currentUser: widget.currentUser,
-                          onResponder: _responderPergunta,
-                        );
-                      },
-                    ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: DropdownButton<EventModel>(
+                    isExpanded: true,
+                    hint: const Text("Selecione um evento"),
+                    value: _eventoSelecionado,
+                    items:
+                        _eventos.map((event) {
+                          return DropdownMenuItem(
+                            value: event,
+                            child: Text(event.title ?? 'Sem título'),
+                          );
+                        }).toList(),
+                    onChanged: (event) {
+                      setState(() => _eventoSelecionado = event);
+                    },
                   ),
                 ),
+                
               ],
             ),
           ),
@@ -156,7 +161,7 @@ class _FaqTelaState extends State<FaqTela> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Text(
-                        'Respondendo a ${_question[_respondendoIndex!].autor}...',
+                        'Respondendo a ${_questions[_respondendoIndex!].autor}...',
                       ),
                     ),
                   Row(
@@ -175,7 +180,11 @@ class _FaqTelaState extends State<FaqTela> {
                       const SizedBox(width: 8),
                       ElevatedButton(
                         onPressed: _enviarMensagem,
-                        child: const Text('Enviar'),
+                        child: Text(
+                          _respondendoIndex != null
+                              ? 'Enviar resposta'
+                              : 'Enviar',
+                        ),
                       ),
                     ],
                   ),

@@ -5,9 +5,12 @@ import 'auth_service.dart';
 
 class FaqService {
   final String _baseUrl = 'http://localhost:8000/api';
+  final AuthService _authService = AuthService();
 
   Future<List<FaqQuestion>> fetchQuestion() async {
-    final token = await AuthService().getToken();
+    final token = await _authService.getToken();
+    if (token == null) throw Exception('Não autenticado');
+
     final response = await http.get(
       Uri.parse('$_baseUrl/perguntas-frequentes/'),
       headers: {'Authorization': 'Bearer $token'},
@@ -20,16 +23,16 @@ class FaqService {
         results.map((e) => FaqQuestion.fromJson(e)),
       );
     } else {
-      throw Exception(('Erro ao carregar perguntas'));
+      throw Exception(('Erro ao carregar perguntas: ${response..statusCode}'));
     }
   }
 
   Future<void> sendQuestion(String text, int userId, int eventId) async {
-    final token = await AuthService().getToken();
+    final token = await _authService.getToken();
     final response = await http.post(
       Uri.parse('$_baseUrl/perguntas-frequentes/'),
       headers: {
-        'Authorization': 'Bearer &$token',
+        'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
       body: jsonEncode({
@@ -44,9 +47,29 @@ class FaqService {
     }
   }
 
+  Future<void> sendAnswer(String text, int questionId, int userId) async {
+    final token = await _authService.getToken();
+    final response = await http.post(
+      Uri.parse('$_baseUrl/respostas/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application',
+      },
+      body: jsonEncode({
+        'answer_description': text,
+        'answer_fk_question': questionId,
+        'answer_fk_user': userId,
+      }),
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception('erro ao enviar resposta');
+    }
+  }
+
   Future<void> voteQuestion(int questionId, int userId, String type) async {
-    final token = await AuthService().getToken();
-    await http.post(
+    final token = await _authService.getToken();
+    final response = await http.post(
       Uri.parse('$_baseUrl/question-votes/'),
       headers: {
         'Authorization': 'Bearer $token',
@@ -58,5 +81,9 @@ class FaqService {
         'vote_type': type,
       }),
     );
+
+    if (response.statusCode != 201 && response.statusCode != 200) {
+      throw Exception('Erro ao votar na pergunta: ${response.body}');
+    }
   }
 }
