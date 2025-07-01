@@ -156,7 +156,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-
                   // Botão de voltar
                   Align(
                     alignment: Alignment.centerLeft,
@@ -164,6 +163,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       icon: const Icon(Icons.arrow_back_ios_new),
                       onPressed: () => Navigator.pop(context),
                     ),
+                  ),
                   
                   Image.asset(
                     'assets/logo.png',
@@ -183,13 +183,14 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
                   // Campo Nova Senha
                   _buildPasswordField("Nova senha:", _newPasswordController, false),
-                  Image.asset(
-                    'assets/logo.png',
-                    height: 160,
-                  ),
-                  const SizedBox(height: 24),
 
-                  // Campo Nova Senha
+                  // Erros de critérios de senha
+                  if (_passwordErrors.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Text(
                             "A senha deve conter:",
                             style: GoogleFonts.poppins(
@@ -235,18 +236,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   
                   // Erro da API
                   if (_apiError != null)
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Text(
-                        _apiError!,
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          color: Colors.red[900],
-                        ),
-                      ),
-                    ),
-
-                  // Erro da API
-                  if (_apiError != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: Text(
@@ -259,6 +248,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     ),
 
                   const SizedBox(height: 32),
+
+                  // Botão Redefinir
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
