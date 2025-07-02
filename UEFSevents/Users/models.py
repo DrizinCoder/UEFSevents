@@ -20,6 +20,7 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+
     def create_superuser(self, username, password=None, vat=None, **extra_fields):
         if not vat:
             vat = input('VAT (CPF ou CNPJ): ')
@@ -53,6 +54,13 @@ class CustomUser(AbstractUser):
         max_length=10,
         choices=USER_TYPES,
         default='customer'
+    )
+
+    company_name = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name="Nome da Empresa"
     )
 
     objects = CustomUserManager()
@@ -89,6 +97,11 @@ class CustomUser(AbstractUser):
             self.user_type = 'fugleman'
         else:
             raise ValidationError({'vat': 'VAT deve ter 11 (CPF) ou 14 (CNPJ) dígitos'})
+        if self.user_type == 'fugleman':
+            if not self.company_name:
+                raise ValidationError({'company_name': 'Nome da empresa é obrigatório para Fuglemans'})
+            if len(self.company_name.strip()) < 3:
+                raise ValidationError({'company_name': 'Nome da empresa deve ter pelo menos 3 caracteres'})
 
     @staticmethod
     def is_valid_cpf(cpf):
@@ -107,6 +120,9 @@ class CustomUser(AbstractUser):
         # Fugleman recebe selo de verificação automático
         if self.user_type == 'fugleman':
             self.verified_seal = True
+        
+        if self.company_name:
+            self.company_name = self.company_name.strip()
             
         super().save(*args, **kwargs)
 

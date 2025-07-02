@@ -11,7 +11,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'username', 'first_name', 'last_name', 'email',
             'vat', 'phone', 'mobile', 'birth_date', 'password',
-            'user_type', 'verified_seal'
+            'user_type', 'verified_seal','company_name'
         ]
 
     def validate_vat(self, value):
