@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'welcome_page.dart';
 import 'forgot_password_page.dart';
 import 'sign_up_page.dart';
+import 'profile_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -48,9 +49,14 @@ class _LoginPageState extends State<LoginPage> {
           final userData = json.decode(userResponse.body);
           await prefs.setString('user_data', json.encode(userData));
           
-          Navigator.pushReplacement(
+          Navigator.pushReplacement(  // Alterado para pushReplacement
             context,
-            MaterialPageRoute(builder: (_) => WelcomeBackPage(userData: userData)),
+            MaterialPageRoute(
+              builder: (context) => ProfilePage(
+                userData: userData,
+                accessToken: tokens['access'],
+              ),
+            ),
           );
         } else {
           showInvalidDataDialog(context, 'Falha ao obter dados do usuário');

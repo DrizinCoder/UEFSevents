@@ -3,18 +3,47 @@ import 'package:viveri/about_account_cnpj_page.dart';
 import 'package:viveri/change_password_page.dart';
 import 'package:viveri/custom_back_button.dart';
 
-// Página "Sobre a conta" para CPF
 class AboutAccountCpfPage extends StatelessWidget {
+  final Map<String, dynamic> userData;
+  final String accessToken;
+
+  const AboutAccountCpfPage({
+    Key? key,
+    required this.userData,
+    required this.accessToken,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+    // Extrai dados do usuário
+    final firstName = userData['first_name'] ?? '';
+    final lastName = userData['last_name'] ?? '';
+    final email = userData['email'] ?? '';
+    final vat = userData['vat']?.toString() ?? '';
+    final phone = userData['phone']?.toString() ?? '000000000';
+    final birthDate = userData['birth_date']?.toString() ?? 'xx/xx/xx';
+
+    // Formata o CPF (se tiver 11 dígitos)
+    String formattedVat = '***.***.***-**';
+    if (vat.length == 11) {
+      formattedVat = '${vat.substring(0, 3)}.${vat.substring(3, 6)}.${vat.substring(6, 9)}-${vat.substring(9)}';
+    }
+
+    // Formata o telefone
+    String formattedPhone = phone;
+    if (phone.length == 10) {
+      formattedPhone = '(${phone.substring(0, 2)}) ${phone.substring(2, 6)}-${phone.substring(6)}';
+    } else if (phone.length == 11) {
+      formattedPhone = '(${phone.substring(0, 2)}) ${phone.substring(2, 7)}-${phone.substring(7)}';
+    }
+
     return Scaffold(
-      backgroundColor: const Color(0xFFD3E0D1), // Cor de fundo da tela
+      backgroundColor: const Color(0xFFD3E0D1),
       body: SafeArea(
         child: Stack(
           children: [
-            // O conteúdo que rola fica aqui, no fundo do Stack.
             SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20.0, 80.0, 20.0, 20.0), // Padding para o conteúdo não ficar atrás do header
+              padding: const EdgeInsets.fromLTRB(20.0, 80.0, 20.0, 20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -32,30 +61,30 @@ class AboutAccountCpfPage extends StatelessWidget {
                             color: Colors.white.withOpacity(0.5),
                             borderRadius: BorderRadius.circular(5),
                           ),
-                          child: const Text('***.***.***-**'), // CPF ofuscado
+                          child: Text(formattedVat),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 5),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AboutAccountCnpjPage()));
-                    },
-                    child: const Text('Alterar para CNPJ?', style: TextStyle(color: Color(0xFF425C44))),
-                  ),
                   const Divider(),
                   // Informações do usuário
-                  _buildInfoRow('Nome:', 'John Doe'),
-                  _buildInfoRow('Nome Social:', 'John Doe'),
-                  _buildInfoRow('Data de Nascimento:', 'xx/xx/xx'),
-                  _buildInfoRow('Telefone de Contato:', '(xx) xxxx-xxxx'),
-                  _buildInfoRow('Email:', 'john.doe@example.com'),
+                  _buildInfoRow('Nome:', '$firstName $lastName'),
+                  _buildInfoRow('Nome Social:', '$firstName $lastName'),
+                  _buildInfoRow('Data de Nascimento:', birthDate),
+                  _buildInfoRow('Telefone de Contato:', formattedPhone),
+                  _buildInfoRow('Email:', email),
                   const Divider(),
                   // Opção para alterar senha
                   TextButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => ChangePasswordPage()));
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => ChangePasswordPage(
+                      //       accessToken: accessToken,
+                      //     ),
+                      //   ),
+                      // );
                     },
                     child: const Text('Alterar senha', style: TextStyle(color: Color(0xFF425C44))),
                   ),
@@ -84,18 +113,18 @@ class AboutAccountCpfPage extends StatelessWidget {
                 ],
               ),
             ),
-            // Header fixo que fica sobre o conteúdo
+            // Header fixo
             Container(
-              height: 60, // Altura do header
+              height: 60,
               color: const Color(0xFF425C44),
               child: const Center(
                 child: Text('Sobre a conta', style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold)),
               ),
             ),
-            // Botão de voltar posicionado sobre tudo
+            // Botão de voltar
             Positioned(
-              left: 16, // Mais para a esquerda
-              top: 8,  // Posição mais alta
+              left: 16,
+              top: 8,
               child: CustomBackButton(
                 onPressed: () => Navigator.of(context).pop(),
               ),
@@ -115,15 +144,15 @@ class AboutAccountCpfPage extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.black87,
             ),
           ),
@@ -131,4 +160,4 @@ class AboutAccountCpfPage extends StatelessWidget {
       ),
     );
   }
-} 
+}

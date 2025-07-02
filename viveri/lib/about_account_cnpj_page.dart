@@ -3,18 +3,48 @@ import 'package:viveri/about_account_cpf_page.dart';
 import 'package:viveri/change_password_page.dart';
 import 'package:viveri/custom_back_button.dart';
 
-// Página "Sobre a conta" para CNPJ
 class AboutAccountCnpjPage extends StatelessWidget {
+  final Map<String, dynamic> userData;
+  final String accessToken;
+
+  const AboutAccountCnpjPage({
+    Key? key,
+    required this.userData,
+    required this.accessToken,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+    // Extrai dados do usuário (CNPJ)
+    final companyName = userData['company_name'] ?? '';
+    final respFirstName = userData['first_name'] ?? '';
+    final respLastName = userData['last_name'] ?? '';
+    final email = userData['email'] ?? '';
+    final vat = userData['vat']?.toString() ?? '';
+    final phone = userData['phone']?.toString() ?? '000000000';
+    final userId = userData['id']?.toString() ?? '';
+
+    // Formata o CNPJ (se tiver 14 dígitos)
+    String formattedVat = '**.***.***/****-**';
+    if (vat.length == 14) {
+      formattedVat = '${vat.substring(0, 2)}.${vat.substring(2, 5)}.${vat.substring(5, 8)}/${vat.substring(8, 12)}-${vat.substring(12)}';
+    }
+
+    // Formata o telefone
+    String formattedPhone = phone;
+    if (phone.length == 10) {
+      formattedPhone = '(${phone.substring(0, 2)}) ${phone.substring(2, 6)}-${phone.substring(6)}';
+    } else if (phone.length == 11) {
+      formattedPhone = '(${phone.substring(0, 2)}) ${phone.substring(2, 7)}-${phone.substring(7)}';
+    }
+
     return Scaffold(
-      backgroundColor: const Color(0xFFD3E0D1), // Cor de fundo da tela
+      backgroundColor: const Color(0xFFD3E0D1),
       body: SafeArea(
         child: Stack(
           children: [
-            // O conteúdo que rola fica aqui, no fundo do Stack.
             SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20.0, 80.0, 20.0, 20.0), // Padding para o conteúdo não ficar atrás do header
+              padding: const EdgeInsets.fromLTRB(20.0, 80.0, 20.0, 20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -32,7 +62,7 @@ class AboutAccountCnpjPage extends StatelessWidget {
                             color: Colors.white.withOpacity(0.5),
                             borderRadius: BorderRadius.circular(5),
                           ),
-                          child: const Text('**.***.***/****-**'), // CNPJ ofuscado
+                          child: Text(formattedVat),
                         ),
                       ),
                     ],
@@ -42,28 +72,27 @@ class AboutAccountCnpjPage extends StatelessWidget {
                     onPressed: () {
                       // Ação para enviar documento
                     },
-                    child: const Text('Enviar documeto', style: TextStyle(color: Color(0xFF425C44))),
+                    child: const Text('Enviar documento', style: TextStyle(color: Color(0xFF425C44))),
                   ),
                   const Divider(),
                   // Informações da empresa
-                  _buildInfoRow('Nome vinculado ao cnpj:', 'John Doe'),
-                  _buildInfoRow('Nome fantasia:', 'John Doe'),
-                  _buildInfoRow('Data de credenciamento:', 'xx/xx/xx'),
-                  _buildInfoRow('Telefone de Contato:', '(xx) xxxx-xxxx'),
-                  _buildInfoRow('Email:', 'john.doe@example.com'),
-                  _buildInfoRow('Nome do resposavel:', 'John Doe'),
+                  _buildInfoRow('Nome vinculado ao CNPJ:', '$respFirstName $respLastName'),
+                  _buildInfoRow('Nome fantasia:', companyName),
+                  _buildInfoRow('ID da conta:', userId),
+                  _buildInfoRow('Telefone de Contato:', formattedPhone),
+                  _buildInfoRow('Email:', email),
+                  _buildInfoRow('Nome do responsável:', '$respFirstName $respLastName'),
                   const Divider(),
-                  // Opção para alterar para CPF
                   TextButton(
                     onPressed: () {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AboutAccountCpfPage()));
-                    },
-                    child: const Text('Alterar para CPF?', style: TextStyle(color: Color(0xFF425C44))),
-                  ),
-                  // Opção para alterar senha
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => ChangePasswordPage()));
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => ChangePasswordPage(
+                      //       accessToken: accessToken,
+                      //     ),
+                      //   ),
+                      // );
                     },
                     child: const Text('Alterar senha', style: TextStyle(color: Color(0xFF425C44))),
                   ),
@@ -94,7 +123,7 @@ class AboutAccountCnpjPage extends StatelessWidget {
             ),
             // Header fixo que fica sobre o conteúdo
             Container(
-              height: 60, // Altura do header
+              height: 60,
               color: const Color(0xFF425C44),
               child: const Center(
                 child: Text('Sobre a conta', style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold)),
@@ -102,8 +131,8 @@ class AboutAccountCnpjPage extends StatelessWidget {
             ),
             // Botão de voltar posicionado sobre tudo
             Positioned(
-              left: 16, // Mais para a esquerda
-              top: 8,  // Posição mais alta
+              left: 16,
+              top: 8,
               child: CustomBackButton(
                 onPressed: () => Navigator.of(context).pop(),
               ),
@@ -123,15 +152,15 @@ class AboutAccountCnpjPage extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.black87,
             ),
           ),
@@ -139,4 +168,4 @@ class AboutAccountCnpjPage extends StatelessWidget {
       ),
     );
   }
-} 
+}
