@@ -43,7 +43,7 @@ ENV PYTHONUNBUFFERED=1
  
 # Switch to non-root user
 USER appuser
- 
+
 # Expose the application port
 EXPOSE 8000 
  
