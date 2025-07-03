@@ -6,8 +6,6 @@ import 'package:viveri/faq/question_model/faq_utils.dart';
 import 'package:viveri/faq/question_model/faq_model.dart';
 import 'package:viveri/events/data/model/event_model.dart';
 import 'package:viveri/events/data/repositories/event_repositories.dart';
-import 'package:http/http.dart';
-import 'dart:convert';
 
 class FaqTela extends StatefulWidget {
   final String currentUser;
@@ -54,7 +52,9 @@ class _FaqTelaState extends State<FaqTela> {
 
   Future<void> _fetchQuestions() async {
     try {
-      final questions = await _faqService.fetchQuestion();
+      final eventId = _eventoSelecionado?.id;
+      final questions = await _faqService.fetchQuestion(eventId: eventId);
+
       setState(() {
         _questions = questions;
         _loading = false;
@@ -71,15 +71,48 @@ class _FaqTelaState extends State<FaqTela> {
     final text = _controller.text.trim();
     if (text.isEmpty || _eventoSelecionado == null) return;
 
+    final userId = int.parse(widget.currentUser);
+
     try {
-      await _faqService.sendQuestion(
-        text,
-        int.parse(widget.currentUser),
-        _eventoSelecionado!.id,
-      );
-      _controller.clear();
-      _respondendoIndex = null;
-      await _fetchQuestions(); // Recarrega as perguntas e respostas
+      if (_respondendoIndex != null) {
+        final pergunta = _questions[_respondendoIndex!];
+        await _faqService.sendAnswer(
+          text,
+          pergunta.id, // ID da pergunta
+          userId,
+        );
+        final newAnswer = FaqAnswer(
+          autor: widget.currentUser,
+          text: text,
+          isDono: widget.isDono,
+        );
+
+        setState(() {
+          _questions[_respondendoIndex!] = FaqQuestion(
+            id: pergunta.id,
+            autor: pergunta.autor,
+            text: pergunta.text,
+            date: pergunta.date,
+            isDono: pergunta.isDono,
+            likes: pergunta.likes,
+            dislikes: pergunta.dislikes,
+            answers: List.from(pergunta.answers)..add(newAnswer),
+          );
+          _respondendoIndex = null;
+          _controller.clear();
+        });
+      } else {
+        final newQuestion = await _faqService.sendQuestion(
+          text,
+          int.parse(widget.currentUser),
+          _eventoSelecionado!.id,
+        );
+
+        setState(() {
+          _questions.insert(0, newQuestion);
+          _controller.clear();
+        });
+      }
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -135,15 +168,38 @@ class _FaqTelaState extends State<FaqTela> {
                         _eventos.map((event) {
                           return DropdownMenuItem(
                             value: event,
-                            child: Text(event.title ?? 'Sem título'),
+                            child: Text(event.title),
                           );
                         }).toList(),
                     onChanged: (event) {
-                      setState(() => _eventoSelecionado = event);
+                      setState(() {
+                        _eventoSelecionado = event;
+                        _loading = true;
+                      });
+                      _fetchQuestions();
                     },
                   ),
                 ),
-                
+                Expanded(
+                  child:
+                      _loading
+                          ? const Center(child: CircularProgressIndicator())
+                          : Padding(
+                            padding: const EdgeInsets.only(bottom: 90),
+                            child: ListView.builder(
+                              padding: const EdgeInsets.all(12),
+                              itemCount: _questions.length,
+                              itemBuilder: (context, index) {
+                                return FaqQuestionTile(
+                                  question: _questions[index],
+                                  currentUser: widget.currentUser,
+                                  isDono: widget.isDono,
+                                  onResponder: _responderPergunta,
+                                );
+                              },
+                            ),
+                          ),
+                ),
               ],
             ),
           ),

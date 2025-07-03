@@ -7,6 +7,7 @@ class FaqQuestion {
   int likes;
   int dislikes;
   final List<FaqAnswer> answers;
+  String? userVote;
 
   FaqQuestion({
     required this.id,
@@ -17,6 +18,7 @@ class FaqQuestion {
     this.likes = 0,
     this.dislikes = 0,
     this.answers = const [],
+    this.userVote,
   });
 
   String get autorFormatado => isDono ? '$autor (Dono do evento)' : autor;
@@ -34,7 +36,7 @@ class FaqQuestion {
           (json['answers'] as List<dynamic>?)
               ?.map((e) => FaqAnswer.fromJson(e))
               .toList() ??
-          [],
+          [], 
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:viveri/faq/question_model/faq_utils.dart';
 import 'package:viveri/faq/question_model/faq_toggle_icon.dart';
 import 'faq_model.dart';
+import '../services/faq_service.dart';
 
 class FaqQuestionTile extends StatefulWidget {
   final FaqQuestion question;
@@ -22,8 +23,62 @@ class FaqQuestionTile extends StatefulWidget {
 }
 
 class _FaqQuestionTileState extends State<FaqQuestionTile> {
-  bool liked = false;
-  bool disliked = false;
+  late bool liked;
+  late bool disliked;
+  final _faqService = FaqService();
+
+  @override
+  void initState() {
+    super.initState();
+    liked = widget.question.userVote == 'like';
+    disliked = widget.question.userVote == 'dislike';
+  }
+
+  void _handleVote(String type) async {
+    final question = widget.question;
+    final userId = int.tryParse(widget.currentUser);
+    if (userId == null) return;
+
+    try {
+      await _faqService.voteQuestion(question.id, userId, type);
+
+      setState(() {
+        if (type == 'like') {
+          if (!liked) {
+            question.likes++;
+            if (disliked) {
+              question.dislikes--;
+              disliked = false;
+            }
+            liked = true;
+            question.userVote = 'like';
+          } else {
+            question.likes--;
+            liked = false;
+            question.userVote = null;
+          }
+        } else if (type == 'dislike') {
+          if (!disliked) {
+            question.dislikes++;
+            if (liked) {
+              question.likes--;
+              liked = false;
+            }
+            disliked = true;
+            question.userVote = type;
+          } else {
+            question.dislikes--;
+            disliked = false;
+            question.userVote = null;
+          }
+        }
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao votar: ${e.toString()}')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +131,6 @@ class _FaqQuestionTileState extends State<FaqQuestionTile> {
 
           // Texto da pergunta
           Text(question.text, style: textStyle),
-
           const SizedBox(height: 12),
 
           // Ações: likes, dislikes, respostas
@@ -88,21 +142,7 @@ class _FaqQuestionTileState extends State<FaqQuestionTile> {
                 isActive: liked,
                 count: question.likes,
                 activeColor: Colors.green,
-                onPressed: () {
-                  setState(() {
-                    if (!liked) {
-                      question.likes++;
-                      if (disliked) {
-                        disliked = false;
-                        question.dislikes--;
-                      }
-                      liked = true;
-                    } else {
-                      question.likes--;
-                      liked = false;
-                    }
-                  });
-                },
+                onPressed: () => _handleVote('like'),
               ),
               const SizedBox(width: 12),
               ToggleIcon(
@@ -111,21 +151,7 @@ class _FaqQuestionTileState extends State<FaqQuestionTile> {
                 isActive: disliked,
                 count: question.dislikes,
                 activeColor: Colors.red,
-                onPressed: () {
-                  setState(() {
-                    if (!disliked) {
-                      question.dislikes++;
-                      if (liked) {
-                        question.likes--;
-                        liked = false;
-                      }
-                      disliked = true;
-                    } else {
-                      question.dislikes--;
-                      disliked = false;
-                    }
-                  });
-                },
+                onPressed: () => _handleVote('dislike'),
               ),
               const SizedBox(width: 12),
               Icon(
