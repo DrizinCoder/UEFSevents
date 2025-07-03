@@ -3,8 +3,13 @@ import 'package:viveri/preferences_page.dart';
 import 'package:viveri/about_account_cpf_page.dart';
 import 'package:viveri/custom_back_button.dart';
 import 'package:viveri/about_account_cnpj_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'login_page.dart';
+import 'events/data/repositories/event_repositories.dart';
+import 'events/data/model/event_model.dart';
+import 'events/data/http/http_client.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   final Map<String, dynamic> userData;
   final String accessToken;
 
@@ -15,14 +20,57 @@ class ProfilePage extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  int participatedCount = 0;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadParticipatedEvents();
+  }
+
+  Future<void> _loadParticipatedEvents() async {
+    final repo = EventRepository(client: HttpClient());
+    int page = 1;
+    int count = 0;
+    bool limit = false;
+    final userId = widget.userData['id'];
+    while (!limit) {
+      final events = await repo.getEvent(page);
+      if (events.isEmpty) break;
+      for (final event in events) {
+        if (event.participants.contains(userId)) {
+          count++;
+        }
+      }
+      if (events.length < 10) limit = true;
+      page++;
+    }
+    setState(() {
+      participatedCount = count;
+      isLoading = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Extrai dados do usuário
-    final firstName = userData['first_name'] ?? '';
-    final lastName = userData['last_name'] ?? '';
-    final username = userData['username'] ?? '';
-    final userType = userData['user_type'] ?? '';
-    final verified = userData['verified_seal'] ?? false;
-    final userId = userData['id']?.toString() ?? '';
+    final firstName = widget.userData['first_name'] ?? '';
+    final lastName = widget.userData['last_name'] ?? '';
+    final username = widget.userData['username'] ?? '';
+    final userType = widget.userData['user_type'] ?? '';
+    final verified = widget.userData['verified_seal'] ?? false;
+    final userId = widget.userData['id']?.toString() ?? '';
+    final vat = widget.userData['vat'] ?? '';
+    print('DEBUG: vat do usuário = $vat');
+    String tipoDoc = 'CPF';
+    if (vat is String && vat.replaceAll(RegExp(r'\D'), '').length == 14) {
+      tipoDoc = 'CNPJ';
+    }
 
     // Nome completo ou username como fallback
     final displayName = '$firstName $lastName'.trim().isNotEmpty
@@ -31,7 +79,9 @@ class ProfilePage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFD3E0D1),
-      body: Column(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Column(
         children: [
           Container(
             height: MediaQuery.of(context).padding.top + 60,
@@ -91,7 +141,7 @@ class ProfilePage extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${userType == 'fugleman' ? 'CNPJ' : 'CPF'} • ID: $userId',
+                    '$tipoDoc • ID: $userId',
                     style: const TextStyle(
                       fontSize: 14,
                       color: Colors.black54,
@@ -102,21 +152,24 @@ class ProfilePage extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildStatColumn('8', 'Avaliados'),
-                      _buildStatColumn('20', 'Favoritados'),
-                      _buildStatColumn('12', 'Participado'),
+                      _buildStatColumn('0', 'Avaliados'),
+                      _buildStatColumn('0', 'Favoritados'),
+                      _buildStatColumn(participatedCount.toString(), 'Participado'),
                     ],
                   ),
                   const SizedBox(height: 30),
                   // Lista de opções
                   _buildProfileOption(context, 'Sobre a conta', () {
-                    if (userType == 'fugleman') {
+                    final vat = widget.userData['vat'] ?? '';
+                    print('DEBUG: vat do usuário ao clicar = $vat');
+                    final isCnpj = vat is String && vat.replaceAll(RegExp(r'\D'), '').length == 14;
+                    if (isCnpj) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => AboutAccountCnpjPage(
-                            userData: userData,
-                            accessToken: accessToken,
+                            userData: widget.userData,
+                            accessToken: widget.accessToken,
                           ),
                         ),
                       );
@@ -125,8 +178,8 @@ class ProfilePage extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => AboutAccountCpfPage(
-                            userData: userData,
-                            accessToken: accessToken,
+                            userData: widget.userData,
+                            accessToken: widget.accessToken,
                           ),
                         ),
                       );
@@ -144,8 +197,16 @@ class ProfilePage extends StatelessWidget {
                   _buildProfileOption(context, 'Sobre o Viveri', () {}),
                   _buildProfileOption(context, 'Obter Ajuda', () {}),
                   _buildProfileOption(context, 'Convidar amigos', () {}),
-                  _buildProfileOption(context, 'Sair', () {
-                    // Implementar lógica de logout
+                  _buildProfileOption(context, 'Sair', () async {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.remove('access_token');
+                    await prefs.remove('refresh_token');
+                    await prefs.remove('user_data');
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                      (route) => false,
+                    );
                   }),
                   const SizedBox(height: 40),
                   // Rodapé com informações de versão
