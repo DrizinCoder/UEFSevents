@@ -2279,7 +2279,7 @@ final List<SpaceModel> spaces = [];
                     //  final SpaceModel space = SpaceModel.fromMap(spaceCriado);
 
 
-                      var cu = await repo.createEvent(evtCriado, spaceCriado, adressCriado);
+                      var create = await repo.createEvent(evtCriado, spaceCriado, adressCriado);
 
 
 //print(spaceCriado);
