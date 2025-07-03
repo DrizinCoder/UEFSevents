@@ -4,7 +4,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:viveri/events/criar_evento/no_events.dart';
 
+import '../criar_evento/created.dart';
 import '../data/http/http_client.dart';
 import '../data/model/adress_model.dart';
 import '../data/model/event_model.dart';
@@ -45,7 +48,7 @@ class Testando extends StatelessWidget {
       // locale: const Locale('pt', 'BR'),
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      home: const CreateEvent(title: 'testando preferencias'),
+      home: const CreateEvent(),
     );
   }
 }
@@ -54,9 +57,9 @@ class Testando extends StatelessWidget {
 bool limit = false;
 
 class CreateEvent extends StatefulWidget {
-  const CreateEvent({super.key, required this.title});
+  const CreateEvent({super.key});
 
-  final String title;
+//  final String title;
 
   @override
   State<CreateEvent> createState() => _CreateEvent();
@@ -132,6 +135,7 @@ int? faixaEtaria;
 
   @override
   void initState() {
+    print(SharedPreferences);
     super.initState();
     // page = 1;
     //  _scrollController.addListener(_verificaScroll);
@@ -2197,7 +2201,7 @@ int? faixaEtaria;
                     // aplicar filtro…
                     else{
 
-
+try{
 Map<String, dynamic> adressCriado = {
 'adress_zip_code':cep,
 'adress_city':cidade,
@@ -2281,7 +2285,18 @@ final List<SpaceModel> spaces = [];
 
                       var create = await repo.createEvent(evtCriado, spaceCriado, adressCriado);
 
-
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => const Created()),
+                      );
+}
+catch(e){
+ // String mensagem = 'Ocorreu um erro/n Nenhum evento criado: $e';
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (_) => const NoEvents()),
+  );
+}
 //print(spaceCriado);
   /*
     class SpaceModel {
