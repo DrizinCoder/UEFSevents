@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
 import 'onboarding_screen.dart';
+import 'sign_up_page.dart';
 
 // Widget da tela de boas-vindas
 class WelcomeScreen extends StatelessWidget {
@@ -114,7 +115,24 @@ class WelcomeScreen extends StatelessWidget {
                       minimumSize: Size(double.infinity, 48),
                     ),
                     onPressed: () {
-                      // Navegar para tela de cadastro se necessário
+                      // Navegar para tela de cadastro
+                      Navigator.pushReplacement(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder: (context, animation, secondaryAnimation) => SignupPage(),
+                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                            var begin = Offset(1.0, 0.0);
+                            var end = Offset.zero;
+                            var curve = Curves.easeInOut;
+                            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                            return SlideTransition(
+                              position: animation.drive(tween),
+                              child: child,
+                            );
+                          },
+                          transitionDuration: Duration(milliseconds: 400),
+                        ),
+                      );
                     },
                     child: Text(
                       'Criar uma conta',
