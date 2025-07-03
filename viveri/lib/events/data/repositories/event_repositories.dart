@@ -112,10 +112,33 @@ class EventRepository implements IEventReposity {
     }
   }
 
+// event_repositories.dart
+  Future<SpaceModel> getSpaceById(int id) async {
+    final response = await client.get(
+      url: 'http://localhost:8000/api/spaces/$id/' // URL da API para espaços
+    );
+
+    if (response.statusCode == 200) {
+      return SpaceModel.fromMap(jsonDecode(response.body));
+    } else {
+      throw Exception('Falha ao carregar espaço');
+    }
+  }
+
+     Future<EventModel> getEventById(int id) async {
+    final response = await client.get(
+      url: 'http://localhost:8000/api/spaces/$id/' // URL da API para espaços
+    );
+
+    if (response.statusCode == 200) {
+      return EventModel.fromMap(jsonDecode(response.body));
+    } else {
+      throw Exception('Falha ao carregar espaço');
+    }
+  }
 
 
-
-
+}
 
 
 
@@ -146,7 +169,6 @@ class EventRepository implements IEventReposity {
 
 
 
-}
 
 
 
