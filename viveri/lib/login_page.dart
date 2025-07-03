@@ -6,11 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'welcome_page.dart';
 import 'forgot_password_page.dart';
 import 'sign_up_page.dart';
-import 'home_page.dart';
-import 'location_permission_page.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'profile_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -53,7 +49,15 @@ class _LoginPageState extends State<LoginPage> {
           final userData = json.decode(userResponse.body);
           await prefs.setString('user_data', json.encode(userData));
           
-          _goToLocationPermissionPage();
+          Navigator.pushReplacement(  // Alterado para pushReplacement
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProfilePage(
+                userData: userData,
+                accessToken: tokens['access'],
+              ),
+            ),
+          );
         } else {
           showInvalidDataDialog(context, 'Falha ao obter dados do usuário');
         }
@@ -65,15 +69,6 @@ class _LoginPageState extends State<LoginPage> {
     } finally {
       setState(() => _isLoading = false);
     }
-  }
-
-  Future<void> _goToLocationPermissionPage() async {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => LocationPermissionPage(),
-      ),
-    );
   }
 
   @override
@@ -100,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Usuário:',
+                'E-mail:',
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   color: darkGreen,
