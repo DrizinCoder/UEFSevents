@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
 
       debugShowCheckedModeBanner: false,
       title: 'Viveri',
-      home: Notifications()// Substitua po9r WelcomeScreen() ou OnboardingScreen() conforme necessário
+      home: SplashScreen()// Substitua po9r WelcomeScreen() ou OnboardingScreen() conforme necessário
       ///SplashScreen(),
     );
   }

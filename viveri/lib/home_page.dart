@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:viveri/bottom_nav_bar.dart';
+import 'package:viveri/events/data/repositories/event_repositories.dart';
+import 'package:viveri/events/data/model/event_model.dart';
+import 'package:viveri/events/data/http/http_client.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'events_search.dart';
+import 'events/evento_unico/notifications.dart';
 
 class HomePage extends StatefulWidget {
+  final String? userLocation;
+  const HomePage({Key? key, this.userLocation}) : super(key: key);
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -9,6 +18,10 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+
+  List<EventModel> events = [];
+  Map<String, dynamic>? userData;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -18,6 +31,22 @@ class _HomePageState extends State<HomePage> {
         _currentPage = _pageController.page!.round();
       });
     });
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('access_token');
+    final userDataString = prefs.getString('user_data');
+    if (accessToken != null) {
+      final repo = EventRepository(client: HttpClient());
+      final fetchedEvents = await repo.getEvent(1);
+      setState(() {
+        events = fetchedEvents;
+        userData = userDataString != null ? json.decode(userDataString) : null;
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -28,38 +57,48 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFD3E0D1),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final userName = (userData?['first_name'] ?? '');
+    final userLocation = widget.userLocation ?? userData?['adress_city'] ?? 'Localização não informada';
+
     return Scaffold(
       backgroundColor: const Color(0xFFD3E0D1),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(context),
+            _buildHeader(context, userName, userLocation),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildSectionTitle('Eventos hoje:'),
-                  _buildHorizontalEventList(),
+                  _buildHorizontalEventList(events),
                   const SizedBox(height: 24),
                   _buildSectionTitle('Eventos em alta:'),
-                  _buildHorizontalEventList(),
+                  _buildHorizontalEventList(events),
                   const SizedBox(height: 24),
                   _buildSectionTitle('Categorias:', showSeeAll: true),
                   _buildCategoryList(),
                   const SizedBox(height: 24),
                   _buildSectionTitle('Eventos em destaque:'),
-                  _buildFeaturedEvents(),
+                  _buildHorizontalEventList(events),
                   const SizedBox(height: 24),
                   _buildSectionTitle('Interesse1:', showSeeAll: true),
-                  _buildHorizontalEventList(),
+                  _buildHorizontalEventList(events),
                   const SizedBox(height: 24),
                   _buildSectionTitle('Visto recente:', showSeeAll: true),
-                  _buildHorizontalEventList(),
+                  _buildHorizontalEventList(events),
                   const SizedBox(height: 24),
                   _buildSectionTitle('Tal coisa:', showSeeAll: true),
-                  _buildHorizontalEventList(),
+                  _buildHorizontalEventList(events),
                 ],
               ),
             ),
@@ -71,7 +110,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, String userName, String userLocation) {
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 16,
@@ -86,31 +125,47 @@ class _HomePageState extends State<HomePage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Image.asset('nameless_logo.png', height: 40),
-              Image.asset('notifications.png', height: 30),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Notifications()),
+                  );
+                },
+                child: Image.asset('notifications.png', height: 30),
+              ),
             ],
           ),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Olá, John Doe!', style: TextStyle(color: Color(0xFF284017), fontSize: 18)),
+                    Text('Olá, $userName!', style: TextStyle(color: Color(0xFF284017), fontSize: 18)),
                     Text('O que vamos fazer hoje?', style: TextStyle(color: Color(0xFF271D1C), fontSize: 22, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
-              Image.asset('icons_bruno/search.png', height: 30),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => EventSearch(title: 'Buscar eventos')),
+                  );
+                },
+                child: Image.asset('icons_bruno/search.png', height: 30),
+              ),
             ],
           ),
           const SizedBox(height: 16),
-          const Row(
+          Row(
             children: [
               Icon(Icons.location_on, color: Colors.white, size: 16),
               SizedBox(width: 8),
-              Text('Eventos em: Cidade - Estado', style: TextStyle(color: Colors.white)),
+              Text('Eventos em: $userLocation', style: TextStyle(color: Colors.white)),
             ],
           )
         ],
@@ -129,20 +184,21 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildHorizontalEventList() {
+  Widget _buildHorizontalEventList(List<EventModel> events) {
     return Container(
       height: 110,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: 5,
+        itemCount: events.length,
         itemBuilder: (context, index) {
-          return _buildEventCard();
+          final event = events[index];
+          return _buildEventCard(event);
         },
       ),
     );
   }
 
-  Widget _buildEventCard() {
+  Widget _buildEventCard(EventModel event) {
     return Container(
       width: 160,
       margin: const EdgeInsets.only(top: 8, right: 16),
@@ -185,16 +241,16 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Evento', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
+                Text(event.title, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
                 SizedBox(height: 2),
-                Text('Localização', style: TextStyle(fontSize: 8, color: Colors.black)),
+                Text('Local: ${event.space}', style: TextStyle(fontSize: 8, color: Colors.black)),
                 SizedBox(height: 2),
-                Text('Data', style: TextStyle(fontSize: 7, color: Colors.black)),
+                Text('Data: ${event.start_date}', style: TextStyle(fontSize: 7, color: Colors.black)),
               ],
             ),
           )

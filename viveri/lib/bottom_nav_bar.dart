@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:viveri/profile_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class CustomBottomNavBar extends StatelessWidget {
   @override
@@ -29,11 +31,23 @@ class CustomBottomNavBar extends StatelessWidget {
               _buildNavItem(iconPath: 'ticket.png', onPressed: () {}),
               _buildNavItem(
                 iconPath: 'user.png',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ProfilePage()),
-                  );
+                onPressed: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  final userDataString = prefs.getString('user_data');
+                  final accessToken = prefs.getString('access_token');
+                  
+                  if (userDataString != null && accessToken != null) {
+                    final userData = json.decode(userDataString);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfilePage(
+                          userData: userData,
+                          accessToken: accessToken,
+                        ),
+                      ),
+                    );
+                  }
                 },
               ),
             ],
@@ -48,7 +62,7 @@ class CustomBottomNavBar extends StatelessWidget {
     return Container(
       width: 55,
       height: 55,
-      margin: const EdgeInsets.only(bottom: 15), // Lifts the button up a bit
+      margin: const EdgeInsets.only(bottom: 25), // Lifts the button up a bit
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -80,7 +94,7 @@ class CustomBottomNavBar extends StatelessWidget {
     return InkWell(
       onTap: onPressed,
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 12.0),
+        padding: const EdgeInsets.only(bottom: 10),
         child: Image.asset(iconPath, height: 30, width: 30),
       ),
     );
