@@ -1,8 +1,9 @@
 
 class SpaceModel {
+  final int id;
   final String max_capacity;
   final String name;
-  final String acessibility;
+  final bool acessibility;
   final String phone;
   final String mobile;
   final String type_adress;
@@ -10,6 +11,7 @@ class SpaceModel {
   final String created_at;
   
   SpaceModel({
+    required this.id,
     required this.max_capacity,
     required this.name,
     required this.acessibility,
@@ -21,14 +23,28 @@ class SpaceModel {
   });
   factory SpaceModel.fromMap(Map<String, dynamic> map) {
     return SpaceModel(
-      max_capacity: map['max_capacity'],
-      name: map['name'],
-      acessibility: map['acessibility'],
-      phone: map['phone'],
-      mobile: map['mobile'],
-      type_adress: map['type_adress'],
-      adress: map['adress'],
-      created_at: map['created_at'],
+      id: map['id']??0,
+      max_capacity: map['max_capacity']??'',
+      name: map['name']??'',
+      acessibility: map['acessibility']??false,
+      phone: map['phone']??'',
+      mobile: map['mobile']??'',
+      type_adress: map['type_adress']??'',
+      adress: map['adress']??'',
+      created_at: map['created_at']??'',
     );
   }
+
+  Map<String, dynamic> toJson(){
+    return{
+      'max_capacity':int.parse(max_capacity),
+      'name':name,
+      'acessibility':acessibility,
+      'phone':phone,
+      'mobile':mobile,
+      'type_adress':type_adress,
+      'adress':adress,
+    };
+  }
+
 }

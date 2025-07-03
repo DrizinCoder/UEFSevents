@@ -1181,6 +1181,8 @@ class _EventSearch extends State<EventSearch> {
                                               alignment: Alignment.centerRight,
                                               child: InkWell(
                                                 onTap: () {
+
+                                                  print('favoritado o evento de id ${item.id}');
                                                   selected[index] =
                                                       !selected[index];
                                                   sa(() {});

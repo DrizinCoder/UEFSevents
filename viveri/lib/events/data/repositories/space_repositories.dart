@@ -33,4 +33,33 @@ class SpaceRepository implements ISpaceReposity {
       throw Exception('Não foi possível encontrar os eventos');
     }
   }
+
+
+
+  Future createSpace(SpaceModel space) async {
+    final url = 'http://localhost:8000/api/space/';
+
+    final response = await client.post(
+      url: url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUzOTg0Njc1LCJpYXQiOjE3NTEzOTI2NzUsImp0aSI6IjE2NjRiYjdlOGVlZTQ1ODg5MzlmYWQzZjRlOTM4MjI5IiwidXNlcl9pZCI6MX0.KXaCfHzjRrpp9yP5aP059ySKSe7_kypxrFCZ3JxZ5Xk' // se necessário
+      },
+      body: jsonEncode(space.toJson()), // ou event.toJson() se você tiver esse método
+    );
+    print('Status createSpace: ${response.statusCode}');
+    print('Corpo createSpace: ${response.body}');
+    //final body = jsonDecode(response.body);
+  //  print('Corpo do erro: ${response.body}');
+
+    if (response.statusCode == 201) {
+      print('Evento criado com sucesso');
+      final spaceid = jsonDecode(response.body)['id'];
+      return spaceid;
+    } else {
+      //return 'Erro ao criar evento: ${response.statusCode}';
+      throw Exception('Erro ao criar space');
+    }
+  }
+
 }

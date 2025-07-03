@@ -53,5 +53,26 @@ class EventModel {
       participants: map['participants']??[],
     );
   }
+
+  Map<String, dynamic> toJson(){
+    return{
+     // 'id':id,
+      'title':title,
+      'description':description,
+      'start_date':start_date,
+      'end_date':end_date,
+      'start_time':start_time,
+      'endtime':endtime,
+      'status':status,
+      'category':category,
+      'space':space,
+      'type_event':type_event,
+      'age_range':age_range,
+     // 'crated_at':crated_at,
+     // 'documentations':documentations,
+   //   'participants':participants,
+    };
+  }
+
 }
 //mapa = JsonEncoder(eventModel.toMap()).convert(eventModel);)
