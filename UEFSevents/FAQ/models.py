@@ -23,7 +23,7 @@ class Answers(models.Model):
 #Class respostas para respostas
 class Answer_To_Answer(models.Model):
     ans_to_ans_description = models.CharField(max_length = 1000)
-    ans_to_ans_fk_answer = models.ForeignKey(Answers, on_delete = models.CASCADE, null=True, related_name='answers')
+    ans_to_ans_fk_answer = models.ForeignKey(Answers, on_delete = models.CASCADE, null=True, related_name='subanswers')
     ans_to_ans_fk_user = models.ForeignKey(CustomUser, on_delete = models.CASCADE, null=True)
     ans_to_ans_created_at = models.DateTimeField(auto_now_add=True)
 
