@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:viveri/login_page.dart';
-import 'package:viveri/events/criar_evento/build_event1.dart';
+import 'package:viveri/events/telas_criar_evento/create_favorite.dart';
 
 
 class NoEvents extends StatelessWidget {
@@ -41,7 +41,7 @@ class NoEvents extends StatelessWidget {
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => const BuildEvent1()),
+                  MaterialPageRoute(builder: (_) => CreateFavorite()),
                 );
               },
               style: ElevatedButton.styleFrom(

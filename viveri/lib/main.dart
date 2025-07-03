@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'splash_screen.dart';
 import 'onboarding_screen.dart';
 import 'welcome_screen.dart';
+import 'events/criar_evento/no_events.dart';
 
 void main() {
   runApp(MyApp());
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
 
       debugShowCheckedModeBanner: false,
       title: 'Viveri',
-      home: SplashScreen()// Substitua po9r WelcomeScreen() ou OnboardingScreen() conforme necessário
+      home: NoEvents()// Substitua po9r WelcomeScreen() ou OnboardingScreen() conforme necessário
       ///SplashScreen(),
     );
   }

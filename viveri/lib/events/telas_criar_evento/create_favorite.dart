@@ -40,7 +40,7 @@ class Testando extends StatelessWidget {
       // locale: const Locale('pt', 'BR'),
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      home: const CreateEvent(title: 'testando preferencias'),
+
     );
   }
 }
@@ -48,18 +48,17 @@ class Testando extends StatelessWidget {
 //============================FIM DO CÓDIGO DE INDEPENÊNCIA==================================================================
 bool limit = false;
 
-class CreateEvent extends StatefulWidget {
-  const CreateEvent({super.key, required this.title});
+class CreateFavorite extends StatefulWidget {
+  const CreateFavorite({super.key});
 
-  final String title;
   @override
-  State<CreateEvent> createState() => _CreateEvent();
+  State<CreateFavorite> createState() => _CreateFavorite();
 }
 
-class _CreateEvent extends State<CreateEvent>  with SingleTickerProviderStateMixin {
+class _CreateFavorite extends State<CreateFavorite>  with SingleTickerProviderStateMixin {
   late final TabController _tc;
 
-  //final CreateEvent store = CreateEvent(
+  //final CreateFavorite store = CreateFavorite(
   //repository: EventRepository(client: HttpClient()),
   //);
   List<dynamic> evnts = [];

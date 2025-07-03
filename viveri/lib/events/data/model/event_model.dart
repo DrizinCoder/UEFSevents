@@ -10,7 +10,7 @@ class EventModel {
   final String endtime;
   final bool status;
   final String category;
-  final int space;
+  final String space;
   final String type_event;
   final int age_range;
   final String crated_at;
