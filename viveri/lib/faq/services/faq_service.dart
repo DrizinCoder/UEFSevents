@@ -4,7 +4,8 @@ import 'package:viveri/faq/question_model/faq_model.dart';
 import 'auth_service.dart';
 
 class FaqService {
-  final String _baseUrl = 'http://localhost:8000/api';
+  final String _baseUrl =
+      'http://192.168.0.117:8000/api'; // 'http://localhost:8000/api';
   final AuthService _authService = AuthService();
 
   Future<List<FaqQuestion>> fetchQuestion({int? eventId}) async {
