@@ -108,6 +108,24 @@ class _SignupPageState extends State<SignupPage> {
   void _handleSignup() async {
     print('[UI] Botão de cadastro pressionado');
 
+    // Validação de CPF/CNPJ
+    final vatRaw = cpfCnpjController.text;
+    final vatClean = vatRaw.replaceAll(RegExp(r'[^0-9]'), '');
+    if (isCPF && vatClean.length != 11) {
+      print('[UI] CPF inválido: $vatClean');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("CPF deve conter 11 dígitos.")),
+      );
+      return;
+    }
+    if (!isCPF && vatClean.length != 14) {
+      print('[UI] CNPJ inválido: $vatClean');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("CNPJ deve conter 14 dígitos.")),
+      );
+      return;
+    }
+
     if (!isChecked) {
       print('[UI] Usuário não aceitou os termos');
       ScaffoldMessenger.of(context).showSnackBar(
