@@ -8,6 +8,7 @@ import 'login_page.dart';
 import 'events/data/repositories/event_repositories.dart';
 import 'events/data/model/event_model.dart';
 import 'events/data/http/http_client.dart';
+import 'events/telas_criar_evento/create_favorite.dart';
 
 class ProfilePage extends StatefulWidget {
   final Map<String, dynamic> userData;
@@ -193,7 +194,14 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     );
                   }),
-                  _buildProfileOption(context, 'Eventos', () {}),
+                  _buildProfileOption(context, 'Eventos', () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CreateFavorite(),
+                      ),
+                    );
+                  }),
                   _buildProfileOption(context, 'Sobre o Viveri', () {}),
                   _buildProfileOption(context, 'Obter Ajuda', () {}),
                   _buildProfileOption(context, 'Convidar amigos', () {}),
