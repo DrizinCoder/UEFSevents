@@ -36,7 +36,7 @@ class EventViewSet(viewsets.ModelViewSet):
 
     filter_backends = [DjangoFilterBackend, SearchFilter] 
     filterset_fields = ['type_event', 'title', 'start_date', 'age_range', 'adress'] 
-    search_fields = ['', 'title', 'start_date', 'age_range'] 
+    search_fields = ['title', 'start_date', 'age_range'] 
 
 
 
