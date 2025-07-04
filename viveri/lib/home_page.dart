@@ -124,7 +124,7 @@ class _HomePageState extends State<HomePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Image.asset('nameless_logo.png', height: 40),
+              Image.asset('assets/nameless_logo.png', height: 40),
               GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -132,7 +132,7 @@ class _HomePageState extends State<HomePage> {
                     MaterialPageRoute(builder: (context) => Notifications()),
                   );
                 },
-                child: Image.asset('notifications.png', height: 30),
+                child: Image.asset('assets/notifications.png', height: 30),
               ),
             ],
           ),
@@ -156,7 +156,7 @@ class _HomePageState extends State<HomePage> {
                     MaterialPageRoute(builder: (context) => EventSearch(title: 'Buscar eventos')),
                   );
                 },
-                child: Image.asset('icons_bruno/search.png', height: 30),
+                child: Image.asset('assets/icons_bruno/search.png', height: 30),
               ),
             ],
           ),
@@ -261,12 +261,12 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildCategoryList() {
     final categories = [
-      {'icon': 'icons_bruno/festas.png', 'label': 'Festas/\nShows'},
-      {'icon': 'icons_bruno/spt.png', 'label': 'Passeios/\nTours'},
-      {'icon': 'icons_bruno/cursos.png', 'label': 'Workshops/\nCursos'},
-      {'icon': 'icons_bruno/espiritualidade.png', 'label': 'Espiritualidade/\nOutros'},
-      {'icon': 'icons_bruno/tecnologia.png', 'label': 'Tecnologia'},
-      {'icon': 'icons_bruno/infantil.png', 'label': 'Infantil'},
+      {'icon': 'assets/icons_bruno/festas.png', 'label': 'Festas/\nShows'},
+      {'icon': 'assets/icons_bruno/spt.png', 'label': 'Passeios/\nTours'},
+      {'icon': 'assets/icons_bruno/cursos.png', 'label': 'Workshops/\nCursos'},
+      {'icon': 'assets/icons_bruno/espiritualidade.png', 'label': 'Espiritualidade/\nOutros'},
+      {'icon': 'assets/icons_bruno/tecnologia.png', 'label': 'Tecnologia'},
+      {'icon': 'assets/icons_bruno/infantil.png', 'label': 'Infantil'},
     ];
 
     return Container(

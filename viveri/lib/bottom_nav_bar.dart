@@ -33,7 +33,7 @@ class CustomBottomNavBar extends StatelessWidget {
             children: [
               _buildNavItemWithCircle(
                 context: context,
-                iconPath: 'home.png',
+                iconPath: 'assets/home.png',
                 isActive: currentIndex == 0,
                 onPressed: () {
                   if (currentIndex != 0) {
@@ -46,7 +46,7 @@ class CustomBottomNavBar extends StatelessWidget {
               ),
               _buildNavItemWithCircle(
                 context: context,
-                iconPath: 'events.png',
+                iconPath: 'assets/events.png',
                 isActive: currentIndex == 1,
                 onPressed: () {
                   if (currentIndex != 1) {
@@ -59,13 +59,13 @@ class CustomBottomNavBar extends StatelessWidget {
               ),
               _buildNavItemWithCircle(
                 context: context,
-                iconPath: 'ticket.png',
+                iconPath: 'assets/ticket.png',
                 isActive: currentIndex == 2,
                 onPressed: () {},
               ),
               _buildNavItemWithCircle(
                 context: context,
-                iconPath: 'user.png',
+                iconPath: 'assets/user.png',
                 isActive: currentIndex == 3,
                 onPressed: () async {
                   final prefs = await SharedPreferences.getInstance();
