@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:viveri/bottom_nav_bar.dart';
 //import 'package:viveri/events/data/http/http_client.dart';
 //import 'package:viveri/events/data/repositories/event_repositories.dart';
 //import 'package:viveri/events/pages/home/stores/event_store.dart';
@@ -297,21 +298,20 @@ class _CreateFavorite extends State<CreateFavorite>  with SingleTickerProviderSt
                   ],
                 ),
               ),
-      if(_tc.index == 1)
+            if(_tc.index == 1)
               InkWell(
-        onTap: () { /* criar evento */ },
-        child:Container(
-                color: Color.fromRGBO(88, 108, 97, 1),
-                width: width,
-                padding: EdgeInsets.all(16),
-                child:  Center(
+                onTap: () { /* criar evento */ },
+                child: Container(
+                  color: Color.fromRGBO(88, 108, 97, 1),
+                  width: width,
+                  padding: EdgeInsets.all(16),
+                  child: Center(
                     child: Text(
-                    'Criar evento',
-                      style:
-                      TextStyle(
-                          fontSize: 18,
-                          color: Color(0xFFF4B134),
-                          fontWeight: FontWeight.bold
+                      'Criar evento',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Color(0xFFF4B134),
+                        fontWeight: FontWeight.bold
                       ),
                     ),
                   ),
@@ -320,6 +320,7 @@ class _CreateFavorite extends State<CreateFavorite>  with SingleTickerProviderSt
             ],
           ),
         ),
+        bottomNavigationBar: _tc.index != 1 ? const CustomBottomNavBar(currentIndex: 1) : null,
     );
   }
 }

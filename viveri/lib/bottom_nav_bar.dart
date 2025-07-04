@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:viveri/profile_page.dart';
+import 'package:viveri/events/telas_criar_evento/create_favorite.dart';
+import 'package:viveri/home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class CustomBottomNavBar extends StatelessWidget {
+  final int currentIndex;
+  const CustomBottomNavBar({Key? key, this.currentIndex = 0}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     // Total height is 67px from the design. The bar is 50px, and the home button overlaps.
@@ -26,16 +31,46 @@ class CustomBottomNavBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              _buildHomeButton(),
-              _buildNavItem(iconPath: 'events.png', onPressed: () {}),
-              _buildNavItem(iconPath: 'ticket.png', onPressed: () {}),
-              _buildNavItem(
+              _buildNavItemWithCircle(
+                context: context,
+                iconPath: 'home.png',
+                isActive: currentIndex == 0,
+                onPressed: () {
+                  if (currentIndex != 0) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const HomePage()),
+                    );
+                  }
+                },
+              ),
+              _buildNavItemWithCircle(
+                context: context,
+                iconPath: 'events.png',
+                isActive: currentIndex == 1,
+                onPressed: () {
+                  if (currentIndex != 1) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const CreateFavorite()),
+                    );
+                  }
+                },
+              ),
+              _buildNavItemWithCircle(
+                context: context,
+                iconPath: 'ticket.png',
+                isActive: currentIndex == 2,
+                onPressed: () {},
+              ),
+              _buildNavItemWithCircle(
+                context: context,
                 iconPath: 'user.png',
+                isActive: currentIndex == 3,
                 onPressed: () async {
                   final prefs = await SharedPreferences.getInstance();
                   final userDataString = prefs.getString('user_data');
                   final accessToken = prefs.getString('access_token');
-                  
                   if (userDataString != null && accessToken != null) {
                     final userData = json.decode(userDataString);
                     Navigator.push(
@@ -57,45 +92,58 @@ class CustomBottomNavBar extends StatelessWidget {
     );
   }
 
-  // Custom widget for the selected "Home" button
-  Widget _buildHomeButton() {
-    return Container(
-      width: 55,
-      height: 55,
-      margin: const EdgeInsets.only(bottom: 25), // Lifts the button up a bit
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Outer circle
-          Container(
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xFFD4E0D4),
-            ),
-          ),
-          // Inner circle
-          Container(
-            width: 52,
-            height: 52,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xFF586C61),
-            ),
-          ),
-          // Icon
-          Image.asset('home.png', width: 40, height: 40),
-        ],
+  Widget _buildNavItemWithCircle({
+    required BuildContext context,
+    required String iconPath,
+    required bool isActive,
+    required VoidCallback onPressed,
+  }) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: 55,
+        height: 55,
+        margin: EdgeInsets.only(bottom: isActive ? 25 : 0),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            if (isActive)
+              Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFFD4E0D4),
+                ),
+              ),
+            if (isActive)
+              Container(
+                width: 52,
+                height: 52,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFF586C61),
+                ),
+              ),
+            Image.asset(iconPath, width: 40, height: 40),
+          ],
+        ),
       ),
     );
   }
 
-  // Widget for the other navigation items
-  Widget _buildNavItem({required String iconPath, required VoidCallback onPressed}) {
+  // Outros ícones sem destaque de fundo
+  Widget _buildNavItem({
+    required String iconPath,
+    required VoidCallback onPressed,
+  }) {
     return InkWell(
       onTap: onPressed,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 10),
-        child: Image.asset(iconPath, height: 30, width: 30),
+        child: Image.asset(
+          iconPath,
+          height: 30,
+          width: 30,
+        ),
       ),
     );
   }
