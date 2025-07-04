@@ -17,6 +17,8 @@ class EventStore {
 
   final ValueNotifier<String> erro = ValueNotifier<String>('');
 
+  List<EventModel> get events => state.value;
+  
   EventStore({required this.repository});
 
   Future getEvents(page) async {
@@ -46,5 +48,7 @@ class EventStore {
     isLoading.value = false;
  // page++;
   }
+
+
 
 }

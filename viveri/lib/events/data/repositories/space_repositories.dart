@@ -62,4 +62,19 @@ class SpaceRepository implements ISpaceReposity {
     }
   }
 
+    Future<SpaceModel> getSpaceById(int id) async {
+    final response = await client.get(
+      url: 'http://localhost:8000/api/spaces/$id/'
+    );
+
+    if (response.statusCode == 200) {
+      return SpaceModel.fromMap(jsonDecode(response.body));
+    } else {
+      throw Exception('Falha ao carregar espaço');
+    }
+  }
+
+
+
+
 }

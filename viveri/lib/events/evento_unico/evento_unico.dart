@@ -4,6 +4,9 @@ import 'package:viveri/events/pages/home/stores/event_store.dart';
 import 'package:viveri/events/data/http/http_client.dart';
 import 'package:viveri/events/data/repositories/event_repositories.dart';
 import 'package:viveri/home_page.dart';
+import 'package:viveri/events/data/repositories/space_repositories.dart';
+import 'package:viveri/events/data/model/space_model.dart';
+
 
 class EventoUnico extends StatefulWidget {
   const EventoUnico({super.key});
@@ -20,13 +23,31 @@ class _EventoUnicoState extends State<EventoUnico> {
   );
 
   bool _isFavorito = false;
+  SpaceModel? _currentSpace;
 
   @override
   void initState() {
     super.initState();
     store.getEvents(Page);
+    if (store.events.isNotEmpty) {
+        final evento = store.events.first; 
+        _loadSpace(evento.space); 
+      }
   }
 
+
+
+Future<void> _loadSpace(String spaceId) async {
+    final spaceRepo = SpaceRepository(client: HttpClient());
+    try {
+      final space = await spaceRepo.getSpaceById(int.parse(spaceId));
+      setState(() {
+        _currentSpace = space;
+      });
+    } catch (e) {
+      print('Erro ao carregar espaço: $e');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -115,8 +136,9 @@ class _EventoUnicoState extends State<EventoUnico> {
                           color: Colors.black,
                         ),
                       ),
+                    
                       const SizedBox(height: 16),
-                      _buildInfoRow(Icons.location_on, evento.space),
+                      _buildInfoRow(Icons.location_on,  _currentSpace?.name ?? 'Carregando...'),
                       const SizedBox(height: 10),
                       _buildInfoRow(Icons.calendar_today, evento.start_date),
                       const SizedBox(height: 10),

@@ -32,8 +32,8 @@ Future<Map<String, dynamic>> signupUser({
   print('[API] Tipo de usuário: ${isCPF ? "CPF (customer)" : "CNPJ (fugleman)"}');
 
   final payload = {
-    "username": firstName,
-    "vat": cleanedVat, // Envia apenas os números
+    "username": email,
+    "vat": cleanedVat,
     "email": email,
     "password": password,
     "first_name": firstName,
@@ -101,30 +101,10 @@ class _SignupPageState extends State<SignupPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final companyController = TextEditingController();
-  final respFirstNameController = TextEditingController();
-  final respLastNameController = TextEditingController();
   final birthDateController = TextEditingController();
 
   void _handleSignup() async {
     print('[UI] Botão de cadastro pressionado');
-
-    // Validação de CPF/CNPJ
-    final vatRaw = cpfCnpjController.text;
-    final vatClean = vatRaw.replaceAll(RegExp(r'[^0-9]'), '');
-    if (isCPF && vatClean.length != 11) {
-      print('[UI] CPF inválido: $vatClean');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("CPF deve conter 11 dígitos.")),
-      );
-      return;
-    }
-    if (!isCPF && vatClean.length != 14) {
-      print('[UI] CNPJ inválido: $vatClean');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("CNPJ deve conter 14 dígitos.")),
-      );
-      return;
-    }
 
     if (!isChecked) {
       print('[UI] Usuário não aceitou os termos');
@@ -146,8 +126,8 @@ class _SignupPageState extends State<SignupPage> {
       print('[UI] Data Nasc.: ${birthDateController.text}');
     } else {
       print('[UI] Empresa: ${companyController.text}');
-      print('[UI] Resp. Nome: ${respFirstNameController.text}');
-      print('[UI] Resp. Sobrenome: ${respLastNameController.text}');
+      print('[UI] Resp. Nome: ${firstNameController.text}');
+      print('[UI] Resp. Sobrenome: ${lastNameController.text}');
     }
 
     try {
@@ -156,14 +136,11 @@ class _SignupPageState extends State<SignupPage> {
         vat: cpfCnpjController.text,
         email: emailController.text,
         password: passwordController.text,
-        firstName: isCPF ? firstNameController.text : respFirstNameController.text,
-        lastName: isCPF ? lastNameController.text : respLastNameController.text,
+        firstName: firstNameController.text,
+        lastName: lastNameController.text,
         isCPF: isCPF,
         birthDate: isCPF ? birthDateController.text : null,
         companyName: !isCPF ? companyController.text : null,
-        // Removidos pois são redundantes
-        // respFirstName: !isCPF ? respFirstNameController.text : null,
-        // respLastName: !isCPF ? respLastNameController.text : null,
       );
 
       print('[UI] Cadastro API realizado com sucesso!');
@@ -232,10 +209,8 @@ class _SignupPageState extends State<SignupPage> {
               decoration: inputStyle("Digite seu ${isCPF ? 'CPF' : 'CNPJ'}"),
               inputFormatters: [
                 if (isCPF) 
-                  // Formato para CPF: XXX.XXX.XXX-XX
                   FilteringTextInputFormatter.digitsOnly,
                 if (!isCPF)
-                  // Formato para CNPJ: XX.XXX.XXX/XXXX-XX
                   FilteringTextInputFormatter.digitsOnly,
               ],
             ),
@@ -299,14 +274,14 @@ class _SignupPageState extends State<SignupPage> {
                   Expanded(
                     child: textFieldWithLabel(
                       "Nome:", 
-                      controller: respFirstNameController
+                      controller: firstNameController
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: textFieldWithLabel(
                       "Sobrenome:", 
-                      controller: respLastNameController
+                      controller: lastNameController
                     ),
                   ),
                 ],
@@ -453,8 +428,6 @@ class _SignupPageState extends State<SignupPage> {
     emailController.dispose();
     passwordController.dispose();
     companyController.dispose();
-    respFirstNameController.dispose();
-    respLastNameController.dispose();
     birthDateController.dispose();
     super.dispose();
   }

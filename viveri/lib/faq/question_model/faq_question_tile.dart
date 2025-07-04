@@ -9,6 +9,7 @@ class FaqQuestionTile extends StatefulWidget {
   final String currentUser;
   final bool isDono;
   final void Function(int index) onResponder;
+  final int questionIndex;
 
   const FaqQuestionTile({
     super.key,
@@ -16,6 +17,7 @@ class FaqQuestionTile extends StatefulWidget {
     required this.currentUser,
     required this.isDono,
     required this.onResponder,
+    required this.questionIndex
   });
 
   @override
@@ -163,7 +165,7 @@ class _FaqQuestionTileState extends State<FaqQuestionTile> {
               Text('${question.answers.length}', style: textStyle),
               const Spacer(),
               TextButton(
-                onPressed: () => widget.onResponder(question.id),
+                onPressed: () => widget.onResponder(widget.questionIndex), // 0 será ignorado (já está fixo acima)
                 child: const Text("Responder"),
               ),
             ],

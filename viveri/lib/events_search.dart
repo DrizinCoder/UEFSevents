@@ -59,6 +59,31 @@ class _EventSearch extends State<EventSearch> {
   final EventStore store = EventStore(
     repository: EventRepository(client: HttpClient()),
   );
+  final Map<String, dynamic> _categorias = {
+    'FST': 'Festival',
+    'PRT': 'Festa',
+    'CLB': 'Celebração',
+    'CRT': 'Concerto',
+    'TTR': 'Teatro',
+    'ART': 'Exposição de Arte',
+    'SPT': 'Esportes',
+    'COP': 'Competição',
+    'LCT': 'Palestra',
+    'CFE': 'Conferência',
+    'FAR': 'Feira',
+    'GST': 'Gastronomia',
+    'SUP': 'Stand-up Comedy',
+    'TRS': 'Tour / Atração',
+    'WRK': 'Curso / Workshop',
+    'KID': 'Infantil / Família',
+    'PRD': 'Pride / LGBTQIA+',
+    'ONL': 'Evento Online',
+    'REL': 'Religião / Espiritualidade',
+    'TEC': 'Tecnologia',
+    'OTH': 'Outros',
+  };
+  final Set<String> _selecionadas = {};
+
   List<dynamic> evnts = [];
   List<dynamic> space = [];
   bool pesquisando = false;
@@ -74,7 +99,7 @@ class _EventSearch extends State<EventSearch> {
   String Mensagem = "sexrta feira";
   bool preco = false;
   int page = 1;
-
+  String pesquisa = '';
   void _verificaScroll() async {
     print(_scrollController);
     //  print('entrou em verifica scroll');
@@ -389,6 +414,8 @@ class _EventSearch extends State<EventSearch> {
   }
 
   void _openBottomSheet(BuildContext context) {
+    final entries = _categorias.entries.toList();
+int qtdcategorias = 9;
     int counter = 0;
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
@@ -429,9 +456,9 @@ class _EventSearch extends State<EventSearch> {
                         ),
                       ),
                       Text(
-                        'Categorias: $counter',
+                        'Categorias selecionadas: ${_selecionadas.length}',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 14,
                           color: Color.fromRGBO(244, 177, 52, 1),
                           fontWeight: FontWeight.w700,
                         ),
@@ -439,50 +466,75 @@ class _EventSearch extends State<EventSearch> {
                       SizedBox(height: 10),
                       GridView.builder(
                         physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true, // <- importante
+                        shrinkWrap: true,
                         gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                           maxCrossAxisExtent: 130,
-                          //crossAxisCount: 4, // 2 colunas
                           childAspectRatio: 3,
                           mainAxisSpacing: 5,
                           crossAxisSpacing: 5,
                         ),
-                        itemCount: 8,
+                        itemCount:qtdcategorias,
                         itemBuilder: (context, index) {
+                          final code = entries[index].key;
+                          final label = entries[index].value;
+                          final selected = _selecionadas.contains(code);
+
                           return Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(18),
-                              color:
-                                  !idxctg[index]
-                                      ? Color.fromRGBO(191, 205, 189, 1)
-                                      : Color.fromRGBO(249, 208, 90, 1),
+                              color: selected
+                                  ? Color.fromRGBO(249, 208, 90, 1)
+                                  : Color.fromRGBO(191, 205, 189, 1),
                             ),
                             child: TextButton(
                               onPressed: () {
+                                print(code);
                                 setModalState(() {
-                                  Mensagem = "FOdase";
-                                  idxctg[index] = !idxctg[index];
+                                  if (selected) {
+                                    _selecionadas.remove(code);
+                                  } else {
+                                    _selecionadas.add(code);
+                                  }
                                 });
+                                // aqui você “retorna” ou usa o código selecionado
+                                print('Selecionadas: $_selecionadas');
                               },
-                              child: Text("Hello, $Mensagem"),
+                              child: Text(
+                                label,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 14,
+                                ),
+                              ),
                             ),
                           );
                         },
                       ),
-
                       Align(
                         alignment: Alignment.topCenter,
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            if(qtdcategorias==21){
+                              qtdcategorias=9;
+                              setModalState(() {});
+return;
+                            }
+                            qtdcategorias+=3;
+                            setModalState(() {});
+                            // Exemplo de callback para “ver mais”
+                            print('Todas as selecionadas (códigos): $_selecionadas');
+                          },
                           child: Text(
-                            "Ver mais >",
+                            qtdcategorias<21?"Ver mais >":"Ver menos <",
                             style: TextStyle(
-                              color: Color.fromRGBO(191, 205, 189, 1),
+                              color:   qtdcategorias<21?Color.fromRGBO(191, 205, 189, 1):Color.fromRGBO(244, 177, 52, 1),
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
                       ),
+                      /*
                       Text(
                         'Comodidades:',
                         style: TextStyle(
@@ -550,6 +602,8 @@ class _EventSearch extends State<EventSearch> {
                           },
                         ),
                       ),
+
+                       */
                       SizedBox(height: 10),
                       Row(
                         // crossAxisAlignment: CrossAxisAlignment.end,
@@ -633,6 +687,7 @@ class _EventSearch extends State<EventSearch> {
                           Spacer(flex: 3),
                         ],
                       ),
+                      /*
                       Text(
                         'Endereço:',
                         style: TextStyle(
@@ -664,6 +719,10 @@ class _EventSearch extends State<EventSearch> {
                         ),
                       ),
                       SizedBox(height: 15),
+
+                       */
+                      SizedBox(height: 15),
+
                       Row(
                         spacing: 30,
                         children: [
@@ -937,6 +996,10 @@ class _EventSearch extends State<EventSearch> {
                       color: Color.fromRGBO(40, 64, 23, 0.14),
                       height: 35,
                       child: TextField(
+                        controller: TextEditingController(text: pesquisa),
+                        onChanged: (value){
+                          pesquisa=value;
+                        },
                         onTap: () {
                           sa(() {
                             pesquisando = true;
@@ -946,7 +1009,21 @@ class _EventSearch extends State<EventSearch> {
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.all(1),
                           suffixIcon: InkWell(
-                            onTap: () {},
+                            onTap: () async{
+
+                              final IHttpClient client = HttpClient();
+                              final repo = EventRepository(client: client);
+                              try {
+                                final resultados = await repo.searchEventsByName('$pesquisa', page: 1);
+                                // trate a lista de objetos EventModel...
+                               evnts = resultados;
+                               setState(() {});
+                                //print(' resultados sao $resultados');
+                              } catch (e) {
+                                // erro de rede ou nada encontrado
+                              }
+
+                            },
                             child: Image.asset(
                               'assets/icons_bruno/search.png',
                               height: 15,
@@ -994,7 +1071,7 @@ class _EventSearch extends State<EventSearch> {
             backgroundColor: Color.fromRGBO(88, 108, 97, 1),
           ),
 
-          //=============================        LIST VIEW      ===================================================
+//=============================    LIST VIEW      ===================================================
           body: AnimatedBuilder(
             animation: Listenable.merge([
               store.isLoading,
@@ -1218,7 +1295,7 @@ class _EventSearch extends State<EventSearch> {
     );
   }
 
-  //FIM DO MÉTODO DE TABBAR----------------------------------------------------------------------------------------------------
+//FIM DO MÉTODO DE TABBAR----------------------------------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
@@ -1264,7 +1341,7 @@ class _EventSearch extends State<EventSearch> {
             ),
           ),
         ),
-        //=================================== BODY =====================================================================
+//=================================== BODY =====================================================================
         body: SizedBox(
           height: height,
           width: width,
@@ -1272,13 +1349,13 @@ class _EventSearch extends State<EventSearch> {
             children: [
               Expanded(
                 child:
-                //=================================== TELAS TABBAR=====================================================================
+//=================================== TELAS TABBAR=====================================================================
                 TabBarView(
                   children: [
                     conteudoDasAbas("evnts"),
                     conteudoDasAbas("space"),
 
-                    //============================================FIM DE EVENTOS=================================================================
+//============================================FIM DE EVENTOS=================================================================
 
                     //Text('hello world'),
                   ],

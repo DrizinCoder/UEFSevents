@@ -87,7 +87,6 @@ class EventRepository implements IEventReposity {
     evtCriado['space'] = id_space;
 
     final EventRepository repo = EventRepository(client: client);
-   // var cu = await repo.createEvent(evtCriado, spaceCriado, adressCriado);
 
 
 
@@ -102,13 +101,38 @@ class EventRepository implements IEventReposity {
       },
       body: jsonEncode(event.toJson()), // ou event.toJson() se você tiver esse método
     );
-   // print('Status createSpace: ${response.statusCode}');
-    //print('Corpo createSpace: ${response.body}');
+   print('Status createSpace: ${response.statusCode}');
+    print('Corpo createSpace: ${response.body}');
     if (response.statusCode == 201) {
       print('Evento criado com sucesso');
     } else {
       print('Erro ao criar evento: ${response.statusCode}');
       throw Exception('Erro ao criar evento');
+    }
+  }
+
+// event_repositories.dart
+  Future<SpaceModel> getSpaceById(int id) async {
+    final response = await client.get(
+      url: 'http://localhost:8000/api/spaces/$id/' // URL da API para espaços
+    );
+
+    if (response.statusCode == 200) {
+      return SpaceModel.fromMap(jsonDecode(response.body));
+    } else {
+      throw Exception('Falha ao carregar espaço');
+    }
+  }
+
+     Future<EventModel> getEventById(int id) async {
+    final response = await client.get(
+      url: 'http://localhost:8000/api/spaces/$id/' // URL da API para espaços
+    );
+
+    if (response.statusCode == 200) {
+      return EventModel.fromMap(jsonDecode(response.body));
+    } else {
+      throw Exception('Falha ao carregar espaço');
     }
   }
 
@@ -118,9 +142,35 @@ class EventRepository implements IEventReposity {
 
 
 
+Future<List<EventModel>> searchEventsByName(String name, {int page = 1}) async {
+  final encodedName = Uri.encodeQueryComponent(name);
+  final url = 'http://localhost:8000/api/eventsapi/?search=$encodedName&page=$page';
 
+  final response = await client.get(url: url);
 
+  print('Status createSpace: ${response.statusCode}');
+  print('Corpo createSpace: ${response.body}');
 
+  if (response.statusCode == 200) {
+    final List<EventModel> events = [];
+    final body = jsonDecode(response.body);
+
+    for (var item in body['results']) {
+      events.add(EventModel.fromMap(item));
+    }
+
+    // Se não houver próxima página, você pode usar o mesmo flag que no getEvent
+    if (body['next'] == null) {
+      limit = true;
+    }
+
+    return events;
+  } else if (response.statusCode == 404) {
+    throw NotFoundException(message: 'URL inválida para busca de eventos');
+  } else {
+    throw Exception('Falha ao buscar eventos por nome');
+  }
+}
 /*
   Future<List<EventModel>> getNextEvent(next) async {
     final response = await client.get(

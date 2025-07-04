@@ -194,6 +194,7 @@ class _FaqTelaState extends State<FaqTela> {
                                   question: _questions[index],
                                   currentUser: widget.currentUser,
                                   isDono: widget.isDono,
+                                  questionIndex: index,
                                   onResponder: _responderPergunta,
                                 );
                               },
