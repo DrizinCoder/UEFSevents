@@ -370,4 +370,57 @@ class EventRepository implements IEventReposity {
   }
 
 
+
+Future<List<EventModel>> searchEventsByName(String name, {int page = 1}) async {
+  final encodedName = name;
+  final url = 'http://localhost:8000/api/eventsapi/?$encodedName&page=$page';
+
+  final response = await client.get(url: url);
+
+  print('Status createSpace: ${response.statusCode}');
+  print('Corpo createSpace: ${response.body}');
+
+  if (response.statusCode == 200) {
+    final List<EventModel> events = [];
+    final body = jsonDecode(response.body);
+
+    for (var item in body['results']) {
+      events.add(EventModel.fromMap(item));
+    }
+
+    // Se não houver próxima página, você pode usar o mesmo flag que no getEvent
+    if (body['next'] == null) {
+      limit = true;
+    }
+
+    return events;
+  } else if (response.statusCode == 404) {
+    throw NotFoundException(message: 'URL inválida para busca de eventos');
+  } else {
+    throw Exception('Falha ao buscar eventos por nome');
+  }
 }
+
+  Future<List<EventModel>> getNextEvent(next) async {
+    final response = await client.get(
+      url: '$next',
+    );
+    if (response.statusCode == 200) {
+      final List<EventModel> events = [];
+      final body = jsonDecode(response.body);
+      body['results'].map((item) {
+        final EventModel event = EventModel.fromMap(item);
+        events.add(event);
+      }).toList();
+      return events;
+    } else if (response.statusCode == 404) {
+      throw NotFoundException(message: 'A url informada não é válida');
+    } else {
+      throw Exception('Não foi possível encontrar os eventos');
+    }
+
+
+}
+ 
+}
+

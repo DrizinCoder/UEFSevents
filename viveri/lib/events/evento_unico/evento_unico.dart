@@ -278,7 +278,7 @@ class _EventoUnicoState extends State<EventoUnico> {
   @override
   void initState() {
     super.initState();
-    store.getEvents(Page);
+    store.getEvents(1);
     if (store.events.isNotEmpty) {
         final evento = store.events.first; 
         _loadSpace(evento.space); 
