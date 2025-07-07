@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:viveri/about_account_cpf_page.dart';
-import 'package:viveri/change_password_page.dart';
+import 'package:flutter/foundation.dart';
 import 'package:viveri/custom_back_button.dart';
+import 'package:viveri/pdf_viewer_page.dart';
+import 'package:file_picker/file_picker.dart';
 
-class AboutAccountCnpjPage extends StatelessWidget {
+class AboutAccountCnpjPage extends StatefulWidget {
   final Map<String, dynamic> userData;
   final String accessToken;
 
@@ -14,15 +15,104 @@ class AboutAccountCnpjPage extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _AboutAccountCnpjPageState createState() => _AboutAccountCnpjPageState();
+}
+
+class _AboutAccountCnpjPageState extends State<AboutAccountCnpjPage> {
+  PlatformFile? selectedDocument;
+  bool isDocumentAttached = false;
+
+  Future<void> _pickDocument() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+        allowMultiple: false,
+      );
+
+      if (result != null && mounted) {
+        setState(() {
+          selectedDocument = result.files.first;
+          isDocumentAttached = true;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao selecionar documento: $e')),
+        );
+      }
+    }
+  }
+
+  void _viewDocument() {
+    if (selectedDocument != null) {
+      print('Visualizando documento: ${selectedDocument!.name}');
+      print('Tamanho do arquivo: ${selectedDocument!.size} bytes');
+      print('É web: $kIsWeb');
+      
+      if (kIsWeb) {
+        print('Bytes disponíveis: ${selectedDocument!.bytes != null}');
+        print('Tamanho dos bytes: ${selectedDocument!.bytes?.length}');
+        // No web, usamos os bytes diretamente
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PDFViewerPage(
+              fileBytes: selectedDocument!.bytes!,
+              fileName: selectedDocument!.name,
+              isWeb: true,
+            ),
+          ),
+        );
+      } else {
+        print('Path disponível: ${selectedDocument!.path != null}');
+        print('Path: ${selectedDocument!.path}');
+        // No mobile, usamos o path
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PDFViewerPage(
+              filePath: selectedDocument!.path!,
+              fileName: selectedDocument!.name,
+              isWeb: false,
+            ),
+          ),
+        );
+      }
+    } else {
+      print('Nenhum documento selecionado');
+    }
+  }
+
+  void _removeDocument() {
+    setState(() {
+      selectedDocument = null;
+      isDocumentAttached = false;
+    });
+  }
+
+  void _changeDocument() {
+    _pickDocument();
+  }
+
+  String _truncateFileName(String fileName) {
+    if (fileName.length > 18) {
+      return '${fileName.substring(0, 15)}...';
+    }
+    return fileName;
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Extrai dados do usuário (CNPJ)
-    final companyName = userData['company_name'] ?? '';
-    final respFirstName = userData['first_name'] ?? '';
-    final respLastName = userData['last_name'] ?? '';
-    final email = userData['email'] ?? '';
-    final vat = userData['vat']?.toString() ?? '';
-    final phone = userData['phone']?.toString() ?? '000000000';
-    final userId = userData['id']?.toString() ?? '';
+    final companyName = widget.userData['company_name'] ?? '';
+    final respFirstName = widget.userData['first_name'] ?? '';
+    final respLastName = widget.userData['last_name'] ?? '';
+    final email = widget.userData['email'] ?? '';
+    final vat = widget.userData['vat']?.toString() ?? '';
+    final phone = widget.userData['phone']?.toString() ?? '000000000';
+    final userId = widget.userData['id']?.toString() ?? '';
 
     // Formata o CNPJ (se tiver 14 dígitos)
     String formattedVat = '**.***.***/****-**';
@@ -59,7 +149,7 @@ class AboutAccountCnpjPage extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.5),
+                            color: Colors.white.withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(5),
                           ),
                           child: Text(formattedVat),
@@ -69,11 +159,100 @@ class AboutAccountCnpjPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 5),
                   TextButton(
-                    onPressed: () {
-                      // Ação para enviar documento
-                    },
+                    onPressed: _pickDocument,
                     child: const Text('Enviar documento', style: TextStyle(color: Color(0xFF425C44))),
                   ),
+                  
+                  // Seção do documento anexado
+                  if (isDocumentAttached) ...[
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          'Documento anexado',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                        ),
+                        const Spacer(),
+                        // Botão para alterar documento
+                        TextButton(
+                          onPressed: _changeDocument,
+                          child: const Text(
+                            'Alterar',
+                            style: TextStyle(
+                              color: Color(0xFF425C44),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                        // Botão para remover documento
+                        TextButton(
+                          onPressed: _removeDocument,
+                          child: const Text(
+                            'Remover',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    GestureDetector(
+                      onTap: _viewDocument,
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.7),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFF425C44), width: 1),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.picture_as_pdf,
+                              color: Colors.red,
+                              size: 24,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _truncateFileName(selectedDocument?.name ?? 'Documento.pdf'),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Toque para visualizar',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(
+                              Icons.arrow_forward_ios,
+                              color: Color(0xFF425C44),
+                              size: 16,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                  
                   const Divider(),
                   // Informações da empresa
                   _buildInfoRow('Nome vinculado ao CNPJ:', '$respFirstName $respLastName'),
@@ -89,7 +268,7 @@ class AboutAccountCnpjPage extends StatelessWidget {
                       //   context,
                       //   MaterialPageRoute(
                       //     builder: (context) => ChangePasswordPage(
-                      //       accessToken: accessToken,
+                      //       accessToken: widget.accessToken,
                       //     ),
                       //   ),
                       // );

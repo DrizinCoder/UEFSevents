@@ -161,11 +161,23 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
           const SizedBox(height: 16),
-          Row(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.location_on, color: Colors.white, size: 16),
-              SizedBox(width: 8),
-              Text('Eventos em: $userLocation', style: TextStyle(color: Colors.white)),
+              Row(
+                children: [
+                  Icon(Icons.location_on, color: Colors.white, size: 16),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Eventos em: $userLocation',
+                      style: TextStyle(color: Colors.white),
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
+                    ),
+                  ),
+                ],
+              ),
             ],
           )
         ],

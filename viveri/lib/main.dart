@@ -6,7 +6,8 @@ import 'splash_screen.dart';
 import 'onboarding_screen.dart';
 import 'welcome_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
 
