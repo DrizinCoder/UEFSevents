@@ -27,7 +27,6 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   int participatedCount = 0;
   bool isLoading = true;
-
   @override
   void initState() {
     super.initState();
@@ -59,6 +58,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+
     // Extrai dados do usuário
     final firstName = widget.userData['first_name'] ?? '';
     final lastName = widget.userData['last_name'] ?? '';
@@ -198,7 +198,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const CreateFavorite(),
+                        builder: (context) =>  CreateFavorite(
+                          accessToken:widget.accessToken,
+                          userData: widget.userData,
+                        ),
                       ),
                     );
                   }),

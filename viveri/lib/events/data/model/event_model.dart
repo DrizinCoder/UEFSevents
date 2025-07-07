@@ -10,9 +10,10 @@ class EventModel {
   final String endtime;
   final bool status;
   final String category;
-  final String space;
+  final int space;
   final String type_event;
   final int age_range;
+  final int creator;
   final String crated_at;
   final String documentations;
   final List<dynamic> participants;
@@ -30,6 +31,7 @@ class EventModel {
     required this.space,
     required this.type_event,
     required this.age_range,
+    required this.creator,
     required this.crated_at,
     required this.documentations,
     required this.participants,
@@ -48,6 +50,7 @@ class EventModel {
       space: map['space']??0,
       type_event: map['type_event']??'',
       age_range: map['age_range']??0,
+      creator: map['creator']??0,
       crated_at: map['crated_at']??'',
       documentations: map['documentations']??'',
       participants: map['participants']??[],
@@ -68,6 +71,7 @@ class EventModel {
       'space':space,
       'type_event':type_event,
       'age_range':age_range,
+      'creator': creator,
      // 'crated_at':crated_at,
      // 'documentations':documentations,
    //   'participants':participants,

@@ -48,8 +48,8 @@ class AdressRepository implements IAdressReposity {
         body: jsonEncode(adress.toJson()),
       // ou event.toJson() se você tiver esse método
     );
-    print('Corpo do erro: ${response.body}');
-
+    print('Status createADRESS: ${response.statusCode}');
+    print('Corpo createADRESS: ${response.body}');
     if (response.statusCode == 201) {
       final adressId = jsonDecode(response.body)['id'];
       return adressId;

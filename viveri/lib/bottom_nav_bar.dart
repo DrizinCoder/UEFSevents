@@ -7,7 +7,10 @@ import 'dart:convert';
 
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
-  const CustomBottomNavBar({Key? key, this.currentIndex = 0}) : super(key: key);
+  final Map<String, dynamic> userData;
+  final  String accessToken;
+
+  const CustomBottomNavBar({Key? key, this.currentIndex = 0, required this.userData, required this.accessToken}) : super(key: key,);
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +55,10 @@ class CustomBottomNavBar extends StatelessWidget {
                   if (currentIndex != 1) {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => const CreateFavorite()),
+                      MaterialPageRoute(builder: (context) =>  CreateFavorite(
+                        userData: userData,
+                        accessToken: accessToken,
+                      )),
                     );
                   }
                 },

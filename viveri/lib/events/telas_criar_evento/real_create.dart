@@ -5,15 +5,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:viveri/events/criar_evento/no_events.dart';
+//import 'package:viveri/events/criar_evento/no_events.dart';
 
-import '../criar_evento/created.dart';
+//import '../criar_evento/created.dart';
 import '../data/http/http_client.dart';
 import '../data/model/adress_model.dart';
 import '../data/model/event_model.dart';
 import '../data/model/space_model.dart';
 import '../data/repositories/adress_repositories.dart';
 import '../data/repositories/event_repositories.dart';
+import 'created.dart';
+import 'error_create.dart';
 //import 'package:viveri/events/data/http/http_client.dart';
 //import 'package:viveri/events/data/repositories/event_repositories.dart';
 //import 'package:viveri/events/pages/home/stores/event_store.dart';
@@ -48,7 +50,10 @@ class Testando extends StatelessWidget {
       // locale: const Locale('pt', 'BR'),
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      home: const CreateEvent(),
+      home: const CreateEvent(
+        userData: {'bruno': 'bruno'},
+         accessToken:  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUzOTg0Njc1LCJpYXQiOjE3NTEzOTI2NzUsImp0aSI6IjE2NjRiYjdlOGVlZTQ1ODg5MzlmYWQzZjRlOTM4MjI5IiwidXNlcl9pZCI6MX0.KXaCfHzjRrpp9yP5aP059ySKSe7_kypxrFCZ3JxZ5Xk',
+      ),
     );
   }
 }
@@ -57,7 +62,13 @@ class Testando extends StatelessWidget {
 bool limit = false;
 
 class CreateEvent extends StatefulWidget {
-  const CreateEvent({super.key});
+  final Map<String, dynamic> userData;
+  final String accessToken;
+
+  const CreateEvent({super.key,
+  required this.accessToken,
+    required this.userData
+  });
 
 //  final String title;
 
@@ -2259,6 +2270,7 @@ final List<SpaceModel> spaces = [];
                         'space': 1,
                         'type_event':tipoEvento,
                         'age_range':faixaEtaria,
+                        'creator': widget.userData['id'],
                       };
                       final SpaceModel space = SpaceModel.fromMap(spaceCriado);
                       final EventModel event = EventModel.fromMap(evtCriado);
@@ -2283,7 +2295,7 @@ final List<SpaceModel> spaces = [];
                     //  final SpaceModel space = SpaceModel.fromMap(spaceCriado);
 
 
-                      var create = await repo.createEvent(evtCriado, spaceCriado, adressCriado);
+                      var create = await repo.createEvent(widget.accessToken,evtCriado, spaceCriado, adressCriado);
 
                       Navigator.pushReplacement(
                         context,
@@ -2294,7 +2306,7 @@ catch(e){
  // String mensagem = 'Ocorreu um erro/n Nenhum evento criado: $e';
   Navigator.pushReplacement(
     context,
-    MaterialPageRoute(builder: (_) => const NoEvents()),
+    MaterialPageRoute(builder: (_) =>  NoEvents(accessToken: widget.accessToken, userData: widget.userData)),
   );
 }
 //print(spaceCriado);

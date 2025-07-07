@@ -6,14 +6,14 @@ import 'package:viveri/bottom_nav_bar.dart';
 
 
 class NoEvents extends StatelessWidget {
-
-
-  const NoEvents({super.key});
+final Map<String, dynamic> userData;
+final String accessToken;
+  const NoEvents({super.key, required this.userData, required this.accessToken});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0x33284017),
+      backgroundColor: Color.fromRGBO(212, 224, 212, 1),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -44,7 +44,10 @@ class NoEvents extends StatelessWidget {
                   onPressed: () {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (_) => const CreateFavorite(skipNoEventsRedirect: true)),
+                      MaterialPageRoute(builder: (_) =>  CreateFavorite(
+                        accessToken: accessToken, userData:userData,
+                          //skipNoEventsRedirect: true
+                      )),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -62,7 +65,7 @@ class NoEvents extends StatelessWidget {
               ),
             ),
           ),
-          const CustomBottomNavBar(currentIndex: 1),
+           CustomBottomNavBar(currentIndex: 1, userData: userData, accessToken: accessToken,),
         ],
       ),
     );

@@ -281,16 +281,16 @@ class _EventoUnicoState extends State<EventoUnico> {
     store.getEvents(1);
     if (store.events.isNotEmpty) {
         final evento = store.events.first; 
-        _loadSpace(evento.space); 
+        _loadSpace(evento.space);
       }
   }
 
 
 
-Future<void> _loadSpace(String spaceId) async {
+Future<void> _loadSpace(int spaceId) async {
     final spaceRepo = SpaceRepository(client: HttpClient());
     try {
-      final space = await spaceRepo.getSpaceById(int.parse(spaceId));
+      final space = await spaceRepo.getSpaceById(spaceId);
       setState(() {
         _currentSpace = space;
       });

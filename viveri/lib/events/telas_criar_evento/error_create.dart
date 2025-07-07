@@ -6,9 +6,9 @@ import 'package:viveri/events/telas_criar_evento/create_favorite.dart';
 
 
 class NoEvents extends StatelessWidget {
-
-
-  const NoEvents({super.key});
+final String accessToken;
+final Map<String, dynamic> userData;
+  const NoEvents({super.key,required this.accessToken,required this.userData});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class NoEvents extends StatelessWidget {
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) =>  CreateFavorite()),
+                  MaterialPageRoute(builder: (_) =>  CreateFavorite(accessToken: accessToken, userData: userData,)),
                 );
               },
               style: ElevatedButton.styleFrom(

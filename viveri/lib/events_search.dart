@@ -99,7 +99,13 @@ class _EventSearch extends State<EventSearch> {
   String Mensagem = "sexrta feira";
   bool preco = false;
   int page = 1;
+  bool filtro = false;
   String pesquisa = '';
+  String strsetedias = '';
+  String categoria = '';
+  String data = '';
+  DateTime? _selectedDate = DateTime.now();
+
   void _verificaScroll() async {
     print(_scrollController);
     //  print('entrou em verifica scroll');
@@ -112,7 +118,7 @@ class _EventSearch extends State<EventSearch> {
       await store.getEvents(page);
       evnts += store.state.value;
       selected += List.generate(10, (index) => false);
-     // setState(() {});
+      // setState(() {});
       print(_scrollController);
     }
   }
@@ -300,9 +306,24 @@ class _EventSearch extends State<EventSearch> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
+                            pesquisando = true;
+                            final IHttpClient client = HttpClient();
+                            final repo = EventRepository(client: client);
+                            try {
+                              final resultados = await repo.searchEventsByName(
+                                'search=$pesquisa$categoria$data',
+                                page: 1,
+                              );
+                              // trate a lista de objetos EventModel...
+                              evnts = resultados;
+                              filtro = true;
+                              setState(() {});
+                              //print(' resultados sao $resultados');
+                            } catch (e) {
+                              print(e);
+                            }
                             Navigator.of(context).pop();
-                            // aplicar filtro…
                           },
                           style: ElevatedButton.styleFrom(
                             foregroundColor: Color(0xFFF4B134),
@@ -368,11 +389,21 @@ class _EventSearch extends State<EventSearch> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: CalendarDatePicker(
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2100),
+                          initialDate: _selectedDate,
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(2200),
                           currentDate: DateTime.now(),
-                          onDateChanged: (d) {},
+                          onDateChanged: (d) {
+                            // print('${d.year}-${d.month}-${d.day}');
+                            if (d != _selectedDate) {
+                              setState(() {
+                                data =
+                                    '&start_date=${d.year}-${d.month}-${d.day}';
+                                _selectedDate = d;
+                              });
+                            }
+                          },
+
                           initialCalendarMode: DatePickerMode.day,
                         ),
                       ),
@@ -382,7 +413,7 @@ class _EventSearch extends State<EventSearch> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         Navigator.of(context).pop();
                         // aplicar filtro…
                       },
@@ -415,7 +446,7 @@ class _EventSearch extends State<EventSearch> {
 
   void _openBottomSheet(BuildContext context) {
     final entries = _categorias.entries.toList();
-int qtdcategorias = 9;
+    int qtdcategorias = 9;
     int counter = 0;
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
@@ -473,7 +504,7 @@ int qtdcategorias = 9;
                           mainAxisSpacing: 5,
                           crossAxisSpacing: 5,
                         ),
-                        itemCount:qtdcategorias,
+                        itemCount: qtdcategorias,
                         itemBuilder: (context, index) {
                           final code = entries[index].key;
                           final label = entries[index].value;
@@ -482,9 +513,10 @@ int qtdcategorias = 9;
                           return Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(18),
-                              color: selected
-                                  ? Color.fromRGBO(249, 208, 90, 1)
-                                  : Color.fromRGBO(191, 205, 189, 1),
+                              color:
+                                  selected
+                                      ? Color.fromRGBO(249, 208, 90, 1)
+                                      : Color.fromRGBO(191, 205, 189, 1),
                             ),
                             child: TextButton(
                               onPressed: () {
@@ -493,7 +525,11 @@ int qtdcategorias = 9;
                                   if (selected) {
                                     _selecionadas.remove(code);
                                   } else {
+                                    if (_selecionadas.length > 0) {
+                                      return;
+                                    }
                                     _selecionadas.add(code);
+                                    categoria = '&category=$code';
                                   }
                                 });
                                 // aqui você “retorna” ou usa o código selecionado
@@ -515,20 +551,25 @@ int qtdcategorias = 9;
                         alignment: Alignment.topCenter,
                         child: TextButton(
                           onPressed: () {
-                            if(qtdcategorias==21){
-                              qtdcategorias=9;
+                            if (qtdcategorias == 21) {
+                              qtdcategorias = 9;
                               setModalState(() {});
-return;
+                              return;
                             }
-                            qtdcategorias+=3;
+                            qtdcategorias += 3;
                             setModalState(() {});
                             // Exemplo de callback para “ver mais”
-                            print('Todas as selecionadas (códigos): $_selecionadas');
+                            print(
+                              'Todas as selecionadas (códigos): $_selecionadas',
+                            );
                           },
                           child: Text(
-                            qtdcategorias<21?"Ver mais >":"Ver menos <",
+                            qtdcategorias < 21 ? "Ver mais >" : "Ver menos <",
                             style: TextStyle(
-                              color:   qtdcategorias<21?Color.fromRGBO(191, 205, 189, 1):Color.fromRGBO(244, 177, 52, 1),
+                              color:
+                                  qtdcategorias < 21
+                                      ? Color.fromRGBO(191, 205, 189, 1)
+                                      : Color.fromRGBO(244, 177, 52, 1),
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -758,6 +799,11 @@ return;
                                   onTap: () {
                                     setModalState(() {
                                       setedias = !setedias;
+                                      if (setedias) {
+                                        strsetedias =
+                                            "&start_date_after=${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}"
+                                            "&start_date_before=${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day + 7}";
+                                      }
                                     });
                                   },
                                   child: Stack(
@@ -909,7 +955,28 @@ return;
                                 ),
                               ),
                             ),
-                            onPressed: () {
+                            onPressed: () async {
+                              pesquisa = '';
+                              categoria = '';
+                              data = '';
+                              setedias = false;
+                              strsetedias = '';
+                              final IHttpClient client = HttpClient();
+                              final repo = EventRepository(client: client);
+                              try {
+                                final resultados = await repo.searchEventsByName(
+                                  'search=$pesquisa$categoria$data$strsetedias',
+                                  page: 1,
+                                );
+                                // trate a lista de objetos EventModel...
+                                evnts = resultados;
+                                filtro = true;
+                                setState(() {});
+                                //print(' resultados sao $resultados');
+                              } catch (e) {
+                                print(e);
+                              }
+                              filtro = false;
                               Navigator.of(context).pop();
                             },
                             child: Text(
@@ -935,7 +1002,23 @@ return;
                                 ),
                               ),
                             ),
-                            onPressed: () {
+                            onPressed: () async {
+                              final IHttpClient client = HttpClient();
+                              final repo = EventRepository(client: client);
+                              try {
+                                final resultados = await repo.searchEventsByName(
+                                  'search=$pesquisa$categoria$data$strsetedias',
+                                  page: 1,
+                                );
+                                // trate a lista de objetos EventModel...
+                                evnts = resultados;
+                                filtro = true;
+                                setState(() {});
+                                //print(' resultados sao $resultados');
+                              } catch (e) {
+                                print('deu erro $e');
+                              }
+                              filtro = true;
                               Navigator.of(context).pop();
                             },
                             child: Text(
@@ -976,326 +1059,340 @@ return;
       result_tabs = 'space';
     }
     return StatefulBuilder(
-        builder: (context, sa) {
-          return
-       SizedBox(
-        height: height,
-        width: width,
-        child: Scaffold(
-          backgroundColor: Color.fromRGBO(212, 224, 212, 1),
-          appBar: AppBar(
-            title: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+      builder: (context, sa) {
+        return SizedBox(
+          height: height,
+          width: width,
+          child: Scaffold(
+            backgroundColor: Color.fromRGBO(212, 224, 212, 1),
+            appBar: AppBar(
+              title: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
 
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 3, right: 3),
-                    child: Container(
-                      color: Color.fromRGBO(40, 64, 23, 0.14),
-                      height: 35,
-                      child: TextField(
-                        controller: TextEditingController(text: pesquisa),
-                        onChanged: (value){
-                          pesquisa=value;
-                        },
-                        onTap: () {
-                          sa(() {
-                            pesquisando = true;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(1),
-                          suffixIcon: InkWell(
-                            onTap: () async{
-
-                              final IHttpClient client = HttpClient();
-                              final repo = EventRepository(client: client);
-                              try {
-                                final resultados = await repo.searchEventsByName('$pesquisa', page: 1);
-                                // trate a lista de objetos EventModel...
-                               evnts = resultados;
-                               setState(() {});
-                                //print(' resultados sao $resultados');
-                              } catch (e) {
-                                // erro de rede ou nada encontrado
-                              }
-
-                            },
-                            child: Image.asset(
-                              'assets/icons_bruno/search.png',
-                              height: 15,
-                              width: 30,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 3, right: 3),
+                      child: Container(
+                        color: Color.fromRGBO(40, 64, 23, 0.14),
+                        height: 35,
+                        child: TextField(
+                          controller: TextEditingController(text: pesquisa),
+                          onChanged: (value) {
+                            pesquisa = value;
+                          },
+                          onTap: () {
+                            sa(() {
+                              pesquisando = true;
+                            });
+                          },
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.all(1),
+                            suffixIcon: InkWell(
+                              onTap: () async {
+                                pesquisando = true;
+                                final IHttpClient client = HttpClient();
+                                final repo = EventRepository(client: client);
+                                try {
+                                  final resultados = await repo.searchEventsByName(
+                                    'search=$pesquisa$categoria$data$strsetedias',
+                                    page: 1,
+                                  );
+                                  // trate a lista de objetos EventModel...
+                                  evnts = resultados;
+                                  filtro = true;
+                                  setState(() {});
+                                  //print(' resultados sao $resultados');
+                                } catch (e) {
+                                  print(e);
+                                }
+                              },
+                              child: Image.asset(
+                                'assets/icons_bruno/search.png',
+                                height: 15,
+                                width: 30,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                //Padding(
-                //padding: EdgeInsets.only(right: 2),
-                // child:
-                !pesquisando
-                    ? InkWell(
-                      onTap: () {
-                        _openBottomSheet(context);
-                      },
-                      child: Image.asset(
-                        'assets/icons_bruno/filtros.png',
-                        width: 35,
-                        height: 35,
-                      ),
-                    )
-                    : TextButton(
-                      onPressed: () {
-                        sa(() {
-                          pesquisando = !pesquisando;
-                        });
-                      },
-                      child: Text(
-                        'Cancelar',
-                        style: TextStyle(
-                          color: Color.fromRGBO(244, 177, 52, 1),
-                          fontWeight: FontWeight.w700,
-                          fontSize: 10,
+                  //Padding(
+                  //padding: EdgeInsets.only(right: 2),
+                  // child:
+                  !pesquisando
+                      ? InkWell(
+                        onTap: () {
+                          _openBottomSheet(context);
+                        },
+                        child: Image.asset(
+                          'assets/icons_bruno/filtros.png',
+                          width: 35,
+                          height: 35,
+                        ),
+                      )
+                      : TextButton(
+                        onPressed: () {
+                          sa(() {
+                            pesquisando = !pesquisando;
+                          });
+                        },
+                        child: Text(
+                          'Cancelar',
+                          style: TextStyle(
+                            color: Color.fromRGBO(244, 177, 52, 1),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 10,
+                          ),
                         ),
                       ),
-                    ),
 
-                //)
-              ],
+                  //)
+                ],
+              ),
+              backgroundColor: Color.fromRGBO(88, 108, 97, 1),
             ),
-            backgroundColor: Color.fromRGBO(88, 108, 97, 1),
-          ),
 
-//=============================    LIST VIEW      ===================================================
-          body: AnimatedBuilder(
-            animation: Listenable.merge([
-              store.isLoading,
-              store.erro,
-              store.state,
-            ]),
-            builder: (context, child) {
-              if (store.isLoading.value) {
-                return const CircularProgressIndicator();
-              }
-              if (store.erro.value.isNotEmpty) {
-                return Center(child: Text(store.erro.value));
-              }
-              if (store.state.value.isEmpty) {
-                return const Center(child: Text('Nenhum evento na lista'));
-              } else {
-                if (evnts.length < 1) evnts = store.state.value;
-                return
-                //SingleChildScrollView(
-                //  scrollDirection: Axis.vertical,
-                //child:
-                listaTela.isEmpty
-                    ? // Align(
-                    //alignment: Alignment.bottomLeft,
-                    //child:
-                    SizedBox(
-                      height: height,
-                      width: width,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Sem resultados!',
-                            style: TextStyle(
-                              color: Color.fromRGBO(40, 64, 23, 1),
-                              fontWeight: FontWeight.w700,
-                              fontSize: 22,
+            //=============================    LIST VIEW      ===================================================
+            body: AnimatedBuilder(
+              animation: Listenable.merge([
+                store.isLoading,
+                store.erro,
+                store.state,
+              ]),
+              builder: (context, child) {
+                if (store.isLoading.value) {
+                  return const CircularProgressIndicator();
+                }
+                if (store.erro.value.isNotEmpty) {
+                  return Center(child: Text(store.erro.value));
+                }
+                if (store.state.value.isEmpty) {
+                  return const Center(child: Text('Nenhum evento na lista'));
+                } else {
+                  if (evnts.length < 1 && !filtro) evnts = store.state.value;
+                  return
+                  //SingleChildScrollView(
+                  //  scrollDirection: Axis.vertical,
+                  //child:
+                  evnts.isEmpty
+                      ? // Align(
+                      //alignment: Alignment.bottomLeft,
+                      //child:
+                      SizedBox(
+                        height: height,
+                        width: width,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Sem resultados!',
+                              style: TextStyle(
+                                color: Color.fromRGBO(40, 64, 23, 1),
+                                fontWeight: FontWeight.w700,
+                                fontSize: 22,
+                              ),
                             ),
-                          ),
 
-                          Flexible(child: SizedBox(height: 20)),
+                            Flexible(child: SizedBox(height: 20)),
 
-                          Text(
-                            'Não encontramos eventos ',
-                            style: TextStyle(
-                              color: Color.fromRGBO(40, 64, 23, 1),
-                              fontWeight: FontWeight.w500,
-                              fontSize: 16,
+                            Text(
+                              'Não encontramos eventos ',
+                              style: TextStyle(
+                                color: Color.fromRGBO(40, 64, 23, 1),
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
 
-                          Text(
-                            'com filtros aplicados!',
-                            style: TextStyle(
-                              color: Color.fromRGBO(40, 64, 23, 1),
-                              fontWeight: FontWeight.w500,
-                              fontSize: 16,
+                            Text(
+                              'com filtros aplicados!',
+                              style: TextStyle(
+                                color: Color.fromRGBO(40, 64, 23, 1),
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
-                          Flexible(child: SizedBox(height: 40)),
-                          Material(
-                            color: Color.fromRGBO(
-                              47,
-                              69,
-                              56,
-                              1,
-                            ), // cor de fundo fixa
-                            borderRadius: BorderRadius.circular(8),
-                            child: InkWell(
-                              // autofocus: true,
-                              hoverColor: Color.fromRGBO(74, 109, 88, 1),
-                              // focusColor: Color.fromRGBO(47, 69, 56, 1),
-                              borderRadius: BorderRadius.circular(8),
-                              splashColor: Color.fromRGBO(
-                                105,
-                                154,
-                                126,
+                            Flexible(child: SizedBox(height: 40)),
+                            Material(
+                              color: Color.fromRGBO(
+                                47,
+                                69,
+                                56,
                                 1,
-                              ), // cor do “ripple”
-                              //  highlightColor: Color.fromRGBO(195, 130, 10, 1),    // cor de destaque quando pressionado
-                              onTap: () {
-                                //    print('hecho');
-                                store.state.value.clear();
-                                evnts.clear();
-                              },
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                child: Text(
-                                  'Limpar Filtros',
-                                  style: TextStyle(
-                                    color: Color.fromRGBO(244, 177, 52, 1),
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 22,
+                              ), // cor de fundo fixa
+                              borderRadius: BorderRadius.circular(8),
+                              child: InkWell(
+                                // autofocus: true,
+                                hoverColor: Color.fromRGBO(74, 109, 88, 1),
+                                // focusColor: Color.fromRGBO(47, 69, 56, 1),
+                                borderRadius: BorderRadius.circular(8),
+                                splashColor: Color.fromRGBO(
+                                  105,
+                                  154,
+                                  126,
+                                  1,
+                                ), // cor do “ripple”
+                                //  highlightColor: Color.fromRGBO(195, 130, 10, 1),    // cor de destaque quando pressionado
+                                onTap: () {
+                                  //    print('hecho');
+                                  pesquisa = '';
+                                  categoria = '';
+                                  data = '';
+                                  setedias = false;
+                                  strsetedias = '';
+                                  filtro = false;
+                                  pesquisa = '';
+                                  evnts = store.state.value;
+                                  setState(() {});
+                                },
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 4,
+                                  ),
+                                  child: Text(
+                                    'Limpar Filtros',
+                                    style: TextStyle(
+                                      color: Color.fromRGBO(244, 177, 52, 1),
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 22,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                        // ),
-                      ),
-                    )
-                    : Column(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(left: 12),
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: Text(
-                              result_tabs,
-                              style: TextStyle(fontWeight: FontWeight.w600),
+                          ],
+                          // ),
+                        ),
+                      )
+                      : Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(left: 12),
+                            child: Align(
+                              alignment: Alignment.topLeft,
+                              child: Text(
+                                result_tabs,
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
                             ),
                           ),
-                        ),
-                        Expanded(
-                          child: ListView.separated(
-                            controller: _scrollController,
-                            separatorBuilder:
-                                (context, index) => Divider(
-                                  color: Colors.grey.shade400,
-                                  thickness: 1,
-                                  indent: 90,
-                                  endIndent: 90,
-                                ),
-                            itemCount: evnts.length,
-                            //store.state.value.length,
-                            itemBuilder: (_, index) {
-                              // print(next);
-                              final item = evnts[index];
-                              return ListTile(
-                                title: Center(
-                                  child: Material(
-                                    color: Colors.transparent,
-                                    child: InkWell(
-                                      onTap: () {
-                                        print(item.id);
-                                      },
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            padding: EdgeInsets.only(
-                                              left: 6,
-                                              right: 6,
-                                            ),
-                                            height: 70,
-                                            width: 80,
-                                            color: Color.fromRGBO(
-                                              47,
-                                              69,
-                                              56,
-                                              0.3,
-                                            ),
-                                          ),
-
-                                          // Flexible(
-                                          //   child: Image.asset(
-                                          //      items[index]["foto"],
-                                          //      width: 43,
-                                          //      height: 50,
-                                          //    ),
-                                          //    ),
-                                          Expanded(
-                                            flex: 4,
-                                            child: Padding(
+                          Expanded(
+                            child: ListView.separated(
+                              controller: _scrollController,
+                              separatorBuilder:
+                                  (context, index) => Divider(
+                                    color: Colors.grey.shade400,
+                                    thickness: 1,
+                                    indent: 90,
+                                    endIndent: 90,
+                                  ),
+                              itemCount: evnts.length,
+                              //store.state.value.length,
+                              itemBuilder: (_, index) {
+                                // print(next);
+                                final item = evnts[index];
+                                return ListTile(
+                                  title: Center(
+                                    child: Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                        onTap: () {
+                                          print(item.id);
+                                        },
+                                        child: Row(
+                                          children: [
+                                            Container(
                                               padding: EdgeInsets.only(
-                                                left: 3,
-                                                right: 3,
+                                                left: 6,
+                                                right: 6,
                                               ),
-                                              child: Align(
-                                                alignment: Alignment.center,
-                                                child: Column(
-                                                  children: [Text(item.title)],
-                                                ),
+                                              height: 70,
+                                              width: 80,
+                                              color: Color.fromRGBO(
+                                                47,
+                                                69,
+                                                56,
+                                                0.3,
                                               ),
                                             ),
-                                          ),
-                                          Expanded(
-                                            flex: 1,
-                                            child: Align(
-                                              alignment: Alignment.centerRight,
-                                              child: InkWell(
-                                                onTap: () {
 
-                                                  print('favoritado o evento de id ${item.id}');
-                                                  selected[index] =
-                                                      !selected[index];
-                                                  sa(() {});
-                                                },
-                                                child: Image.asset(
-                                                  selected[index]
-                                                      ? 'assets/icons_bruno/heart_shine.png'
-                                                      : 'assets/icons_bruno/heart.png',
-                                                  height: 50,
-                                                  width: 50,
+                                            // Flexible(
+                                            //   child: Image.asset(
+                                            //      items[index]["foto"],
+                                            //      width: 43,
+                                            //      height: 50,
+                                            //    ),
+                                            //    ),
+                                            Expanded(
+                                              flex: 4,
+                                              child: Padding(
+                                                padding: EdgeInsets.only(
+                                                  left: 3,
+                                                  right: 3,
+                                                ),
+                                                child: Align(
+                                                  alignment: Alignment.center,
+                                                  child: Column(
+                                                    children: [
+                                                      Text(item.title),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        ],
+                                            Expanded(
+                                              flex: 1,
+                                              child: Align(
+                                                alignment:
+                                                    Alignment.centerRight,
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    print(
+                                                      'favoritado o evento de id ${item.id}',
+                                                    );
+                                                    selected[index] =
+                                                        !selected[index];
+                                                    sa(() {});
+                                                  },
+                                                  child: Image.asset(
+                                                    selected[index]
+                                                        ? 'assets/icons_bruno/heart_shine.png'
+                                                        : 'assets/icons_bruno/heart.png',
+                                                    height: 50,
+                                                    width: 50,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                //Text('hello world'),
-                              );
-                            },
+                                  //Text('hello world'),
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                      ],
-                    );
-              }
-            },
+                        ],
+                      );
+                }
+              },
+            ),
+            //  ),
           ),
-          //  ),
-        ),
-      );}
+        );
+      },
     );
   }
 
-//FIM DO MÉTODO DE TABBAR----------------------------------------------------------------------------------------------------
+  //FIM DO MÉTODO DE TABBAR----------------------------------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
@@ -1341,7 +1438,7 @@ return;
             ),
           ),
         ),
-//=================================== BODY =====================================================================
+        //=================================== BODY =====================================================================
         body: SizedBox(
           height: height,
           width: width,
@@ -1349,13 +1446,13 @@ return;
             children: [
               Expanded(
                 child:
-//=================================== TELAS TABBAR=====================================================================
+                //=================================== TELAS TABBAR=====================================================================
                 TabBarView(
                   children: [
                     conteudoDasAbas("evnts"),
                     conteudoDasAbas("space"),
 
-//============================================FIM DE EVENTOS=================================================================
+                    //============================================FIM DE EVENTOS=================================================================
 
                     //Text('hello world'),
                   ],

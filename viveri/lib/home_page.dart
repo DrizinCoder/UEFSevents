@@ -22,7 +22,7 @@ class _HomePageState extends State<HomePage> {
   List<EventModel> events = [];
   Map<String, dynamic>? userData;
   bool isLoading = true;
-
+  String events_token = '';
   @override
   void initState() {
     super.initState();
@@ -39,6 +39,7 @@ class _HomePageState extends State<HomePage> {
     final accessToken = prefs.getString('access_token');
     final userDataString = prefs.getString('user_data');
     if (accessToken != null) {
+      events_token=accessToken;
       final repo = EventRepository(client: HttpClient());
       final fetchedEvents = await repo.getEvent(1);
       setState(() {
@@ -106,7 +107,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 0),
+      bottomNavigationBar: CustomBottomNavBar(currentIndex: 0, userData: userData!, accessToken: events_token??'',),
     );
   }
 
