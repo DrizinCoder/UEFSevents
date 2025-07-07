@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:viveri/custom_switch.dart';
 import 'package:viveri/custom_back_button.dart';
+import 'package:viveri/preferencias.dart';
 
 // Página de preferências do usuário
 class PreferencesPage extends StatefulWidget {
@@ -44,11 +45,45 @@ class _PreferencesPageState extends State<PreferencesPage> {
                   _buildDistanceUnitOption(),
                   const SizedBox(height: 20),
                   // Opção para editar interesses
-                  const Text(
-                    'Editar interesses',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.black,
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Preferencias(title: 'Editar Interesses', fromLogin: false),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Editar interesses',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_forward_ios,
+                                color: Colors.black54,
+                                size: 16,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 40), // Espaçamento fixo em vez de Spacer

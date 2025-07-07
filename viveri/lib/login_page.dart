@@ -11,6 +11,7 @@ import 'location_permission_page.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:viveri/preferencias.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -53,7 +54,19 @@ class _LoginPageState extends State<LoginPage> {
           final userData = json.decode(userResponse.body);
           await prefs.setString('user_data', json.encode(userData));
           
-          _goToLocationPermissionPage();
+          final userEmail = userData['email'] ?? userData['username'];
+          final isFirstLogin = !(prefs.getBool('first_login_done_$userEmail') ?? false);
+          if (isFirstLogin) {
+            await prefs.setBool('first_login_done_$userEmail', true);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Preferencias(title: 'Interesses', fromLogin: true),
+              ),
+            );
+          } else {
+            _goToLocationPermissionPage();
+          }
         } else {
           showInvalidDataDialog(context, 'Falha ao obter dados do usuário');
         }

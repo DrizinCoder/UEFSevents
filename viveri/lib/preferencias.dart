@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:viveri/custom_back_button.dart';
+import 'package:viveri/location_permission_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 void main() {
   runApp(const TestandoPreferencias());
@@ -22,9 +26,9 @@ class TestandoPreferencias extends StatelessWidget {
 }
 
 class Preferencias extends StatefulWidget {
-  const Preferencias({super.key, required this.title});
-
   final String title;
+  final bool fromLogin;
+  const Preferencias({super.key, required this.title, this.fromLogin = false});
 
   @override
   State<Preferencias> createState() => _MyHomePageState();
@@ -42,11 +46,51 @@ class _MyHomePageState extends State<Preferencias> {
     {"nome": "tecnologia", "foto": "assets/icons_bruno/tecnologia.png"},
   ];
   late List<bool> selected;
+  String? userEmail;
 
   @override
   void initState() {
     super.initState();
     selected = List.generate(items.length, (index) => false);
+    _getUserEmailAndLoadInterests();
+  }
+
+  Future<void> _getUserEmailAndLoadInterests() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userDataString = prefs.getString('user_data');
+    if (userDataString != null) {
+      final userData = json.decode(userDataString);
+      userEmail = userData['email'] ?? userData['username'];
+      await _loadSelectedInterests();
+    }
+  }
+
+  Future<void> _loadSelectedInterests() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (userEmail == null) return;
+    
+    final selectedInterestsJson = prefs.getString('selected_interests_$userEmail');
+    if (selectedInterestsJson != null) {
+      final selectedInterests = List<String>.from(json.decode(selectedInterestsJson));
+      setState(() {
+        for (int i = 0; i < items.length; i++) {
+          selected[i] = selectedInterests.contains(items[i]["nome"]);
+        }
+      });
+    }
+  }
+
+  Future<void> _saveSelectedInterests() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (userEmail == null) return;
+    
+    final selectedInterests = <String>[];
+    for (int i = 0; i < items.length; i++) {
+      if (selected[i]) {
+        selectedInterests.add(items[i]["nome"]);
+      }
+    }
+    await prefs.setString('selected_interests_$userEmail', json.encode(selectedInterests));
   }
 
   @override
@@ -57,25 +101,42 @@ class _MyHomePageState extends State<Preferencias> {
       appBar: AppBar(
         toolbarHeight: 100,
         backgroundColor: Color(0xFF586C61),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right:20.0,bottom:30),
-            child: CircleAvatar(
-              radius: 20,
-              backgroundColor: Color.fromRGBO(47, 69, 56, 1),
-              child: IconButton(onPressed: (){
-
-
-              },    padding: EdgeInsets.zero,
-                  constraints: BoxConstraints(),
-                  icon: Icon(Icons.arrow_right_alt_rounded,
-                    color:Color.fromRGBO(244, 177, 52, 1),
-                    size: 37,
-                  )
+        leading: widget.fromLogin
+            ? null
+            : Padding(
+                padding: const EdgeInsets.only(left: 8.0, top: 8.0),
+                child: CustomBackButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
               ),
-            ),
-          ),
-        ],
+        actions: widget.fromLogin
+            ? [
+                Padding(
+                  padding: const EdgeInsets.only(right: 20.0, bottom: 30),
+                  child: CircleAvatar(
+                    radius: 20,
+                    backgroundColor: Color.fromRGBO(47, 69, 56, 1),
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LocationPermissionPage(),
+                          ),
+                        );
+                      },
+                      padding: EdgeInsets.zero,
+                      constraints: BoxConstraints(),
+                      icon: Icon(
+                        Icons.arrow_right_alt_rounded,
+                        color: Color.fromRGBO(244, 177, 52, 1),
+                        size: 37,
+                      ),
+                    ),
+                  ),
+                ),
+              ]
+            : [],
         title: Padding(
           padding: const EdgeInsets.only(left:30.0),
           child: Column(
@@ -125,10 +186,11 @@ class _MyHomePageState extends State<Preferencias> {
                         selected[index] = false;
                       }
                       setState(() {});
+                      _saveSelectedInterests();
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                        border: selected[index]?Border.all( color: Color.fromARGB(244, 177, 52, 1)):Border(),
+                        border: selected[index]?Border.all( color: Color(0xFFFFD700)):Border(),
                         color:Color.fromRGBO(47, 69, 56, 0.3),
                         borderRadius: BorderRadius.circular(10)
                       ),
