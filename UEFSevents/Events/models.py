@@ -59,6 +59,11 @@ class Event(models.Model):
     space=models.ForeignKey(Space, on_delete=models.CASCADE)
     type_event=models.CharField(max_length=100)
     age_range=models.IntegerField()
+    creator = models.ForeignKey(
+        'Users.CustomUser',           # string reference evita circular import
+        on_delete=models.CASCADE,
+        related_name='created_events'
+        )
     created_at = models.DateTimeField(auto_now_add=True, null=True)  # Data e hora em que a tarefa foi criada
     documentations = models.ManyToManyField(
         'self',

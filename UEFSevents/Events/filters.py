@@ -4,10 +4,34 @@ from django.db.models import Q
 
 
 class EventFilter(django_filters.FilterSet):
-    event_name = django_filters.CharFilter(
-        field_name = 'events__title',
-        lookup_expr = 'icontains'
+    # Busca textual em vários campos
+    search = django_filters.CharFilter(
+        method='filter_search',
+        label='Pesquisar'
     )
+
+    # Filtros de categoria/data
+    category = django_filters.CharFilter(
+        field_name='category',
+        lookup_expr='exact'
+    )
+    creator = django_filters.CharFilter(
+        field_name='creator',
+        lookup_expr='exact'
+    )
+    start_date = django_filters.DateFilter(
+        field_name='start_date',
+        lookup_expr='exact'
+    )
+    start_date_after = django_filters.DateFilter(
+        field_name='start_date',
+        lookup_expr='gte'
+    )
+    start_date_before = django_filters.DateFilter(
+        field_name='start_date',
+        lookup_expr='lte'
+    )
+
     order_by = django_filters.OrderingFilter(
         fields=(
             ('title', 'title'),
@@ -43,6 +67,16 @@ class EventFilter(django_filters.FilterSet):
     class Meta:
         model = Event
         fields = []
+
+    def filter_search(self, queryset, name, value):
+        """Implementa ?search= valor OR nos campos title, description e category."""
+        return queryset.filter(
+            Q(title__icontains=value) |
+            Q(description__icontains=value) |
+            Q(category__icontains=value)
+        )
+
+
 
 class SpaceFilter(django_filters.FilterSet):
     order_by = django_filters.OrderingFilter(
