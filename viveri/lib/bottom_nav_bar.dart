@@ -34,6 +34,7 @@ class CustomBottomNavBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
+              // Home na esquerda
               _buildNavItemWithCircle(
                 context: context,
                 iconPath: 'assets/home.png',
@@ -47,6 +48,7 @@ class CustomBottomNavBar extends StatelessWidget {
                   }
                 },
               ),
+              // Calendário no centro
               _buildNavItemWithCircle(
                 context: context,
                 iconPath: 'assets/events.png',
@@ -58,21 +60,17 @@ class CustomBottomNavBar extends StatelessWidget {
                       MaterialPageRoute(builder: (context) =>  CreateFavorite(
                         userData: userData,
                         accessToken: accessToken,
+                        initialTab: 0,
                       )),
                     );
                   }
                 },
               ),
-              _buildNavItemWithCircle(
-                context: context,
-                iconPath: 'assets/ticket.png',
-                isActive: currentIndex == 2,
-                onPressed: () {},
-              ),
+              // Usuário na direita
               _buildNavItemWithCircle(
                 context: context,
                 iconPath: 'assets/user.png',
-                isActive: currentIndex == 3,
+                isActive: currentIndex == 2,
                 onPressed: () async {
                   final prefs = await SharedPreferences.getInstance();
                   final userDataString = prefs.getString('user_data');
