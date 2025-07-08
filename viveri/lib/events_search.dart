@@ -1066,6 +1066,7 @@ class _EventSearch extends State<EventSearch> {
           child: Scaffold(
             backgroundColor: Color.fromRGBO(212, 224, 212, 1),
             appBar: AppBar(
+              automaticallyImplyLeading: false,
               title: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
 
@@ -1410,7 +1411,9 @@ class _EventSearch extends State<EventSearch> {
                 radius: 32,
                 backgroundColor: Color.fromRGBO(47, 69, 56, 1),
                 child: IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                   padding: EdgeInsets.zero,
                   constraints: BoxConstraints(),
                   icon: Icon(
