@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:pdfx/pdfx.dart';
 import 'package:viveri/custom_back_button.dart';
 import 'dart:html' as html;
 
@@ -196,25 +196,17 @@ class _PDFViewerPageState extends State<PDFViewerPage> {
         child: Text('Erro: Caminho do PDF não encontrado'),
       );
     }
-    
-    return PDFView(
-      filePath: widget.filePath!,
-      enableSwipe: true,
-      swipeHorizontal: false,
-      autoSpacing: true,
-      pageFling: true,
-      pageSnap: true,
-      defaultPage: 0,
-      fitPolicy: FitPolicy.BOTH,
-      preventLinkNavigation: false,
-      onError: (error) {
+    // Usando Pdfx para abrir PDF local
+    final pdfController = PdfController(
+      document: PdfDocument.openFile(widget.filePath!),
+    );
+    return PdfView(
+      controller: pdfController,
+      onDocumentError: (error) {
         print('Erro no PDF mobile: $error');
         setState(() {
           errorMessage = 'Erro ao carregar PDF: $error';
         });
-      },
-      onPageError: (page, error) {
-        print('Erro na página $page: $error');
       },
     );
   }
