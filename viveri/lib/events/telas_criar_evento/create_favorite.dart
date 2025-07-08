@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:viveri/bottom_nav_bar.dart';
 import 'package:viveri/events/telas_criar_evento/real_create.dart';
+import 'package:viveri/home_page.dart';
 
 import '../data/http/http_client.dart';
 import '../data/repositories/event_repositories.dart';
@@ -59,9 +60,11 @@ bool limit = false;
 class CreateFavorite extends StatefulWidget {
   final Map<String, dynamic> userData;
   final String accessToken;
+  final int initialTab;
   const CreateFavorite({super.key,
     required this.accessToken,
-    required this.userData
+    required this.userData,
+    this.initialTab = 0,
   });
 
   @override
@@ -127,7 +130,7 @@ class _CreateFavorite extends State<CreateFavorite>
   void initState() {
     super.initState();
     // page = 1;
-    _tc = TabController(length: 2, vsync: this);
+    _tc = TabController(length: 2, vsync: this, initialIndex: widget.initialTab);
     _tc.addListener(() {_verificaaba();});
 
     selected = List.generate(10, (index) => false);
@@ -279,12 +282,12 @@ class _CreateFavorite extends State<CreateFavorite>
             backgroundColor: Color.fromRGBO(47, 69, 56, 1),
             child: IconButton(
               onPressed: () {
-                create = '$create + $create';
-                // create = !create;
-                print(create);
-                //  print(create);
-                setState(() {});
-                print(create);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomePage(),
+                  ),
+                );
               },
               padding: EdgeInsets.zero,
               constraints: BoxConstraints(),

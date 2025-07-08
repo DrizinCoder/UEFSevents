@@ -60,6 +60,34 @@ class EventRepository implements IEventReposity {
     }
   }
 
+  Future<Map<String, dynamic>> getEventWithPagination(int page) async {
+    print(page);
+
+    final response = await client.get(
+      url:'http://localhost:8000/api/eventsapi/?page=$page',
+    );
+
+    if (response.statusCode == 200) {
+      final List<EventModel> events = [];
+      final body = jsonDecode(response.body);
+      
+      body['results'].map((item) {
+        final EventModel event = EventModel.fromMap(item);
+        events.add(event);
+      }).toList();
+      
+      return {
+        'events': events,
+        'hasNext': body['next'] != null,
+        'nextUrl': body['next'],
+      };
+    } else if (response.statusCode == 404) {
+      throw NotFoundException(message: 'A url informada não é válida');
+    } else {
+      throw Exception('Não foi possível encontrar os eventos');
+    }
+  }
+
 
   Future<void> createEvent(String accessToken, Map<String,dynamic> evtCriado, Map<String,dynamic> spaceCriado, Map<String,dynamic> adressCriado) async {
     final url = 'http://localhost:8000/api/eventsapi/';

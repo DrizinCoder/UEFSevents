@@ -34,26 +34,77 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _loadParticipatedEvents() async {
-    final repo = EventRepository(client: HttpClient());
-    int page = 1;
-    int count = 0;
-    bool limit = false;
-    final userId = widget.userData['id'];
-    while (!limit) {
-      final events = await repo.getEvent(page);
-      if (events.isEmpty) break;
-      for (final event in events) {
-        if (event.participants.contains(userId)) {
-          count++;
+    try {
+      final repo = EventRepository(client: HttpClient());
+      int count = 0;
+      final userId = widget.userData['id'];
+      
+      // Busca apenas a primeira página com informações de paginação
+      try {
+        final result = await repo.getEventWithPagination(1);
+        final events = result['events'] as List<EventModel>;
+        final hasNext = result['hasNext'] as bool;
+        
+        // Conta participantes na primeira página
+        for (final event in events) {
+          if (event.participants.contains(userId)) {
+            count++;
+          }
         }
+        
+        // Se não há próxima página, terminamos
+        if (!hasNext) {
+          setState(() {
+            participatedCount = count;
+            isLoading = false;
+          });
+          return;
+        }
+        
+        // Se há próxima página, vamos buscar mais páginas de forma segura
+        int page = 2;
+        bool hasMorePages = hasNext;
+        
+        while (hasMorePages) {
+          try {
+            final nextResult = await repo.getEventWithPagination(page);
+            final nextEvents = nextResult['events'] as List<EventModel>;
+            hasMorePages = nextResult['hasNext'] as bool;
+            
+            // Conta participantes na página atual
+            for (final event in nextEvents) {
+              if (event.participants.contains(userId)) {
+                count++;
+              }
+            }
+            
+            page++;
+          } catch (e) {
+            print('Erro ao carregar página $page: $e');
+            break; // Para o loop se der erro
+          }
+        }
+        
+        setState(() {
+          participatedCount = count;
+          isLoading = false;
+        });
+        
+      } catch (e) {
+        print('Erro ao carregar eventos: $e');
+        setState(() {
+          participatedCount = 0;
+          isLoading = false;
+        });
       }
-      if (events.length < 10) limit = true;
-      page++;
+      
+    } catch (e) {
+      print('Erro geral ao carregar eventos participados: $e');
+      setState(() {
+        participatedCount = 0;
+        isLoading = false;
+      });
     }
-    setState(() {
-      participatedCount = count;
-      isLoading = false;
-    });
   }
 
   @override
