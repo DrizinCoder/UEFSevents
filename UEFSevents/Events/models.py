@@ -60,7 +60,7 @@ class Event(models.Model):
     type_event=models.CharField(max_length=100)
     age_range=models.IntegerField()
     creator = models.ForeignKey(
-        'Users.CustomUser',           # string reference evita circular import
+        'Users.CustomUser',         
         on_delete=models.CASCADE,
         related_name='created_events'
         )

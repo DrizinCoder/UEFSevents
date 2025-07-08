@@ -1,7 +1,8 @@
 import django_filters
 from .models import Event, Space, Adress, Image
 from django.db.models import Q
-
+from django_filters import rest_framework as filters
+from django_filters import BaseInFilter, NumberFilter
 
 class EventFilter(django_filters.FilterSet):
     # Busca textual em vários campos
@@ -10,6 +11,10 @@ class EventFilter(django_filters.FilterSet):
         label='Pesquisar'
     )
 
+    participant_id = django_filters.NumberFilter(
+        field_name='participants__id'
+        )
+    
     # Filtros de categoria/data
     category = django_filters.CharFilter(
         field_name='category',
@@ -117,21 +122,25 @@ class AdressFilter(django_filters.FilterSet):
         model = Adress
         fields = []
 
+class NumberInFilter(BaseInFilter, NumberFilter):
+    pass
 
+# 2) Use-o no seu FilterSet
 class ImageFilter(django_filters.FilterSet):
     search = django_filters.CharFilter(method='filter_search', label="Busca")
 
+    # Troque NumberFilter por NumberInFilter!
+    event_ids = NumberInFilter(
+        field_name='events__id',
+        lookup_expr='in',
+        label='IDs de Evento (lista)'
+    )
+
     def filter_search(self, queryset, name, value):
-        return queryset.filter(
-            Q(url__icontains=value)
-            )
+        return queryset.filter(Q(url__icontains=value))
 
     class Meta:
         model = Image
-        fields = []
-
-
-
-
-
+        # exponha só esses filtros
+        fields = ['event_ids', 'search']
 

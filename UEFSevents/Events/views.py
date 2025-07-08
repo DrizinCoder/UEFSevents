@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from .models import Event, Adress, Space, Image
-from .serializers import EventSerializer, AdressSerializer, ImageSerializer, SpaceSerializer
+from .models import Event, Adress, EventRegistration, Space, Image
+from .serializers import EventRegistrationSerializer, EventSerializer, AdressSerializer, ImageSerializer, SpaceSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from .filters import EventFilter, AdressFilter, SpaceFilter, ImageFilter
@@ -39,7 +39,16 @@ class EventViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'start_date', 'age_range'] 
 
 
+class EventRegistrationViewSet(viewsets.ModelViewSet):
+    queryset = EventRegistration.objects.all()
+    serializer_class = EventRegistrationSerializer
 
+    # opcional: permitir criação somente a usuários autenticados
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated()]
+        return []
+    
 class AdressViewSet(viewsets.ModelViewSet):
     queryset=Adress.objects.all()
     serializer_class=AdressSerializer

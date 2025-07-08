@@ -20,7 +20,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from Events.views import (
-    EventViewSet, AdressViewSet, SpaceViewSet, ImageViewSet
+    EventRegistrationViewSet, EventViewSet, AdressViewSet, SpaceViewSet, ImageViewSet
     )
 
 from FAQ.views import (
@@ -34,6 +34,7 @@ router=DefaultRouter()
 router.register('eventsapi',EventViewSet, basename='eventsapi')
 router.register('address',AdressViewSet, basename='address')
 router.register('space', SpaceViewSet, basename='space')
+router.register('event_registration', EventRegistrationViewSet, basename='event_registration')
 router.register('eventsimage', ImageViewSet, basename='eventsimage')
 router.register('users', CustomUserViewSet, basename='customuser')
 router.register('perguntas-frequentes', QuestionViewSet, basename='perguntas-frequentes')
