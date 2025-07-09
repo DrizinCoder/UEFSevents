@@ -35,14 +35,14 @@ class AdressRepository implements IAdressReposity {
   }
 
 
-  Future createAdress(AdressModel adress) async {
+  Future createAdress(accessToken,AdressModel adress) async {
     final url = 'http://localhost:8000/api/address/';
 
     final response = await client.post(
       url: url,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUzOTg0Njc1LCJpYXQiOjE3NTEzOTI2NzUsImp0aSI6IjE2NjRiYjdlOGVlZTQ1ODg5MzlmYWQzZjRlOTM4MjI5IiwidXNlcl9pZCI6MX0.KXaCfHzjRrpp9yP5aP059ySKSe7_kypxrFCZ3JxZ5Xk' // se necessário
+        'Authorization': 'Bearer $accessToken' // se necessário
       },
 
         body: jsonEncode(adress.toJson()),

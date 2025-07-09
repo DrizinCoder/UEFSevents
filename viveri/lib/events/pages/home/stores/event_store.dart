@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:viveri/events/data/http/exceptions.dart';
+import 'package:viveri/events/data/http/http_client.dart';
 import 'package:viveri/events/data/model/event_model.dart';
 import 'package:viveri/events/data/repositories/event_repositories.dart';
 import 'package:viveri/events_search.dart'show limit;
@@ -50,5 +51,15 @@ class EventStore {
   }
 
 
+  Future<void> deleteEventById(int id) async {
+    try {
+      IHttpClient client = HttpClient();
+      EventRepository repository = EventRepository(client: client);
+      await repository.deleteEvent(id);
+      state.value = state.value.where((event) => event.id != id).toList();
+    } catch (e) {
+      erro.value = 'Erro ao deletar evento: $e';
+    }
+  }
 
 }

@@ -44,7 +44,7 @@ class _Notifications extends State<Notifications> {
 
 
     return Scaffold(
-      backgroundColor:  Color(0x33284017),// Cor que você pediu
+      backgroundColor: Color.fromRGBO(212, 224, 212, 1),
       body: SingleChildScrollView(
 
       child:

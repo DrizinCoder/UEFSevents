@@ -13,7 +13,7 @@ final Map<String, dynamic> userData;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0x33284017),
+      backgroundColor: Color.fromRGBO(212, 224, 212, 1),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

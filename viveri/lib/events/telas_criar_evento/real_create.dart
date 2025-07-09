@@ -714,9 +714,9 @@ int? faixaEtaria;
                               // SizedBox(width: 1,),
                               Flexible(
                                 child: TextField(
-                                  controller: TextEditingController(text: descriEvento),
+                                  controller: TextEditingController(text: faixaEtaria.toString()),
                                   onChanged:(value){
-                                    descriEvento=value;
+                                    faixaEtaria=value as int?;
                                   },
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.only(
@@ -759,6 +759,10 @@ int? faixaEtaria;
                             right: 20,
                           ),
                           child: TextField(
+                            controller: TextEditingController(text: descriEvento),
+                            onChanged:(value){
+                              descriEvento=value;
+                            },
                             maxLength: 250, // limite de 10 caracteres
                             minLines: 5, // número mínimo de linhas
                             maxLines: 6,
@@ -2257,6 +2261,7 @@ final List<SpaceModel> spaces = [];
                       else {
                         if(eventoPrivado??false)tipoEvento='Privado';
                         if(eventoGratuito??false)tipoEvento='Público';
+                        else{tipoEvento='Pago livre';}
                       }
                       Map<String,dynamic> evtCriado ={
                         'title':nomeEvento,
@@ -2272,20 +2277,23 @@ final List<SpaceModel> spaces = [];
                         'age_range':faixaEtaria,
                         'creator': widget.userData['id'],
                       };
-                      final SpaceModel space = SpaceModel.fromMap(spaceCriado);
-                      final EventModel event = EventModel.fromMap(evtCriado);
-                      final AdressModel adress = AdressModel.fromMap(adressCriado);
+                    //  final SpaceModel space = SpaceModel.fromMap(spaceCriado);
+                   //  final EventModel event = EventModel.fromMap(evtCriado);
+                  //    final AdressModel adress = AdressModel.fromMap(adressCriado);
                  //     events.add(event);
                   //    print(event.toJson());
-                      print(events);
+                     // print(events);
 
-                      print(adress.adress_zip_code);
+                     // print(adress.adress_zip_code);
 
 
                 //      spaces.add(space);
                  //     print(space.toJson());
                  //     print(space);
-
+  Map<String,dynamic> imgCriada ={
+    'url':linkEstabelecimento,
+    'events':0,
+  };
 
 //final AdressRepository adressRepository = AdressRepository();
                       final httpClient = HttpClient();
@@ -2295,11 +2303,15 @@ final List<SpaceModel> spaces = [];
                     //  final SpaceModel space = SpaceModel.fromMap(spaceCriado);
 
 
-                      var create = await repo.createEvent(widget.accessToken,evtCriado, spaceCriado, adressCriado);
+                      var create = await repo.createEvent(widget.accessToken,imgCriada,evtCriado, spaceCriado, adressCriado);
 
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (_) => const Created()),
+                        MaterialPageRoute(builder: (_) =>  Created(
+                          url: linkLocal??'https://png.pngtree.com/thumb_back/fw800/background/20210207/pngtree-gray-gradient-background-simple-image_557033.jpg',
+                          event: create,
+                          accessToken: widget.accessToken, userData: widget.userData,
+                        )),
                       );
 }
 catch(e){

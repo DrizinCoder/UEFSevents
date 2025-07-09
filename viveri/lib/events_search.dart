@@ -1,61 +1,41 @@
-//==============================EVENT SEARCH================================
-
-// ignore_for_file: avoid_print
-
+/*
+antes de mais nada, preciso avisar que essa tela está usando duas formas de fazer
+requisições à api. Uma por meio da classe store, que faz chamadas à classe
+repositories. Acabei
+ */
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:viveri/events/data/http/http_client.dart';
 import 'package:viveri/events/data/repositories/event_repositories.dart';
 import 'package:viveri/events/pages/home/stores/event_store.dart';
 
-//   ATENÇÃO! O TRECHO DE CÓDIGO COMENTADO ABAIXO TORNA ESTA TELA INDEPENDENTE DE TODOS OS OUTROS ARQUIVOS PARA FINS DE TESTE.
-//   SE TIVER INTERESSADO EM TESTAR, BASTA RETIRAR DE COMENTÁRIO E RODAR NO TERMINAL "flutter run lib/event_search.dart"
-
-void main() {
-  runApp(const Testando());
-}
-
-class Testando extends StatelessWidget {
-  const Testando({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      // 1) Delegates para tradução de Material, Widgets e Cupertino
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-
-      // 2) Definição dos idiomas que o app vai suportar
-      supportedLocales: [
-        const Locale('pt', 'BR'),
-        // você pode adicionar outros, ex: const Locale('en', 'US')
-      ],
-
-      // 3) (Opcional) força o uso do português brasileiro sempre
-      // locale: const Locale('pt', 'BR'),
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      home: const EventSearch(title: 'testando preferencias'),
-    );
-  }
-}
-
-//============================FIM DO CÓDIGO DE INDEPENÊNCIA==================================================================
+import 'events/data/model/image_model.dart';
+import 'events/data/repositories/image_repositories.dart';
+import 'events/evento_unico/evento_unico.dart';
+/*
+variável global que define o fim da busca de eventos ao chegar
+ na última página da api paginada. Não era de minha vontade fazer dessa forma,
+ mas o tempo é cruel.
+ */
 bool limit = false;
 
+//definição da classe, passando userData e accessToken como parâmetros,
+//pois será necessário para a tela de evento único.
 class EventSearch extends StatefulWidget {
-  const EventSearch({super.key, required this.title});
-
-  final String title;
+  final Map<String, dynamic> userData;
+  final String accessToken;
+  const EventSearch({
+    super.key,
+    required this.userData,
+    required this.accessToken,
+  });
 
   @override
   State<EventSearch> createState() => _EventSearch();
 }
 
 class _EventSearch extends State<EventSearch> {
+  //criação de objeto da classe store responsável pelo fluxo de eventos na tela até certa etapa.
   final EventStore store = EventStore(
     repository: EventRepository(client: HttpClient()),
   );
@@ -85,18 +65,14 @@ class _EventSearch extends State<EventSearch> {
   final Set<String> _selecionadas = {};
 
   List<dynamic> evnts = [];
-  List<dynamic> space = [];
   bool pesquisando = false;
   bool setedias = false;
   bool gratuitos = false;
-  //String next = '';
   final ScrollController _scrollController = ScrollController();
   String result_tabs = '';
-  List<String> items = ["1", "2", "3", "4", "5"];
+  List<String> items = [];
   late List<bool> selected;
   List<bool> idxctg = List.filled(8, false);
-  List<bool> idxcmdd = List.filled(6, false);
-  String Mensagem = "sexrta feira";
   bool preco = false;
   int page = 1;
   bool filtro = false;
@@ -105,6 +81,7 @@ class _EventSearch extends State<EventSearch> {
   String categoria = '';
   String data = '';
   DateTime? _selectedDate = DateTime.now();
+  var images = [];
 
   void _verificaScroll() async {
     print(_scrollController);
@@ -123,14 +100,30 @@ class _EventSearch extends State<EventSearch> {
     }
   }
 
+  Future<void> _loadData() async {
+    final IHttpClient httpClient = HttpClient();
+    final imageRepo = ImageRepository(client: httpClient);
+    images = await imageRepo.searchImagesByEvent(
+      evnts.map((e) => e.id.toString()).toList(),
+    );
+    setState(() {
+      //store.isLoading =true;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     // page = 1;
     _scrollController.addListener(_verificaScroll);
     selected = List.generate(10, (index) => false);
+    // _loadData();
+    store.getEvents(page).then((_) async {
+      evnts = store.state.value;
+      await _loadData(); // carrega as imagens depois dos eventos
+      // setState(() {}); // atualiza a UI quando tudo estiver pronto
+    }); // 2. Quando tiver evnts, carrega as imagens
 
-    // store.getEvents();
   }
 
   void _abrirpreco(BuildContext context) async {
@@ -323,6 +316,16 @@ class _EventSearch extends State<EventSearch> {
                             } catch (e) {
                               print(e);
                             }
+                            final IHttpClient httpClient = HttpClient();
+                            final imageRepo = ImageRepository(
+                              client: httpClient,
+                            );
+
+                            images = await imageRepo.searchImagesByEvent(
+                              evnts.map((e) => e.id.toString()).toList(),
+                            );
+                            print('imagene sao $images');
+
                             Navigator.of(context).pop();
                           },
                           style: ElevatedButton.styleFrom(
@@ -1047,17 +1050,12 @@ class _EventSearch extends State<EventSearch> {
   Widget conteudoDasAbas(String tipoAba) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
+    //  _loadData();
     List<dynamic> listaTela = [];
-    if (tipoAba == 'evnts') {
-      print(page);
-      store.getEvents(page);
 
       listaTela = items;
       result_tabs = 'eventos';
-    } else {
-      listaTela = [];
-      result_tabs = 'space';
-    }
+
     return StatefulBuilder(
       builder: (context, sa) {
         return SizedBox(
@@ -1166,6 +1164,7 @@ class _EventSearch extends State<EventSearch> {
               ]),
               builder: (context, child) {
                 if (store.isLoading.value) {
+                  //  await _loadData();
                   return const CircularProgressIndicator();
                 }
                 if (store.erro.value.isNotEmpty) {
@@ -1298,30 +1297,68 @@ class _EventSearch extends State<EventSearch> {
                               itemBuilder: (_, index) {
                                 // print(next);
                                 final item = evnts[index];
+                                final Map<int, ImageModel> thumbByEvent = {};
+                                // Preenche o map: para cada imagem, guarda a primeira ocorrência por eventId
+                                for (var img in images) {
+                                  thumbByEvent.putIfAbsent(
+                                    img.events,
+                                    () => img,
+                                  );
+                                }
+                                final ImageModel? img = thumbByEvent[item.id];
+
                                 return ListTile(
                                   title: Center(
                                     child: Material(
                                       color: Colors.transparent,
                                       child: InkWell(
                                         onTap: () {
-                                          print(item.id);
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(builder: (_) =>  EventoUnico(
+                                              url: img?.url??'https://th.bing.com/th/id/R.65678b185f17e849fe120e31c0ce1652?rik=xJ9WYKXiy3k1gQ&pid=ImgRaw&r=0',
+                                              event: item,
+                                              accessToken: widget.accessToken,
+                                              userData: widget.userData,
+                                            )),
+                                          );
                                         },
                                         child: Row(
                                           children: [
-                                            Container(
-                                              padding: EdgeInsets.only(
-                                                left: 6,
-                                                right: 6,
-                                              ),
-                                              height: 70,
-                                              width: 80,
-                                              color: Color.fromRGBO(
-                                                47,
-                                                69,
-                                                56,
-                                                0.3,
-                                              ),
-                                            ),
+                                            img == null
+                                                ? Container(
+                                                  padding: EdgeInsets.only(
+                                                    left: 6,
+                                                    right: 6,
+                                                  ),
+                                                  height: 70,
+                                                  width: 80,
+                                                  color: Color.fromRGBO(
+                                                    47,
+                                                    69,
+                                                    56,
+                                                    0.3,
+                                                  ),
+                                                )
+                                                : Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                    vertical: 0,
+                                                  ),
+                                                  height: 70,
+                                                  width: 80,
+                                                  color: Color.fromRGBO(
+                                                    47,
+                                                    69,
+                                                    56,
+                                                    0.3,
+                                                  ),
+                                                  child: Image.network(
+                                                    img.url,
+                                                    width: 50,
+                                                    height: 50,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
 
                                             // Flexible(
                                             //   child: Image.asset(
@@ -1353,10 +1390,12 @@ class _EventSearch extends State<EventSearch> {
                                                 alignment:
                                                     Alignment.centerRight,
                                                 child: InkWell(
-                                                  onTap: () {
+                                                  onTap: () async {
                                                     print(
-                                                      'favoritado o evento de id ${item.id}',
+                                                      "o usuario de id: ${widget.userData['id']}, se inscreveu no evento de id ${item.id} ",
                                                     );
+                                                    await _loadData();
+
                                                     selected[index] =
                                                         !selected[index];
                                                     sa(() {});
@@ -1437,7 +1476,7 @@ class _EventSearch extends State<EventSearch> {
               dividerColor: Color(0xFF284017),
               indicatorColor: Color.fromRGBO(244, 177, 52, 1),
               unselectedLabelColor: Color.fromRGBO(40, 64, 23, 1),
-              tabs: [Tab(child: Text('Eventos')), Tab(child: Text('Locais'))],
+              tabs: [Tab(child: Text('Eventos'))],
             ),
           ),
         ),
@@ -1453,8 +1492,6 @@ class _EventSearch extends State<EventSearch> {
                 TabBarView(
                   children: [
                     conteudoDasAbas("evnts"),
-                    conteudoDasAbas("space"),
-
                     //============================================FIM DE EVENTOS=================================================================
 
                     //Text('hello world'),

@@ -6,6 +6,7 @@ import 'package:viveri/events/data/http/http_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:core';
+import 'events/data/model/space_model.dart';
 import 'events_search.dart';
 import 'events/evento_unico/notifications.dart';
 import 'events/evento_unico/evento_unico.dart';
@@ -23,14 +24,14 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-
+  List<SpaceModel> space = [];
   List<EventModel> events = [];
   Map<String, dynamic>? userData;
   bool isLoading = true;
   String events_token = '';
   List<String> userInterests = [];
   List<int> recentlyViewedEvents = [];
-  
+
   @override
   void initState() {
     super.initState();
@@ -50,13 +51,13 @@ class _HomePageState extends State<HomePage> {
       events_token=accessToken;
       final repo = EventRepository(client: HttpClient());
       final fetchedEvents = await repo.getEvent(1);
-      
+
       // Carrega interesses do usuário
       await _loadUserInterests();
-      
+
       // Carrega eventos vistos recentemente
       await _loadRecentlyViewedEvents();
-      
+
       setState(() {
         events = fetchedEvents;
         userData = userDataString != null ? json.decode(userDataString) : null;
@@ -71,7 +72,7 @@ class _HomePageState extends State<HomePage> {
     if (userDataString != null) {
       final userData = json.decode(userDataString);
       final userEmail = userData['email'] ?? userData['username'];
-      
+
       final selectedInterestsJson = prefs.getString('selected_interests_$userEmail');
       if (selectedInterestsJson != null) {
         final selectedInterests = List<String>.from(json.decode(selectedInterestsJson));
@@ -88,7 +89,7 @@ class _HomePageState extends State<HomePage> {
     if (userDataString != null) {
       final userData = json.decode(userDataString);
       final userEmail = userData['email'] ?? userData['username'];
-      
+
       final recentlyViewedJson = prefs.getString('recently_viewed_$userEmail');
       if (recentlyViewedJson != null) {
         final recentlyViewed = List<int>.from(json.decode(recentlyViewedJson));
@@ -105,17 +106,17 @@ class _HomePageState extends State<HomePage> {
     if (userDataString != null) {
       final userData = json.decode(userDataString);
       final userEmail = userData['email'] ?? userData['username'];
-      
+
       // Remove o evento se já existe (para não duplicar)
       recentlyViewedEvents.remove(eventId);
       // Adiciona no início da lista
       recentlyViewedEvents.insert(0, eventId);
-      
+
       // Mantém apenas os últimos 10 eventos vistos
       if (recentlyViewedEvents.length > 10) {
         recentlyViewedEvents = recentlyViewedEvents.take(10).toList();
       }
-      
+
       await prefs.setString('recently_viewed_$userEmail', json.encode(recentlyViewedEvents));
       setState(() {});
     }
@@ -124,19 +125,19 @@ class _HomePageState extends State<HomePage> {
   List<EventModel> getTodayEvents() {
     final today = DateTime.now();
     final todayString = "${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
-    
+
     return events.where((event) {
       // Verifica se a data do evento é hoje
       // Primeiro tenta o formato YYYY-MM-DD
       if (event.start_date == todayString) {
         return true;
       }
-      
+
       // Se não encontrar, tenta converter a data do evento para DateTime
       try {
         // Tenta diferentes formatos possíveis
         DateTime? eventDate;
-        
+
         // Tenta formato YYYY-MM-DD
         if (event.start_date.contains('-')) {
           eventDate = DateTime.tryParse(event.start_date);
@@ -153,17 +154,17 @@ class _HomePageState extends State<HomePage> {
             }
           }
         }
-        
+
         if (eventDate != null) {
-          final isToday = eventDate.year == today.year && 
-                         eventDate.month == today.month && 
+          final isToday = eventDate.year == today.year &&
+                         eventDate.month == today.month &&
                          eventDate.day == today.day;
           return isToday;
         }
       } catch (e) {
         // Silenciosamente ignora erros de conversão
       }
-      
+
       return false;
     }).toList();
   }
@@ -172,7 +173,7 @@ class _HomePageState extends State<HomePage> {
     if (userInterests.isEmpty) {
       return [];
     }
-    
+
     // Mapeamento de interesses para categorias de eventos
     final Map<String, List<String>> interestToCategories = {
       'infantil': ['KID'],
@@ -184,7 +185,7 @@ class _HomePageState extends State<HomePage> {
       'espiritualidade': ['REL'],
       'tecnologia': ['TEC'],
     };
-    
+
     // Coleta todas as categorias dos interesses do usuário
     final Set<String> userCategories = <String>{};
     for (final interest in userInterests) {
@@ -192,7 +193,7 @@ class _HomePageState extends State<HomePage> {
         userCategories.addAll(interestToCategories[interest]!);
       }
     }
-    
+
     // Filtra eventos que correspondem às categorias dos interesses
     return events.where((event) {
       return userCategories.contains(event.category);
@@ -203,11 +204,11 @@ class _HomePageState extends State<HomePage> {
     if (recentlyViewedEvents.isEmpty) {
       return [];
     }
-    
+
     // Filtra eventos que estão na lista de vistos recentemente
     // e os ordena pela ordem em que foram vistos (mais recentes primeiro)
     final List<EventModel> filteredEvents = [];
-    
+
     // Itera pela lista de IDs na ordem que foram vistos (mais recentes primeiro)
     for (final eventId in recentlyViewedEvents) {
       final event = events.firstWhere(
@@ -231,13 +232,13 @@ class _HomePageState extends State<HomePage> {
           participants: [],
         ),
       );
-      
+
       // Adiciona apenas se o evento foi encontrado e não é um evento vazio
       if (event.id != 0) {
         filteredEvents.add(event);
       }
     }
-    
+
     return filteredEvents;
   }
 
@@ -345,7 +346,7 @@ class _HomePageState extends State<HomePage> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => EventSearch(title: 'Buscar eventos')),
+                    MaterialPageRoute(builder: (context) => EventSearch(userData: userData!, accessToken: events_token??'')),
                   );
                 },
                 child: Image.asset('assets/icons_bruno/search.png', height: 30),
@@ -396,7 +397,10 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => EventSearch(title: 'Todos os Eventos'),
+                    builder: (context) => EventSearch(
+                      accessToken: events_token,
+                      userData: userData!,
+                    ),
                   ),
                 );
               } else {
@@ -434,7 +438,7 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     }
-    
+
     return Container(
       height: 110,
       child: ListView.builder(
@@ -453,10 +457,15 @@ class _HomePageState extends State<HomePage> {
       onTap: () {
         // Adiciona o evento à lista de vistos recentemente
         _addToRecentlyViewed(event.id);
-        
+
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => EventoUnico(event: event)),
+          MaterialPageRoute(builder: (context) => EventoUnico(
+            accessToken: events_token,
+            url:'https://th.bing.com/th/id/R.65678b185f17e849fe120e31c0ce1652?rik=xJ9WYKXiy3k1gQ&pid=ImgRaw&r=0' ,
+            userData: userData!,
+            event: event,
+          )),
         );
       },
       child: Container(
@@ -510,7 +519,7 @@ class _HomePageState extends State<HomePage> {
                   SizedBox(height: 2),
                   Text('Local: ${event.space}', style: TextStyle(fontSize: 8, color: Colors.black)),
                   SizedBox(height: 2),
-                  Text('Data: ${event.start_date}', style: TextStyle(fontSize: 7, color: Colors.black)),
+                  Text('Data: ${event.start_date.substring(8, 10)}/${event.start_date.substring(5, 7)}/${event.start_date.substring(0, 4)}', style: TextStyle(fontSize: 7, color: Colors.black)),
                 ],
               ),
             )

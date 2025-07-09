@@ -9,7 +9,11 @@ import 'package:viveri/events/telas_criar_evento/real_create.dart';
 import 'package:viveri/home_page.dart';
 
 import '../data/http/http_client.dart';
+import '../data/model/event_model.dart';
+import '../data/model/image_model.dart';
 import '../data/repositories/event_repositories.dart';
+import '../data/repositories/image_repositories.dart';
+import '../evento_unico/evento_unico.dart';
 //import 'package:viveri/events/data/http/http_client.dart';
 //import 'package:viveri/events/data/repositories/event_repositories.dart';
 //import 'package:viveri/events/pages/home/stores/event_store.dart';
@@ -91,16 +95,50 @@ class _CreateFavorite extends State<CreateFavorite>
   String Mensagem = "sexrta feira";
   bool preco = false;
   int page = 1;
+var images = [];
+// final EventModel event;
 
+  Future<void> _loadData() async {
+    final IHttpClient httpClient = HttpClient();
+    final imageRepo = ImageRepository(client: httpClient);
+    images = await imageRepo.searchImagesByEvent(
+      itns.map((e) => e.id.toString()).toList(),
+    );
+    setState(() {
+      //store.isLoading =true;
+    });
 
+  }
   void _verificaaba() async {
     if (!_tc.indexIsChanging) {
       if (_tc.index == 0) {
-        itns.clear();
+        //itns.clear();
         mensagem1 = 'Você não está inscrito em nenhum evento!';
         mensagem2 = 'Mas nada o proibe de se inscrever em um evento,\n vamos, se inscreva!';
         create = 'favorito';
+
+        final IHttpClient client = HttpClient();
+        final repo = EventRepository(client: client);
+        try {
+          final resultados = await repo.searchEventsByName(
+            'participant_id=${widget.userData['id']}',
+            page: 1,
+          );
+          // trate a lista de objetos EventModel...
+          itns = resultados;
+          await _loadData(); // carrega as imagens depois dos eventos
+          setState(() {}); // atualiza a UI quando tudo estiver pronto
+          // carrega as imagens depois dos eventos
+          //print(itns);
+
+          setState(() {});
+          //print(' resultados sao $resultados');
+        } catch (e) {
+          print(e);
+        }
       }
+      setState(() {});
+
       if (_tc.index == 1) {
         mensagem1 = 'Não existem eventos criados!';
         mensagem2 = 'Mas nada o proibe de criar um evento agora,\n vamos, crie um evento!';
@@ -114,7 +152,11 @@ class _CreateFavorite extends State<CreateFavorite>
           );
           // trate a lista de objetos EventModel...
           itns = resultados;
+            await _loadData(); // carrega as imagens depois dos eventos
+            setState(() {}); // atualiza a UI quando tudo estiver pronto
+          // carrega as imagens depois dos eventos
           //print(itns);
+
           setState(() {});
           //print(' resultados sao $resultados');
         } catch (e) {
@@ -123,12 +165,26 @@ class _CreateFavorite extends State<CreateFavorite>
       }
       setState(() {});
     }
-    }
+}
 
 
   @override
   void initState() {
     super.initState();
+    final IHttpClient client = HttpClient();
+    final repo = EventRepository(client: client);
+
+    repo
+        .searchEventsByName('participant_id=${widget.userData['id']}', page: 1)
+        .then((resultados) {
+      itns = resultados;
+
+      _loadData().then((_) {
+        setState(() {}); // atualiza a UI quando tudo estiver pronto
+      });
+    }).catchError((e) {
+      print(e);
+    });
     // page = 1;
     _tc = TabController(length: 2, vsync: this, initialIndex: widget.initialTab);
     _tc.addListener(() {_verificaaba();});
@@ -188,25 +244,50 @@ class _CreateFavorite extends State<CreateFavorite>
                       endIndent: 90,
                     ),
                 itemCount: itns.length,
-                //store.state.value.length,
                 itemBuilder: (_, index) {
-                  // print(next);
                   final item = itns[index];
+                  final Map<int, ImageModel> thumbByEvent = {};
+
+// Preenche o map: para cada imagem, guarda a primeira ocorrência por eventId
+                  for (var img in images) {
+                    thumbByEvent.putIfAbsent(img.events, () => img);
+                  }
+                  final ImageModel? img = thumbByEvent[item.id];
+
                   return ListTile(
                     title: Center(
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
                           onTap: () {
-                            print(item);
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (_) =>  EventoUnico(
+                                url: img?.url??'https://th.bing.com/th/id/R.65678b185f17e849fe120e31c0ce1652?rik=xJ9WYKXiy3k1gQ&pid=ImgRaw&r=0',
+                                event: item,
+                                accessToken: widget.accessToken,
+                                userData: widget.userData,
+                              )),
+                            );
                           },
                           child: Row(
                             children: [
-                              Container(
-                                padding: EdgeInsets.only(left: 6, right: 6),
+                              img==null?Container(
+                             //   padding: EdgeInsets.only(left: 6, right: 6),
                                 height: 70,
                                 width: 80,
                                 color: Color.fromRGBO(47, 69, 56, 0.3),
+                              ):Container(
+                             //       padding: EdgeInsets.only(left: 6, right: 6),
+                                height: 70,
+                                width: 80,
+                                color: Color.fromRGBO(47, 69, 56, 0.3),
+                                child: Image.network(
+                                  img.url,
+                                  width: 80,
+                                  height: 70,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
 
                               // Flexible(
